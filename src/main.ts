@@ -26,8 +26,15 @@ const playerSprite = new Sprite({
 const playerPos = new Vec2(16 * 5, 16 * 5);
 const input = new Input();
 
+const PLAYER_SPEED = 0.25;
+
 const update = (deltaTime: number) => {
   // console.log(input.keyPressed);
+  const posChange = PLAYER_SPEED * deltaTime;
+  if (input.isKeyDown('up')) playerPos.y -= posChange;
+  if (input.isKeyDown('down')) playerPos.y += posChange;
+  if (input.isKeyDown('left')) playerPos.x -= posChange;
+  if (input.isKeyDown('right')) playerPos.x += posChange;
 };
 
 const draw = () => {

@@ -1,14 +1,14 @@
-type KeyMap = Record<string, string[]>;
-
-const KEY_MAP: KeyMap = {
+const KEY_MAP = {
   up: ['ArrowUp', 'KeyW'],
   down: ['ArrowDown', 'KeyS'],
   left: ['ArrowLeft', 'KeyA'],
   right: ['ArrowRight', 'KeyD']
 };
 
+type Key = keyof typeof KEY_MAP;
+
 export class Input {
-  private _heldKeys: string[] = [];
+  private _heldKeys: Key[] = [];
   constructor() {
     document.addEventListener('keydown', e => this.keyDownHandler(e));
     document.addEventListener('keyup', e => this.keyUpHandler(e));
@@ -17,7 +17,7 @@ export class Input {
   private keyDownHandler(e: KeyboardEvent) {
     Object.entries(KEY_MAP).forEach(([key, codes]) => {
       if (codes.includes(e.code)) {
-        this.onKeyPressed(key);
+        this.onKeyPressed(key as Key);
       }
     });
   }
@@ -25,23 +25,27 @@ export class Input {
   private keyUpHandler(e: KeyboardEvent) {
     Object.entries(KEY_MAP).forEach(([key, codes]) => {
       if (codes.includes(e.code)) {
-        this.onKeyReleased(key);
+        this.onKeyReleased(key as Key);
       }
     });
   }
 
-  get keyPressed(): keyof typeof KEY_MAP | undefined {
+  get currentKeyDown(): Key | undefined {
     return this._heldKeys[0];
   }
 
-  private onKeyPressed(key: string) {
+  isKeyDown(key: Key) {
+    return this._heldKeys.includes(key);
+  }
+
+  private onKeyPressed(key: Key) {
     // add the key to the queue if it's new
     if (this._heldKeys.indexOf(key) === -1) {
       this._heldKeys.unshift(key);
     }
   }
 
-  private onKeyReleased(key: string) {
+  private onKeyReleased(key: Key) {
     const index = this._heldKeys.indexOf(key);
     if (index === -1) {
       return;
