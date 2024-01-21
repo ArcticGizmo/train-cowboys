@@ -1,3 +1,4 @@
+import { GameLoop } from './gameEngine';
 import { Resources } from './resources';
 import { Sprite } from './sprite';
 import './style.css';
@@ -23,11 +24,12 @@ const playerSprite = new Sprite({
 
 const playerPos = new Vec2(16 * 5, 16 * 5);
 
+const update = (deltaTime: number) => {};
+
 const draw = () => {
   backgroundSprite.drawImage(ctx, 0, 0);
   playerSprite.drawImage(ctx, playerPos.x, playerPos.y);
 };
 
-setInterval(() => {
-  draw();
-}, 300);
+const gl = new GameLoop(update, draw);
+gl.start();
