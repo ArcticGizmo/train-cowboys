@@ -1,4 +1,5 @@
 import { GameLoop } from './gameEngine';
+import { Input } from './input';
 import { Resources } from './resources';
 import { Sprite } from './sprite';
 import './style.css';
@@ -23,8 +24,11 @@ const playerSprite = new Sprite({
 });
 
 const playerPos = new Vec2(16 * 5, 16 * 5);
+const input = new Input();
 
-const update = (deltaTime: number) => {};
+const update = (deltaTime: number) => {
+  // console.log(input.keyPressed);
+};
 
 const draw = () => {
   backgroundSprite.drawImage(ctx, 0, 0);

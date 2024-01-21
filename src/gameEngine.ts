@@ -24,6 +24,7 @@ export class GameLoop {
     }
 
     const deltaTime = timestamp - this._lastFrameTime;
+    this._lastFrameTime = timestamp;
 
     this._accumulatedTime += deltaTime;
 
