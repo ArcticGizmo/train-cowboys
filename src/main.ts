@@ -20,7 +20,11 @@ const backgroundSprite = new Sprite({
 
 const playerSprite = new Sprite({
   resource: Resources.player,
-  frameSize: new Vec2(16, 16),
+  frameSize: new Vec2(16, 15),
+  vFrames: 10,
+  hFrames: 3,
+  frame: 0,
+  scale: 2
 });
 
 const square = new Sprite({
