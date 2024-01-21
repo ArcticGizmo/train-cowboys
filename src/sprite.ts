@@ -24,7 +24,8 @@ export class Sprite {
 
   constructor(config: SpriteConfig) {
     this._resource = config.resource;
-    (this._frameSize = config.frameSize), (this._hFrames = config.hFrames ?? 1);
+    this._frameSize = config.frameSize;
+    this._hFrames = config.hFrames ?? 1;
     this._vFrames = config.vFrames ?? 1;
     this._frame = config.frame ?? 0;
     this._scale = config.scale ?? 1;

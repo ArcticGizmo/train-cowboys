@@ -15,8 +15,17 @@ const backgroundSprite = new Sprite({
   frameSize: new Vec2(626, 427)
 });
 
+const playerSprite = new Sprite({
+  resource: Resources.player,
+  frameSize: new Vec2(16, 16),
+  scale: 4
+});
+
+const playerPos = new Vec2(16 * 5, 16 * 5);
+
 const draw = () => {
   backgroundSprite.drawImage(ctx, 0, 0);
+  playerSprite.drawImage(ctx, playerPos.x, playerPos.y);
 };
 
 setInterval(() => {
