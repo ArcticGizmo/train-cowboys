@@ -19,5 +19,6 @@ const resource = (path: string): Resource => {
 export const Resources = {
   background: resource('/sprites/background.png'),
   player: resource('/sprites/player.png'),
-  trainCar: resource('/sprites/train-card.png')
+  trainCar: resource('/sprites/train-card.png'),
+  square: resource('/sprites/square.png')
 };
