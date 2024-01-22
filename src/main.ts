@@ -91,6 +91,8 @@ const movePlayer = (deltaTime: number) => {
       break;
   }
 
+  playerDirection = direction ?? playerDirection;
+
   // switch(hero)
 };
 

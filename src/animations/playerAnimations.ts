@@ -43,6 +43,6 @@ export const PlayerAnimations = {
   WALK_RIGHT: buildWalkingFrames(9),
   IDLE_DOWN: buildIdleFrames(1),
   IDLE_UP: buildIdleFrames(4),
-  IDLE_RIGHT: buildIdleFrames(7),
-  IDLE_LEFT: buildIdleFrames(10)
+  IDLE_LEFT: buildIdleFrames(7),
+  IDLE_RIGHT: buildIdleFrames(10)
 };
