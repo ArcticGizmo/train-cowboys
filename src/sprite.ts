@@ -1,4 +1,5 @@
 import { AnimationPlayer } from './animations/animationPlayer';
+import { GameObject } from './gameObject';
 import { Resource } from './resources';
 import { Vec2 } from './vector2';
 
@@ -13,26 +14,25 @@ export interface SpriteConfig {
   animationPlayer?: AnimationPlayer;
 }
 
-export class Sprite {
+export class Sprite extends GameObject {
   private _resource: Resource;
   private _frameSize: Vec2;
   private _hFrames: number;
   private _vFrames: number;
   private _frame: number;
   private _scale: number;
-  private _position: Vec2;
   public animationPlayer?: AnimationPlayer;
 
   private _frameMap: Map<number, Vec2> = new Map();
 
   constructor(config: SpriteConfig) {
+    super({ position: config.position ?? Vec2.ZERO() });
     this._resource = config.resource;
     this._frameSize = config.frameSize;
     this._hFrames = config.hFrames ?? 1;
     this._vFrames = config.vFrames ?? 1;
     this._frame = config.frame ?? 0;
     this._scale = config.scale ?? 1;
-    this._position = config.position ?? new Vec2(0, 0);
     this.animationPlayer = config.animationPlayer;
 
     this.buildFrameMap();
