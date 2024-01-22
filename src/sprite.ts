@@ -1,3 +1,4 @@
+import { AnimationPlayer } from './animations/animationPlayer';
 import { Resource } from './resources';
 import { Vec2 } from './vector2';
 
@@ -9,6 +10,7 @@ export interface SpriteConfig {
   frame?: number;
   scale?: number;
   position?: Vec2;
+  animationPlayer?: AnimationPlayer;
 }
 
 export class Sprite {
@@ -19,6 +21,7 @@ export class Sprite {
   private _frame: number;
   private _scale: number;
   private _position: Vec2;
+  public animationPlayer?: AnimationPlayer;
 
   private _frameMap: Map<number, Vec2> = new Map();
 
@@ -30,6 +33,7 @@ export class Sprite {
     this._frame = config.frame ?? 0;
     this._scale = config.scale ?? 1;
     this._position = config.position ?? new Vec2(0, 0);
+    this.animationPlayer = config.animationPlayer;
 
     this.buildFrameMap();
   }
@@ -44,6 +48,15 @@ export class Sprite {
         frameCount++;
       }
     }
+  }
+
+  step(delta: number) {
+    if (!this.animationPlayer) {
+      return;
+    }
+
+    this.animationPlayer.step(delta);
+    this._frame = this.animationPlayer.frame;
   }
 
   drawImage(ctx: CanvasRenderingContext2D, x: number, y: number) {
