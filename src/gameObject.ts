@@ -1,7 +1,7 @@
 import { Vec2 } from './vec2';
 
 export interface GameObjectConfig {
-  position: Vec2;
+  position?: Vec2;
   drawOffset?: Vec2;
 }
 
@@ -11,9 +11,10 @@ export class GameObject {
   public position: Vec2;
   public children: GameObject[] = [];
 
-  constructor(config: GameObjectConfig) {
-    this.position = config.position;
-    this._drawOffset = config.drawOffset ?? Vec2.ZERO();
+  constructor(config?: GameObjectConfig) {
+    const c = config ?? {};
+    this.position = c.position ?? Vec2.ZERO();
+    this._drawOffset = c.drawOffset ?? Vec2.ZERO();
   }
 
   stepEntry(delta: number, root: GameObject) {

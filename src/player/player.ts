@@ -34,12 +34,11 @@ const input = new Input();
 export class Player extends GameObject {
   private _playerDirection: PLAYER_DIRECTION = 'down';
   private _playerSpeed = 0.1;
-  private _lastPos: Vec2;
+  private _lastPos = Vec2.ZERO();
 
   constructor(x: number, y: number) {
     const pos = new Vec2(x, y);
     super({ position: pos });
-    this._lastPos = pos.copy();
 
     this.addChild(playerSprite);
   }
@@ -86,7 +85,6 @@ export class Player extends GameObject {
 
   step(delta: number): void {
     this.tryMovePlayer(delta);
-
     if (!this.position.equals(this._lastPos)) {
       this._lastPos = this.position.copy();
       events.emit('PLAYER_POSITION_CHANGED', this.position);
