@@ -1,11 +1,12 @@
 import { AnimationPlayer } from '../animations/animationPlayer';
 import { FrameIndexPattern } from '../animations/frameIndexPattern';
 import { PlayerAnimations } from '../animations/playerAnimations';
+import { events } from '../events';
 import { GameObject } from '../gameObject';
 import { Input } from '../input';
 import { Resources } from '../resources';
 import { Sprite } from '../sprite';
-import { Vec2 } from '../vector2';
+import { Vec2 } from '../vec2';
 
 type PLAYER_DIRECTION = 'up' | 'down' | 'left' | 'right';
 
@@ -33,11 +34,12 @@ const input = new Input();
 export class Player extends GameObject {
   private _playerDirection: PLAYER_DIRECTION = 'down';
   private _playerSpeed = 0.1;
+  private _lastPos: Vec2;
 
   constructor(x: number, y: number) {
-    super({
-      position: new Vec2(x, y)
-    });
+    const pos = new Vec2(x, y);
+    super({ position: pos });
+    this._lastPos = pos.copy();
 
     this.addChild(playerSprite);
   }
@@ -84,5 +86,10 @@ export class Player extends GameObject {
 
   step(delta: number): void {
     this.tryMovePlayer(delta);
+
+    if (!this.position.equals(this._lastPos)) {
+      this._lastPos = this.position.copy();
+      events.emit('PLAYER_POSITION_CHANGED', this.position);
+    }
   }
 }

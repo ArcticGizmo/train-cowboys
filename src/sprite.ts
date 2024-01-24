@@ -1,7 +1,7 @@
 import { AnimationPlayer } from './animations/animationPlayer';
 import { GameObject } from './gameObject';
 import { Resource } from './resources';
-import { Vec2 } from './vector2';
+import { Vec2 } from './vec2';
 
 export interface SpriteConfig {
   resource: Resource;

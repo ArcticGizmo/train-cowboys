@@ -1,10 +1,11 @@
+import { events } from './events';
 import { GameLoop } from './gameEngine';
 import { GameObject } from './gameObject';
 import { Player } from './player/player';
 import { Resources } from './resources';
 import { Sprite } from './sprite';
 import './style.css';
-import { Vec2 } from './vector2';
+import { Vec2 } from './vec2';
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <canvas id="game-canvas"  width="360" height="200"></canvas>
@@ -30,6 +31,10 @@ const square = new Sprite({
 });
 
 mainScene.addChild(square);
+
+events.on('PLAYER_POSITION_CHANGED', mainScene, pos => {
+  console.log('Player moved', pos);
+});
 
 const player = new Player(16 * 5, 16 * 4);
 mainScene.addChild(player);
