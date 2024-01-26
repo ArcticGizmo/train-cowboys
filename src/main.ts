@@ -4,6 +4,7 @@ import { GameObject } from './gameObject';
 import { Player } from './player/player';
 import { Resources } from './resources';
 import { Sprite } from './sprite';
+import { SpriteDebug } from './spriteDebug';
 import './style.css';
 import { Vec2 } from './vec2';
 
@@ -23,24 +24,31 @@ const mainScene = new GameObject({
   position: Vec2.ZERO()
 });
 
-// const backgroundSprite = new Sprite({
-//   resource: Resources.background,
-//   frameSize: new Vec2(626, 427),
-//   scale: 0.5
-// });
-// mainScene.addChild(backgroundSprite);
+const trainSize = new Vec2(60, 40);
+const trainHeightOffset = 50;
+const trainWidthOffset = 50;
 
-// const square = new Sprite({
-//   resource: Resources.square,
-//   frameSize: new Vec2(16, 16)
-// });
+const getTrainPos = (carIndex: number) => {
+  const x = trainWidthOffset + (20 + trainSize.x) * carIndex;
+  const y = trainHeightOffset;
+  return new Vec2(x, y);
+};
 
-// mainScene.addChild(square);
+// draw the train
+const trainCarSprite1 = new SpriteDebug({ position: getTrainPos(0), size: trainSize, color: 'grey' });
+mainScene.addChild(trainCarSprite1);
 
-// const player = new Player(16 * 5, 16 * 4);
-// mainScene.addChild(player);
+const trainCarSprite2 = new SpriteDebug({ position: getTrainPos(1), size: trainSize, color: 'brown' });
+mainScene.addChild(trainCarSprite2);
 
-// const camera = new Camera(CANVAS_WIDTH, CANVAS_HEIGHT);
+const trainCarSprite3 = new SpriteDebug({ position: getTrainPos(2), size: trainSize, color: 'brown' });
+mainScene.addChild(trainCarSprite3);
+
+// draw a player
+const playerSize = new Vec2(10, 20);
+const playerPos = new Vec2(trainWidthOffset, trainHeightOffset - playerSize.y);
+const player = new SpriteDebug({ position: playerPos, size: playerSize, color: 'green' });
+mainScene.addChild(player);
 
 const update = (delta: number) => {
   mainScene.stepEntry(delta, mainScene);
