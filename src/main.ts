@@ -1,6 +1,7 @@
 import { Camera } from './camera';
 import { GameLoop } from './gameEngine';
 import { GameObject } from './gameObject';
+import { Cowboy } from './objects/cowboy';
 import { TrainCar } from './objects/trainCar';
 import { Player } from './player/player';
 import { Resources } from './resources';
@@ -29,6 +30,9 @@ const PROPS = {
     height: 40,
     carSpacing: 20,
     initialLength: 3
+  },
+  cowboy: {
+    size: new Vec2(10, 25)
   }
 };
 
@@ -48,7 +52,6 @@ const buildTrainCars = () => {
   for (let i = 0; i < PROPS.train.initialLength; i++) {
     const color = i === 0 ? 'grey' : 'brown';
     const position = getTrainPos(i);
-    console.log(position);
     trainCars.push(new TrainCar({ position, size, color }));
   }
 
@@ -58,31 +61,16 @@ const buildTrainCars = () => {
 const trainCars = buildTrainCars();
 trainCars.forEach(tc => mainScene.addChild(tc));
 
-// const trainSize = new Vec2(60, 40);
-// const trainHeightOffset = 50;
-// const trainWidthOffset = 50;
-
-// const getTrainPos = (carIndex: number) => {
-//   const x = trainWidthOffset + (20 + trainSize.x) * carIndex;
-//   const y = trainHeightOffset;
-//   return new Vec2(x, y);
-// };
-
-// // draw the train
-// const trainCarSprite1 = new SpriteDebug({ position: getTrainPos(0), size: trainSize, color: 'grey' });
-// mainScene.addChild(trainCarSprite1);
-
-// const trainCarSprite2 = new SpriteDebug({ position: getTrainPos(1), size: trainSize, color: 'brown' });
-// mainScene.addChild(trainCarSprite2);
-
-// const trainCarSprite3 = new SpriteDebug({ position: getTrainPos(2), size: trainSize, color: 'brown' });
-// mainScene.addChild(trainCarSprite3);
+const trainTrack = new SpriteDebug({ position: new Vec2(0, 105), size: new Vec2(CANVAS_WIDTH, 5), color: 'grey' });
+mainScene.addChild(trainTrack);
 
 // draw a player
-// const playerSize = new Vec2(10, 20);
-// const playerPos = new Vec2(trainWidthOffset, trainHeightOffset - playerSize.y);
-// const player = new SpriteDebug({ position: playerPos, size: playerSize, color: 'green' });
-// mainScene.addChild(player);
+const cowboy = new Cowboy({
+  position: new Vec2(50, 25),
+  size: PROPS.cowboy.size,
+  color: 'red'
+});
+mainScene.addChild(cowboy);
 
 const update = (delta: number) => {
   mainScene.stepEntry(delta, mainScene);
