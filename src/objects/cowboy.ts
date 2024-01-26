@@ -15,5 +15,13 @@ export class Cowboy extends GameObject {
     super({ position: config.position });
 
     this.addChild(new SpriteDebug({ size: config.size, color: config.color }));
+    // direction indicator
+    this.addChild(
+      new SpriteDebug({
+        position: new Vec2(0, config.size.y / 4),
+        size: new Vec2(3,3),
+        color: 'white'
+      })
+    );
   }
 }
