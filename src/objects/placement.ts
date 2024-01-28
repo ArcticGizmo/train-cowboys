@@ -6,10 +6,11 @@ import { Vec2 } from '../vec2';
 const RADIUS = 3;
 
 interface PlacementConfig {
-  index: Vec2,
+  // index: Vec2,
   position?: Vec2;
   color?: string;
   radius?: number;
+  opacity?: number;
 }
 
 export class Placement extends GameObject {
@@ -20,10 +21,10 @@ export class Placement extends GameObject {
       this.addChild(
         new SpriteCircle({
           radius: config.radius ?? RADIUS,
-          color: config.color
+          color: config.color,
+          opacity: config.opacity
         })
       );
     }
   }
 }
-
