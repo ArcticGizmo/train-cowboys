@@ -4,13 +4,14 @@ export const PROPS = {
   train: {
     widthOffset: 50,
     heightOffset: 50,
-    width: 60,
+    width: 100,
     height: 40,
     carSpacing: 20,
-    initialLength: 3
+    initialLength: 2
   },
-  cowboy: {
+  player: {
     size: new Vec2(10, 25)
   },
-  showPlacements: true
+  showPlacements: true,
+  initialPlayerCount: 2
 };

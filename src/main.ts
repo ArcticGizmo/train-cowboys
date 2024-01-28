@@ -3,9 +3,9 @@ import { PROPS } from './constants';
 import { GameLoop } from './gameEngine';
 import { GameObject } from './gameObject';
 import { Marker } from './marker';
-import { Cowboy } from './objects/cowboy';
+import { GameArea } from './objects/gameArea';
+import { Player } from './objects/player';
 import { TrainCar } from './objects/trainCar';
-import { Player } from './player/player';
 import { Resources } from './resources';
 import { Sprite } from './sprite';
 import { SpriteDebug } from './spriteDebug';
@@ -29,37 +29,40 @@ const mainScene = new GameObject({
   position: Vec2.ZERO()
 });
 
-const getTrainPos = (carIndex: number) => {
-  const x = PROPS.train.widthOffset + (PROPS.train.carSpacing + PROPS.train.width) * carIndex;
-  const y = PROPS.train.heightOffset;
-  return new Vec2(x, y);
-};
+const gameArea = new GameArea({ initialPlayerCount: PROPS.initialPlayerCount });
+mainScene.addChild(gameArea);
 
-const buildTrainCars = () => {
-  const trainCars: TrainCar[] = [];
-  const size = new Vec2(PROPS.train.width, PROPS.train.height);
-  for (let i = 0; i < PROPS.train.initialLength; i++) {
-    const color = i === 0 ? 'grey' : 'brown';
-    const position = getTrainPos(i);
-    trainCars.push(new TrainCar({ position, size, color }));
-  }
+// const getTrainPos = (carIndex: number) => {
+//   const x = PROPS.train.widthOffset + (PROPS.train.carSpacing + PROPS.train.width) * carIndex;
+//   const y = PROPS.train.heightOffset;
+//   return new Vec2(x, y);
+// };
 
-  return trainCars;
-};
+// const buildTrainCars = () => {
+//   const trainCars: TrainCar[] = [];
+//   const size = new Vec2(PROPS.train.width, PROPS.train.height);
+//   for (let i = 0; i < PROPS.train.initialLength; i++) {
+//     const color = i === 0 ? 'grey' : 'brown';
+//     const position = getTrainPos(i);
+//     trainCars.push(new TrainCar({ position, size, color }));
+//   }
 
-const trainCars = buildTrainCars();
-trainCars.forEach(tc => mainScene.addChild(tc));
+//   return trainCars;
+// };
 
-const trainTrack = new SpriteDebug({ position: new Vec2(0, 105), size: new Vec2(CANVAS_WIDTH, 5), color: 'grey' });
-mainScene.addChild(trainTrack);
+// const trainCars = buildTrainCars();
+// trainCars.forEach(tc => mainScene.addChild(tc));
+
+// const trainTrack = new SpriteDebug({ position: new Vec2(0, 105), size: new Vec2(CANVAS_WIDTH, 5), color: 'grey' });
+// mainScene.addChild(trainTrack);
 
 // draw a player
-const cowboy = new Cowboy({
+const player = new Player({
   position: new Vec2(30, 25),
-  size: PROPS.cowboy.size,
+  size: PROPS.player.size,
   color: 'red'
 });
-mainScene.addChild(cowboy);
+mainScene.addChild(player);
 
 const update = (delta: number) => {
   mainScene.stepEntry(delta, mainScene);
@@ -82,11 +85,11 @@ const onMovePlayer = () => {
     return;
   }
 
-  const nextMarker = getNextMarker(cowboy.globalPosition, markers)!;
+  const nextMarker = getNextMarker(player.globalPosition, markers)!;
 
-  const newX = nextMarker.globalPosition.x - PROPS.cowboy.size.x / 2;
+  const newX = nextMarker.globalPosition.x - PROPS.player.size.x / 2;
 
-  cowboy.position.x = newX;
+  player.position.x = newX;
 };
 
 const getNextMarker = (pos: Vec2, markers: Marker[], minDistance = 15) => {
