@@ -20,5 +20,6 @@ export const Resources = {
   background: resource('/sprites/background.png'),
   player: resource('/sprites/player.png'),
   trainCar: resource('/sprites/train-card.png'),
-  square: resource('/sprites/square.png')
+  square: resource('/sprites/square.png'),
+  grid: resource('/sprites/grid.png')
 };

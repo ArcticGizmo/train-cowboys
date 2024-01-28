@@ -3,6 +3,8 @@ import { GameObject } from './GameObject';
 import { SpriteRect } from './SpirteRect';
 import { Vec2 } from './Vec2';
 import { GameLoop } from './GameLoop';
+import { Sprite } from './Sprite';
+import { Resources } from './Resources';
 
 export class GameEngine {
   private _ctx: CanvasRenderingContext2D;
@@ -26,6 +28,14 @@ export class GameEngine {
   }
 
   init() {
+    const bg = new Sprite({
+      resource: Resources.grid,
+      frameSize: new Vec2(1024, 1024),
+      opacity: 0.1
+    });
+
+    this.addChild(bg);
+
     // temp item
     const square = new SpriteRect({
       position: new Vec2(30, 30),
@@ -33,7 +43,7 @@ export class GameEngine {
       color: 'blue'
     });
 
-    this._root.addChild(square);
+    this.addChild(square);
 
     this.start();
   }
@@ -46,6 +56,10 @@ export class GameEngine {
   stop() {
     this.isRunning.value = false;
     this._loop.stop();
+  }
+
+  private addChild(gameObject: GameObject) {
+    this._root.addChild(gameObject);
   }
 
   private update(delta) {}
