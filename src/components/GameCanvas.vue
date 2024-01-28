@@ -30,8 +30,8 @@ watch(
     }
     engine.bindContext(ctx);
 
-    console.log('engine starting');
     engine.init();
+    engine.start();
   }
 );
 </script>

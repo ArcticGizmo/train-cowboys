@@ -5,9 +5,10 @@ import { Vec2 } from './Vec2';
 import { GameLoop } from './GameLoop';
 import { Sprite } from './Sprite';
 import { Resources } from './Resources';
+import * as utils from './utils';
 
 export class GameEngine {
-  private _ctx: CanvasRenderingContext2D;
+  private _ctx: CanvasRenderingContext2D = null!;
   private _loop = new GameLoop(
     delta => this.update(delta),
     () => this.render()
@@ -38,14 +39,16 @@ export class GameEngine {
 
     // temp item
     const square = new SpriteRect({
-      position: new Vec2(30, 30),
-      size: new Vec2(10, 30),
+      position: utils.posFromGrid(3, 3),
+      size: new Vec2(16, 32),
       color: 'blue'
     });
 
     this.addChild(square);
 
-    this.start();
+    // create a player
+
+    // create the "train car"
   }
 
   start() {
