@@ -1,4 +1,4 @@
-import { AnimationConfig } from './animationPlayer';
+import { AnimationConfig } from './AnimationPlayer';
 
 const buildWalkingFrames = (rootFrame: number): AnimationConfig => {
   return {

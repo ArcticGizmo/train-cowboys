@@ -1,4 +1,4 @@
-import { AnimationConfig } from './animationPlayer';
+import { AnimationConfig } from './AnimationPlayer';
 
 export class FrameIndexPattern {
   private _config: AnimationConfig;

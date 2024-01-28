@@ -1,4 +1,4 @@
-import { FrameIndexPattern } from './frameIndexPattern';
+import { FrameIndexPattern } from './FrameIndexPattern';
 
 export interface AnimationConfig {
   duration: number;
