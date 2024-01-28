@@ -6,6 +6,7 @@ import { GameLoop } from './GameLoop';
 import { Sprite } from './Sprite';
 import { Resources } from './Resources';
 import * as utils from './utils';
+import { Player } from './Player';
 
 export class GameEngine {
   private _ctx: CanvasRenderingContext2D = null!;
@@ -15,6 +16,7 @@ export class GameEngine {
   );
   private _canvasSize: Vec2;
   private _root = new GameObject();
+  private _player: Player = null!;
 
   isReady = ref(false);
   isRunning = ref(false);
@@ -47,6 +49,8 @@ export class GameEngine {
     this.addChild(square);
 
     // create a player
+    this._player = new Player();
+    this.addChild(this._player);
 
     // create the "train car"
   }
@@ -65,7 +69,7 @@ export class GameEngine {
     this._root.addChild(gameObject);
   }
 
-  private update(delta) {}
+  private update(delta: number) {}
 
   private render() {
     // clear everything to prevent artifacts
