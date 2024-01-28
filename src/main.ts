@@ -38,16 +38,23 @@ const gameArea = new GameArea({ initialPlayerCount: PROPS.initialPlayerCount });
 mainScene.addChild(gameArea);
 
 // draw a player
-const player = new Player({
-  position: new Vec2(30, 25),
+const player1 = new Player({
+  index: new Vec2(2, 0),
   size: PROPS.player.size,
   color: 'red'
 });
-mainScene.addChild(player);
 
-const playerPlacementIndex = new Vec2(0, 0);
+const player2 = new Player({
+  index: new Vec2(3, 1),
+  size: PROPS.player.size,
+  color: 'blue'
+});
 
-gameArea.movePlayerTo(player, playerPlacementIndex);
+mainScene.addChild(player1);
+mainScene.addChild(player2);
+
+gameArea.movePlayerTo(player1, player1.index);
+gameArea.movePlayerTo(player2, player2.index);
 
 const update = (delta: number) => {
   changeManager.step(delta);
@@ -68,23 +75,23 @@ const onMovePlayer = (xDelta: number, yDelta: number) => {
     return;
   }
 
-  const newIndex = new Vec2(playerPlacementIndex.x + xDelta, playerPlacementIndex.y + yDelta);
+  const newIndex = new Vec2(player1.index.x + xDelta, player1.index.y + yDelta);
 
   if (!gameArea.isValidPlacement(newIndex)) {
     return;
   }
 
-  playerPlacementIndex.set(newIndex);
+  player1.index.set(newIndex);
   const targetPos = gameArea.getPlacement(newIndex).position;
 
-  const targetDir = targetPos.copy().minus(player.position).normalised();
+  const targetDir = targetPos.copy().minus(player1.position).normalised();
 
   changeManager.then({
     do: delta => {
-      player.position.add(targetDir.copy().scale(0.05 * delta));
+      player1.position.add(targetDir.copy().scale(0.05 * delta));
     },
     until: () => {
-      const dist = player.position.distanceTo(targetPos);
+      const dist = player1.position.distanceTo(targetPos);
       return dist < 1;
     }
   });
@@ -96,14 +103,12 @@ document.querySelector<HTMLButtonElement>('#move-player-left')!.onclick = () => 
 document.querySelector<HTMLButtonElement>('#move-player-right')!.onclick = () => onMovePlayer(1, 0);
 
 document.querySelector<HTMLButtonElement>('#move-player-front-of-train')!.onclick = () => {
-  const index = gameArea.getIndexForCar(0, 'front', 'top');
-  playerPlacementIndex.set(index);
-  gameArea.movePlayerTo(player, index);
+  player1.index = gameArea.getIndexForCar(0, 'front', 'top');
+  gameArea.movePlayerTo(player1, player1.index);
 };
 document.querySelector<HTMLButtonElement>('#move-player-back-of-train')!.onclick = () => {
-  const index = gameArea.getIndexForCar(PROPS.initialPlayerCount + 1, 'back', 'bottom');
-  playerPlacementIndex.set(index);
-  gameArea.movePlayerTo(player, index);
+  player1.index = gameArea.getIndexForCar(PROPS.initialPlayerCount + 1, 'back', 'bottom');
+  gameArea.movePlayerTo(player1, player1.index);
 };
 
 document.querySelector<HTMLButtonElement>('#perform-actions')!.onclick = () => {
@@ -114,12 +119,12 @@ document.querySelector<HTMLButtonElement>('#perform-actions')!.onclick = () => {
 
   changeManager
     .then({
-      do: deltaTime => (player.position.x += 0.05 * deltaTime),
-      until: () => player.position.x > 120
+      do: deltaTime => (player1.position.x += 0.05 * deltaTime),
+      until: () => player1.position.x > 120
     })
     .then({
-      do: deltaTime => (player.position.x -= 0.05 * deltaTime),
-      until: () => player.position.x < 30
+      do: deltaTime => (player1.position.x -= 0.05 * deltaTime),
+      until: () => player1.position.x < 30
     });
 };
 
