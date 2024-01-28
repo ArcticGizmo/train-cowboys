@@ -31,7 +31,7 @@ const playerSprite = new Sprite({
 
 const input = new Input();
 
-export class Player extends GameObject {
+export class PlayerOld extends GameObject {
   private _playerDirection: PLAYER_DIRECTION = 'down';
   private _playerSpeed = 0.1;
   private _lastPos = Vec2.ZERO();

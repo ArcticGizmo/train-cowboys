@@ -17,7 +17,10 @@ const CANVAS_HEIGHT = 200;
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <canvas id="game-canvas" style="border: 1px solid black"  width="${CANVAS_WIDTH}" height="${CANVAS_HEIGHT}"></canvas>
-  <button id="move-player" style="font-size: 2rem">Move Player</button>
+  <button id="move-player-left" style="font-size: 2rem">Left</button>
+  <button id="move-player-right" style="font-size: 2rem">Right</button>
+  <button id="move-player-up" style="font-size: 2rem">Up</button>
+  <button id="move-player-down" style="font-size: 2rem">Down</button>
 `;
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas')!;
@@ -32,30 +35,6 @@ const mainScene = new GameObject({
 const gameArea = new GameArea({ initialPlayerCount: PROPS.initialPlayerCount });
 mainScene.addChild(gameArea);
 
-// const getTrainPos = (carIndex: number) => {
-//   const x = PROPS.train.widthOffset + (PROPS.train.carSpacing + PROPS.train.width) * carIndex;
-//   const y = PROPS.train.heightOffset;
-//   return new Vec2(x, y);
-// };
-
-// const buildTrainCars = () => {
-//   const trainCars: TrainCar[] = [];
-//   const size = new Vec2(PROPS.train.width, PROPS.train.height);
-//   for (let i = 0; i < PROPS.train.initialLength; i++) {
-//     const color = i === 0 ? 'grey' : 'brown';
-//     const position = getTrainPos(i);
-//     trainCars.push(new TrainCar({ position, size, color }));
-//   }
-
-//   return trainCars;
-// };
-
-// const trainCars = buildTrainCars();
-// trainCars.forEach(tc => mainScene.addChild(tc));
-
-// const trainTrack = new SpriteDebug({ position: new Vec2(0, 105), size: new Vec2(CANVAS_WIDTH, 5), color: 'grey' });
-// mainScene.addChild(trainTrack);
-
 // draw a player
 const player = new Player({
   position: new Vec2(30, 25),
@@ -63,6 +42,10 @@ const player = new Player({
   color: 'red'
 });
 mainScene.addChild(player);
+
+const playerPlacementIndex = new Vec2(0, 0);
+
+gameArea.movePlayerTo(player, playerPlacementIndex);
 
 const update = (delta: number) => {
   mainScene.stepEntry(delta, mainScene);
@@ -77,36 +60,19 @@ const draw = () => {
   mainScene.draw(ctx, 0, 0);
 };
 
-const onMovePlayer = () => {
-  const markers = mainScene.findAllChildrenOfType(Marker);
+const onMovePlayer = (xDelta: number, yDelta: number) => {
+  const newIndex = new Vec2(playerPlacementIndex.x + xDelta, playerPlacementIndex.y + yDelta);
 
-  if (markers.length === 0) {
-    console.warn('--- no markers');
-    return;
+  if (gameArea.isValidPlacement(newIndex)) {
+    playerPlacementIndex.set(newIndex);
+    gameArea.movePlayerTo(player, playerPlacementIndex);
   }
-
-  const nextMarker = getNextMarker(player.globalPosition, markers)!;
-
-  const newX = nextMarker.globalPosition.x - PROPS.player.size.x / 2;
-
-  player.position.x = newX;
 };
 
-const getNextMarker = (pos: Vec2, markers: Marker[], minDistance = 15) => {
-  let closest: Marker | undefined;
-  let bestDistance = Infinity;
-  for (let m of markers) {
-    const dist = m.globalPosition.distanceTo(pos);
-    if (dist > minDistance && dist < bestDistance) {
-      closest = m;
-      bestDistance = dist;
-    }
-  }
-
-  return closest;
-};
-
-document.querySelector<HTMLButtonElement>('#move-player')!.onclick = onMovePlayer;
+document.querySelector<HTMLButtonElement>('#move-player-up')!.onclick = () => onMovePlayer(0, -1);
+document.querySelector<HTMLButtonElement>('#move-player-down')!.onclick = () => onMovePlayer(0, 1);
+document.querySelector<HTMLButtonElement>('#move-player-left')!.onclick = () => onMovePlayer(-1, 0);
+document.querySelector<HTMLButtonElement>('#move-player-right')!.onclick = () => onMovePlayer(1, 0);
 
 const gl = new GameLoop(update, draw);
 gl.start();

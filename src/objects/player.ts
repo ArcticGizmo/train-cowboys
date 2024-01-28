@@ -11,8 +11,12 @@ export interface PlayerConfig {
 }
 
 export class Player extends GameObject {
+  private _size: Vec2;
+
   constructor(config: PlayerConfig) {
     super({ position: config.position });
+
+    this._size = config.size;
 
     this.addChild(new SpriteDebug({ size: config.size, color: config.color }));
     // direction indicator
@@ -23,5 +27,9 @@ export class Player extends GameObject {
         color: 'white'
       })
     );
+  }
+
+  moveTo(pos: Vec2) {
+    this.position = new Vec2(pos.x - this._size.x / 2, pos.y - this._size.y / 2);
   }
 }

@@ -2,6 +2,7 @@ import { PROPS } from '../constants';
 import { GameObject } from '../gameObject';
 import { Vec2 } from '../vec2';
 import { Placement } from './placement';
+import { Player } from './player';
 
 // game area is made up of three regions
 // - front fall zone
@@ -89,5 +90,14 @@ export class GameArea extends GameObject {
     super();
     this._placements = buildPlacements(config.initialPlayerCount);
     this._placements.flat().forEach(p => this.addChild(p));
+  }
+
+  movePlayerTo(player: Player, index: Vec2) {
+    const placement = this._placements[index.y][index.x];
+    player.moveTo(placement.position);
+  }
+
+  isValidPlacement(index: Vec2) {
+    return this._placements[index.y]?.[index.x] != null;
   }
 }

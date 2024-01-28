@@ -15,6 +15,12 @@ export class Vec2 {
     return Vec2.equals(this, other);
   }
 
+  set(other: Vec2) {
+    this.x = other.x;
+    this.y = other.y;
+    return this;
+  }
+
   add(other: Vec2) {
     this.x += other.x;
     this.y += other.y;
