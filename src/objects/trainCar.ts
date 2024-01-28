@@ -1,4 +1,5 @@
 import { GameObject } from '../gameObject';
+import { Marker } from '../marker';
 import { SpriteCircle } from '../spriteCircle';
 import { SpriteDebug } from '../spriteDebug';
 import { Vec2 } from '../vec2';
@@ -11,7 +12,6 @@ export interface TrainCarConfig {
 
 const WHEEL_RADIUS = 10;
 const PLAYER_COUNT = 3;
-const PLACEMENT_RADIUS = 2;
 
 const createWheel = (carSize: Vec2, radius: number, placement: 'front' | 'back') => {
   const x = placement === 'front' ? radius : carSize.x - radius;
@@ -22,7 +22,7 @@ const createWheel = (carSize: Vec2, radius: number, placement: 'front' | 'back')
 };
 
 const createPlacements = (carSize: Vec2) => {
-  const placements: GameObject[] = [];
+  const placements: Marker[] = [];
   const topY = -15;
   const bottomY = carSize.y - 12;
 
@@ -30,16 +30,14 @@ const createPlacements = (carSize: Vec2) => {
   const xStep = (carSize.x * 0.9) / PLAYER_COUNT;
   for (let i = 0; i < PLAYER_COUNT; i++) {
     placements.push(
-      new SpriteCircle({
-        position: new Vec2(xStart + xStep * i, topY),
-        radius: PLACEMENT_RADIUS
+      new Marker({
+        position: new Vec2(xStart + xStep * i, topY)
       })
     );
 
     placements.push(
-      new SpriteCircle({
-        position: new Vec2(xStart + xStep * i, bottomY),
-        radius: PLACEMENT_RADIUS
+      new Marker({
+        position: new Vec2(xStart + xStep * i, bottomY)
       })
     );
   }
@@ -48,6 +46,7 @@ const createPlacements = (carSize: Vec2) => {
 };
 
 export class TrainCar extends GameObject {
+  private _placements: Marker[] = [];
   constructor(config: TrainCarConfig) {
     super({ position: config.position });
 
@@ -55,13 +54,17 @@ export class TrainCar extends GameObject {
     this.addChild(createWheel(config.size, WHEEL_RADIUS, 'front'));
     this.addChild(createWheel(config.size, WHEEL_RADIUS, 'back'));
 
-    const placements = createPlacements(config.size);
-    placements.forEach(p => this.addChild(p));
+    this._placements = createPlacements(config.size);
+    this._placements.forEach(p => this.addChild(p));
 
     // TODO:
     // generate all the posible player placement positions in the train car
     // - top positions
     // - bottom positions
     // - out of car positions? (maybe later)
+  }
+
+  getPlacements() {
+    return this._placements;
   }
 }

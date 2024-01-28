@@ -9,12 +9,21 @@ export class GameObject {
   private _drawOffset: Vec2;
 
   public position: Vec2;
+  public parent?: GameObject;
   public children: GameObject[] = [];
 
   constructor(config?: GameObjectConfig) {
     const c = config ?? {};
     this.position = c.position ?? Vec2.ZERO();
     this._drawOffset = c.drawOffset ?? Vec2.ZERO();
+  }
+
+  get globalPosition(): Vec2 {
+    if (!this.parent) {
+      return Vec2.ZERO();
+    }
+
+    return this.position.copy().add(this.parent.globalPosition);
   }
 
   stepEntry(delta: number, root: GameObject) {
@@ -43,10 +52,31 @@ export class GameObject {
   }
 
   addChild(child: GameObject) {
+    child.parent = this;
     this.children.push(child);
   }
 
   removeChild(child: GameObject) {
+    child.parent = undefined;
     this.children = this.children.filter(c => c !== child);
   }
+
+  findAllChildrenOfType<T extends GameObject>(type: Constructor<T>): T[] {
+    const children = this.children.flatMap(c => c.findAllChildrenOfType(type));
+    if (this instanceof type) children.push(this);
+    return children;
+  }
 }
+
+// tslint:disable-next-line: no-any
+type Constructor<T> = new (...args: any[]) => T;
+
+// export function ofType<TElements, TFilter extends TElements>(array: TElements[], filterType: Constructor<TFilter>): TFilter[] {
+//   return <TFilter[]>array.filter(e => e instanceof filterType);
+// }
+
+// class ClassA {}
+// class ClassB {}
+
+// const list: ClassA[] = [new ClassA(), new ClassB()];
+// const filteredList = ofType(list, ClassB);

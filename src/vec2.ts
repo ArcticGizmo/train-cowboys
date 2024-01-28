@@ -27,10 +27,18 @@ export class Vec2 {
     return this;
   }
 
+  distanceTo(other: Vec2) {
+    return Vec2.distanceBetween(this, other);
+  }
+
   static equals(a: Vec2, b: Vec2) {
     // probably need an epsilon and a type check
     return a.x === b.x && a.y == b.y;
   }
 
   static ZERO = () => new Vec2(0, 0);
+
+  static distanceBetween(a: Vec2, b: Vec2) {
+    return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+  }
 }
