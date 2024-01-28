@@ -27,19 +27,36 @@ export class Vec2 {
     return this;
   }
 
+  minus(other: Vec2) {
+    this.x -= other.x;
+    this.y -= other.y;
+    return this;
+  }
+
   scale(scale: number) {
     this.x *= scale;
     this.y *= scale;
     return this;
   }
 
-  distanceTo(other: Vec2) {
-    return Vec2.distanceBetween(this, other);
-  }
+  distanceTo = (other: Vec2) => Vec2.distanceBetween(this, other);
+
+  magnitude = () => Vec2.magnitude(this);
+
+  normalised = () => Vec2.normalised(this);
 
   static equals(a: Vec2, b: Vec2) {
     // probably need an epsilon and a type check
     return a.x === b.x && a.y == b.y;
+  }
+
+  static magnitude(a: Vec2) {
+    return Math.sqrt(a.x * a.x + a.y * a.y);
+  }
+
+  static normalised(a: Vec2) {
+    const mag = this.magnitude(a);
+    return new Vec2(a.x / mag, a.y / mag);
   }
 
   static ZERO = () => new Vec2(0, 0);

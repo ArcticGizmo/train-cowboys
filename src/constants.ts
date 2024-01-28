@@ -13,5 +13,5 @@ export const PROPS = {
     size: new Vec2(10, 25)
   },
   showPlacements: true,
-  initialPlayerCount: 2
+  initialPlayerCount: 3
 };
