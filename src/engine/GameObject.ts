@@ -26,6 +26,18 @@ export class GameObject {
     return this.position.copy().add(this.parent.globalPosition);
   }
 
+  get root(): GameObject {
+    if (!this.parent) {
+      return this;
+    }
+
+    let root: GameObject = this;
+    while (root.parent) {
+      root = root.parent;
+    }
+    return root;
+  }
+
   stepEntry(delta: number, root: GameObject) {
     // call updates on all children first
     this.children.forEach(c => c.stepEntry(delta, root));

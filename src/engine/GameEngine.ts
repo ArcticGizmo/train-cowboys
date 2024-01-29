@@ -65,6 +65,18 @@ export class GameEngine {
     this._player.turn();
   }
 
+  movePlayer() {
+    this._player.move();
+  }
+
+  shootPlayer() {
+    this._player.shoot();
+  }
+
+  climbPlayer() {
+    this._player.climb();
+  }
+
   private addChild(gameObject: GameObject) {
     this._root.addChild(gameObject);
   }

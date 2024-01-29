@@ -44,6 +44,7 @@ watch(
 
 const onMove = () => {
   console.log('--- move');
+  engine.movePlayer();
 };
 
 const onTurn = () => {
@@ -53,10 +54,12 @@ const onTurn = () => {
 
 const onShoot = () => {
   console.log('--- shoot');
+  engine.shootPlayer();
 };
 
 const onClimb = () => {
   console.log('--- climb');
+  engine.climbPlayer();
 };
 </script>
 

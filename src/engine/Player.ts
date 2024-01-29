@@ -1,8 +1,9 @@
 import { GameObject } from './GameObject';
+import { Placement } from './Placement';
 import { Resources } from './Resources';
 import { Sprite } from './Sprite';
 import { Vec2 } from './Vec2';
-import { gridFromPos, posFromGrid } from './utils';
+import { getNextHorizontalPlacement, getNextVerticalPlacement, gridFromPos, posFromGrid } from './utils';
 
 export interface PlayerConfig {
   gridPos?: Vec2;
@@ -10,7 +11,7 @@ export interface PlayerConfig {
 
 export class Player extends GameObject {
   private _sprite: Sprite;
-  private _direction = new Vec2(1, 0);
+  private _direction: 'forward' | 'back' = 'forward';
 
   constructor(config: PlayerConfig) {
     super({ position: posFromGrid(config.gridPos ?? Vec2.ZERO()) });
@@ -25,25 +26,32 @@ export class Player extends GameObject {
     this.addChild(this._sprite);
   }
 
-  get gridPos() {
-    return gridFromPos(this.position);
+  get globalGridPos() {
+    return gridFromPos(this.globalPosition);
   }
 
   step(delta: number) {
-    this._sprite.frame = this._direction.x === 1 ? 6 : 9;
+    this._sprite.frame = this._direction === 'forward' ? 6 : 9;
   }
 
   turn() {
-    this._direction.x *= -1;
+    this._direction = this._direction === 'forward' ? 'back' : 'forward';
   }
 
   move() {
     // find next marker in the line
+    const placements = this.root.findAllChildrenOfType(Placement);
+    const placement = getNextHorizontalPlacement(placements, this.globalGridPos, this._direction);
+    this.position = posFromGrid(placement.globalGridPos);
   }
 
   shoot() {}
 
   impacted() {}
 
-  climb() {}
+  climb() {
+    const placements = this.root.findAllChildrenOfType(Placement);
+    const placement = getNextVerticalPlacement(placements, this.globalGridPos);
+    this.position = posFromGrid(placement.globalGridPos);
+  }
 }
