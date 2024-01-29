@@ -7,6 +7,8 @@ import { Sprite } from './Sprite';
 import { Resources } from './Resources';
 import * as utils from './utils';
 import { Player } from './Player';
+import { SpriteCircle } from './SpriteCircle';
+import { Train } from './Train';
 
 export class GameEngine {
   private _ctx: CanvasRenderingContext2D = null!;
@@ -39,20 +41,14 @@ export class GameEngine {
 
     this.addChild(bg);
 
-    // temp item
-    const square = new SpriteRect({
-      position: utils.posFromGrid(3, 3),
-      size: new Vec2(16, 32),
-      color: 'blue'
-    });
-
-    this.addChild(square);
+    // create the train
+    const train = new Train({ gridPosition: new Vec2(1, 4), playerCount: 2 });
+    this.addChild(train);
 
     // create a player
-    this._player = new Player();
+    const startPlayerAt = train.getCar(2).getPlacement('top', 'front').globalGridPos;
+    this._player = new Player({ gridPos: startPlayerAt });
     this.addChild(this._player);
-
-    // create the "train car"
   }
 
   start() {
@@ -65,11 +61,17 @@ export class GameEngine {
     this._loop.stop();
   }
 
+  turnPlayer() {
+    this._player.turn();
+  }
+
   private addChild(gameObject: GameObject) {
     this._root.addChild(gameObject);
   }
 
-  private update(delta: number) {}
+  private update(delta: number) {
+    this._root.stepEntry(delta, this._root);
+  }
 
   private render() {
     // clear everything to prevent artifacts

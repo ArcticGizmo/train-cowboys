@@ -50,6 +50,10 @@ export class Vec2 {
     return a.x === b.x && a.y == b.y;
   }
 
+  static add(a: Vec2, b: Vec2) {
+    return new Vec2(a.x + b.x, a.y + b.y);
+  }
+
   static magnitude(a: Vec2) {
     return Math.sqrt(a.x * a.x + a.y * a.y);
   }

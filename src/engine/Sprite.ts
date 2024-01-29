@@ -20,7 +20,7 @@ export class Sprite extends GameObject {
   private _frameSize: Vec2;
   private _hFrames: number;
   private _vFrames: number;
-  private _frame: number;
+  frame: number;
   private _scale: number;
   private _opacity: number;
   public animationPlayer?: AnimationPlayer;
@@ -33,7 +33,7 @@ export class Sprite extends GameObject {
     this._frameSize = config.frameSize;
     this._hFrames = config.hFrames ?? 1;
     this._vFrames = config.vFrames ?? 1;
-    this._frame = config.frame ?? 0;
+    this.frame = config.frame ?? 0;
     this._scale = config.scale ?? 1;
     this._opacity = config.opacity ?? 1;
 
@@ -60,7 +60,7 @@ export class Sprite extends GameObject {
     }
 
     this.animationPlayer.step(delta);
-    this._frame = this.animationPlayer.frame;
+    this.frame = this.animationPlayer.frame;
   }
 
   drawImage(ctx: CanvasRenderingContext2D, x: number, y: number) {
@@ -69,7 +69,7 @@ export class Sprite extends GameObject {
     }
 
     // Find the correct sprite sheet frame to  use
-    const frame = this._frameMap.get(this._frame);
+    const frame = this._frameMap.get(this.frame);
 
     const { x: frameSizeX, y: frameSizeY } = this._frameSize;
 

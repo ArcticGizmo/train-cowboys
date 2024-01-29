@@ -1,11 +1,18 @@
 <template>
   <canvas ref="canvas" style="border: 1px solid black" :width="CANVAS_WIDTH" :height="CANVAS_HEIGHT" />
-  <div>
+  <!-- <div>
     <h1>Status</h1>
     <p>isRunning: {{ engine.isRunning }}</p>
     <h1>buttons and stuff</h1>
     <button @click="engine.start()">Start</button>
     <button @click="engine.stop()">Stop</button>
+  </div> -->
+  <div>
+    <h1>Actions</h1>
+    <button @click="onMove()">Move</button>
+    <button @click="onTurn()">Turn</button>
+    <button @click="onShoot()">Shoot</button>
+    <button @click="onClimb()">Climb</button>
   </div>
 </template>
 
@@ -34,6 +41,23 @@ watch(
     engine.start();
   }
 );
+
+const onMove = () => {
+  console.log('--- move');
+};
+
+const onTurn = () => {
+  console.log('--- turn');
+  engine.turnPlayer();
+};
+
+const onShoot = () => {
+  console.log('--- shoot');
+};
+
+const onClimb = () => {
+  console.log('--- climb');
+};
 </script>
 
 <style scoped>
