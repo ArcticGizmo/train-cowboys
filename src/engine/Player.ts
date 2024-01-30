@@ -62,10 +62,22 @@ export class Player extends GameObject {
   }
 
   turn() {
+    if (!this.isUpright) {
+      this.isUpright = true;
+      return;
+    }
     this._direction = this._direction === 'left' ? 'right' : 'left';
   }
 
   moveToNextCar() {
+    if (!this.isUpright) {
+      this.isUpright = true;
+      return;
+    }
+    this.doMoveToNextCar(this._direction);
+  }
+
+  private doMoveToNextCar(direction: Direction) {
     // get all placements
     const curPlacement = this.getPlacements().find(p => p.globalGridPos.equals(this.globalGridPos))!;
 
@@ -74,7 +86,7 @@ export class Player extends GameObject {
     let nextGridPos: Vec2;
     // TODO: fix level
     const level = this._train.getEngine().getLevelFromPlacement(curPlacement);
-    if (this._direction === 'left') {
+    if (direction === 'left') {
       nextGridPos = this._train.getCar(carIndex - 1).getPlacement(level, 'right').globalGridPos;
     } else {
       nextGridPos = this._train.getCar(carIndex + 1).getPlacement(level, 'left').globalGridPos;
@@ -84,7 +96,7 @@ export class Player extends GameObject {
 
     // look to bump other players
     const playerToBump = this.getOtherPlayers().find(p => p.globalGridPos.equals(nextGridPos));
-    playerToBump?.bump(this._direction);
+    playerToBump?.bump(direction);
   }
 
   bump(direction: Direction) {
@@ -92,20 +104,62 @@ export class Player extends GameObject {
     this.moveToPlacement(nextPlacement, direction);
   }
 
-  shoot() {}
+  shoot() {
+    if (!this.isUpright) {
+      this.isUpright = true;
+      return;
+    }
 
-  impacted() {}
+    const { x, y } = this.globalGridPos;
+
+    let otherPlayers = this.getOtherPlayers().filter(p => p.isAlive && p.isUpright && p.globalGridPos.y === y);
+
+    if (this._direction === 'left') {
+      otherPlayers = otherPlayers.filter(p => p.globalGridPos.x < x);
+      otherPlayers.sort((a, b) => b.globalGridPos.x - a.globalGridPos.x);
+    } else {
+      otherPlayers = otherPlayers.filter(p => p.globalGridPos.x > x);
+      otherPlayers.sort((a, b) => a.globalGridPos.x - b.globalGridPos.x);
+    }
+
+    const playerToShoot = otherPlayers[0];
+
+    playerToShoot?.takeHit(this._direction);
+  }
+
+  takeHit(pushDirection: Direction) {
+    this.isUpright = false;
+    this.doMoveToNextCar(pushDirection);
+  }
 
   climb() {
+    if (!this.isUpright) {
+      this.isUpright = true;
+      return;
+    }
     const placements = this.root.findAllChildrenOfType(Placement);
     const placement = getNextVerticalPlacement(placements, this.globalGridPos);
     this.position = posFromGrid(placement.globalGridPos);
   }
 
   horse() {
+    if (!this.isUpright) {
+      this.isUpright = true;
+      return;
+    }
     const placement = this._train.getEngine().getBottomLeftPlacement();
     this._direction = 'right';
     this.moveToPlacement(placement, 'right');
+  }
+
+  reflex() {
+    if (this.isUpright) {
+      this.isUpright = false;
+      return;
+    }
+
+    this.isUpright = true;
+    this.shoot();
   }
 
   private moveToPlacement(placement: Placement, direction: Direction) {

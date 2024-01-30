@@ -14,6 +14,7 @@
     <button @click="onShoot()">Shoot</button>
     <button @click="onClimb()">Climb</button>
     <button @click="onHorse()">Horse</button>
+    <button @click="onReflex()">reflex</button>
   </div>
 </template>
 
@@ -67,6 +68,11 @@ const onHorse = () => {
   console.log('--- horse');
   engine.horsePlayer();
 };
+
+const onReflex = () => {
+  console.log('--- reflex');
+  engine.reflexPlayer();
+}
 </script>
 
 <style scoped>

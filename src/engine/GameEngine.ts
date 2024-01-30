@@ -103,6 +103,11 @@ export class GameEngine {
     this.nextPlayer();
   }
 
+  reflexPlayer() {
+    this.curPlayer.reflex();
+    this.nextPlayer();
+  }
+
   private nextPlayer() {
     let nextId = this._currentPlayerIndex + 1;
     if (nextId >= this._players.length) {
