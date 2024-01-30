@@ -18,7 +18,8 @@ export class GameEngine {
   );
   private _canvasSize: Vec2;
   private _root = new GameObject();
-  private _player: Player = null!;
+  private _players: Player[] = [];
+  private _currentPlayerIndex = 0;
 
   isReady = ref(false);
   isRunning = ref(false);
@@ -45,10 +46,30 @@ export class GameEngine {
     const train = new Train({ gridPosition: new Vec2(1, 4), playerCount: 2 });
     this.addChild(train);
 
-    // create a player
-    const startPlayerAt = train.getCar(2).getPlacement('top', 'front').globalGridPos;
-    this._player = new Player({ gridPos: startPlayerAt });
-    this.addChild(this._player);
+    // create players
+    const player1Pos = train.getCar(2).getPlacement('top', 'left').globalGridPos;
+    const player1 = new Player({
+      id: 'player-1',
+      gridPos: player1Pos,
+      color: 'red',
+      train
+    });
+    this._players.push(player1);
+    this.addChild(player1);
+
+    const player2Pos = train.getCar(3).getPlacement('top', 'left').globalGridPos;
+    const player2 = new Player({
+      id: 'player-2',
+      gridPos: player2Pos,
+      color: 'magenta',
+      train
+    });
+    this._players.push(player2);
+    this.addChild(player2);
+  }
+
+  private get curPlayer() {
+    return this._players[this._currentPlayerIndex];
   }
 
   start() {
@@ -62,19 +83,31 @@ export class GameEngine {
   }
 
   turnPlayer() {
-    this._player.turn();
+    this.curPlayer.turn();
+    this.nextPlayer();
   }
 
-  movePlayer() {
-    this._player.move();
+  movePlayerToNextCar() {
+    this.curPlayer.moveToNextCar();
+    this.nextPlayer();
   }
 
   shootPlayer() {
-    this._player.shoot();
+    this.curPlayer.shoot();
+    this.nextPlayer();
   }
 
   climbPlayer() {
-    this._player.climb();
+    this.curPlayer.climb();
+    this.nextPlayer();
+  }
+
+  private nextPlayer() {
+    let nextId = this._currentPlayerIndex + 1;
+    if (nextId >= this._players.length) {
+      nextId = 0;
+    }
+    this._currentPlayerIndex = nextId;
   }
 
   private addChild(gameObject: GameObject) {

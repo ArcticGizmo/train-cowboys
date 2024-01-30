@@ -44,7 +44,7 @@ watch(
 
 const onMove = () => {
   console.log('--- move');
-  engine.movePlayer();
+  engine.movePlayerToNextCar();
 };
 
 const onTurn = () => {
