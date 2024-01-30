@@ -1,14 +1,15 @@
 import { ref } from 'vue';
 import { GameObject } from './GameObject';
-import { SpriteRect } from './SpirteRect';
 import { Vec2 } from './Vec2';
 import { GameLoop } from './GameLoop';
 import { Sprite } from './Sprite';
 import { Resources } from './Resources';
-import * as utils from './utils';
 import { Player } from './Player';
-import { SpriteCircle } from './SpriteCircle';
 import { Train } from './Train';
+
+const PLAYER_COUNT = 3;
+
+const playerColors = ['red', 'blue', 'magenta', 'black', 'white'];
 
 export class GameEngine {
   private _ctx: CanvasRenderingContext2D = null!;
@@ -43,29 +44,24 @@ export class GameEngine {
     this.addChild(bg);
 
     // create the train
-    const train = new Train({ gridPosition: new Vec2(1, 4), playerCount: 2 });
+    const train = new Train({
+      gridPosition: new Vec2(1, 4),
+      playerCount: PLAYER_COUNT
+    });
     this.addChild(train);
 
     // create players
-    const player1Pos = train.getCar(2).getPlacement('top', 'left').globalGridPos;
-    const player1 = new Player({
-      id: 'player-1',
-      gridPos: player1Pos,
-      color: 'red',
-      train
-    });
-    this._players.push(player1);
-    this.addChild(player1);
-
-    const player2Pos = train.getCar(3).getPlacement('top', 'left').globalGridPos;
-    const player2 = new Player({
-      id: 'player-2',
-      gridPos: player2Pos,
-      color: 'magenta',
-      train
-    });
-    this._players.push(player2);
-    this.addChild(player2);
+    for (let pIndex = 0; pIndex < PLAYER_COUNT; pIndex++) {
+      const playerPos = train.getCar(pIndex + 2).getPlacement('top', 'left').globalGridPos;
+      const player = new Player({
+        id: `player-${pIndex}`,
+        gridPos: playerPos,
+        color: playerColors[pIndex],
+        train
+      });
+      this._players.push(player);
+      this.addChild(player);
+    }
   }
 
   private get curPlayer() {
@@ -99,6 +95,11 @@ export class GameEngine {
 
   climbPlayer() {
     this.curPlayer.climb();
+    this.nextPlayer();
+  }
+
+  horsePlayer() {
+    this.curPlayer.horse();
     this.nextPlayer();
   }
 

@@ -56,6 +56,6 @@ export class Train extends GameObject {
   }
 
   getEngine() {
-    return this._cars[2];
+    return this._cars[1];
   }
 }

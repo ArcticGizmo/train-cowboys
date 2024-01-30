@@ -3,6 +3,7 @@ import { Placement } from './Placement';
 import { SpriteRect } from './SpirteRect';
 import { Vec2 } from './Vec2';
 import { Direction } from './direction';
+import { Level } from './level';
 import { posFromGrid } from './utils';
 
 export interface CarConfig {
@@ -20,7 +21,7 @@ export class Car extends GameObject {
     this.addChild(
       new SpriteRect({
         position: Vec2.ZERO(),
-        size: posFromGrid(new Vec2(2, 4)),
+        size: posFromGrid(new Vec2(config.placementCount, 4)),
         color: config.color,
         opacity: 0.1
       })
@@ -41,12 +42,23 @@ export class Car extends GameObject {
     }
   }
 
-  getPlacement(level: 'top' | 'bottom', enterFrom: Direction) {
+  getPlacement(level: Level, enterFrom: Direction) {
     const placements = level === 'top' ? this._topPlacements : this._bottomPlacements;
     return enterFrom === 'left' ? placements[0] : placements[placements.length - 1];
   }
 
   containsPlacement(placement: Placement) {
-    return this._topPlacements.includes(placement) || this._topPlacements.includes(placement);
+    return this._topPlacements.includes(placement) || this._bottomPlacements.includes(placement);
+  }
+
+  getLevelFromPlacement(placement: Placement): Level {
+    if (this._topPlacements.some(p => p.globalGridPos.y === placement.globalGridPos.y)) {
+      return 'top';
+    }
+    return 'bottom';
+  }
+
+  getBottomLeftPlacement() {
+    return this._bottomPlacements[0];
   }
 }

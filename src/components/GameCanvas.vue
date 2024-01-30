@@ -13,6 +13,7 @@
     <button @click="onTurn()">Turn</button>
     <button @click="onShoot()">Shoot</button>
     <button @click="onClimb()">Climb</button>
+    <button @click="onHorse()">Horse</button>
   </div>
 </template>
 
@@ -21,7 +22,7 @@ import { ref, watch } from 'vue';
 import { GameEngine } from '@/engine/GameEngine';
 import { Vec2 } from '@/engine/Vec2';
 
-const CANVAS_WIDTH = 320;
+const CANVAS_WIDTH = 460;
 const CANVAS_HEIGHT = 200;
 
 const engine = new GameEngine(new Vec2(CANVAS_WIDTH, CANVAS_HEIGHT));
@@ -60,6 +61,11 @@ const onShoot = () => {
 const onClimb = () => {
   console.log('--- climb');
   engine.climbPlayer();
+};
+
+const onHorse = () => {
+  console.log('--- horse');
+  engine.horsePlayer();
 };
 </script>
 
