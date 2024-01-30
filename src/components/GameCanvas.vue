@@ -7,6 +7,7 @@
     <button @click="engine.start()">Start</button>
     <button @click="engine.stop()">Stop</button>
   </div> -->
+  <div>{{ engine.status }}</div>
   <div>
     <h1>Actions</h1>
     <button @click="onMove()">Move</button>
@@ -14,7 +15,9 @@
     <button @click="onShoot()">Shoot</button>
     <button @click="onClimb()">Climb</button>
     <button @click="onHorse()">Horse</button>
-    <button @click="onReflex()">reflex</button>
+    <button @click="onReflex()">Reflex</button>
+    <br />
+    <button @click="onEndRound()">End Round</button>
   </div>
 </template>
 
@@ -72,7 +75,12 @@ const onHorse = () => {
 const onReflex = () => {
   console.log('--- reflex');
   engine.reflexPlayer();
-}
+};
+
+const onEndRound = () => {
+  console.log('--- end round');
+  engine.endRound();
+};
 </script>
 
 <style scoped>

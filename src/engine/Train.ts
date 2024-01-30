@@ -58,4 +58,9 @@ export class Train extends GameObject {
   getEngine() {
     return this._cars[1];
   }
+
+  isInDeathZone(placement: Placement) {
+    const index = this.getCarIndexFromPlacement(placement);
+    return index === 0 || index === this._cars.length - 1;
+  }
 }

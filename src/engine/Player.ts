@@ -53,6 +53,11 @@ export class Player extends GameObject {
     return gridFromPos(this.globalPosition);
   }
 
+  get isInDeathZone() {
+    const curPlacement = this.getPlacements().find(p => p.globalGridPos.equals(this.globalGridPos))!;
+    return this._train.isInDeathZone(curPlacement);
+  }
+
   step(delta: number) {
     if (this.isUpright) {
       this._sprite.frame = this._direction === 'left' ? 0 : 1;
@@ -62,6 +67,9 @@ export class Player extends GameObject {
   }
 
   turn() {
+    if (this.isInDeathZone) {
+      return;
+    }
     if (!this.isUpright) {
       this.isUpright = true;
       return;
@@ -70,6 +78,9 @@ export class Player extends GameObject {
   }
 
   moveToNextCar() {
+    if (this.isInDeathZone) {
+      return;
+    }
     if (!this.isUpright) {
       this.isUpright = true;
       return;
@@ -101,10 +112,15 @@ export class Player extends GameObject {
 
   bump(direction: Direction) {
     const nextPlacement = getNextHorizontalPlacement(this.getPlacements(), this.globalGridPos, direction);
-    this.moveToPlacement(nextPlacement, direction);
+    if (nextPlacement) {
+      this.moveToPlacement(nextPlacement, direction);
+    }
   }
 
   shoot() {
+    if (this.isInDeathZone) {
+      return;
+    }
     if (!this.isUpright) {
       this.isUpright = true;
       return;
@@ -128,18 +144,26 @@ export class Player extends GameObject {
   }
 
   takeHit(pushDirection: Direction) {
+    if (this.isInDeathZone) {
+      return;
+    }
     this.isUpright = false;
     this.doMoveToNextCar(pushDirection);
   }
 
   climb() {
+    if (this.isInDeathZone) {
+      return;
+    }
     if (!this.isUpright) {
       this.isUpright = true;
       return;
     }
     const placements = this.root.findAllChildrenOfType(Placement);
     const placement = getNextVerticalPlacement(placements, this.globalGridPos);
-    this.position = posFromGrid(placement.globalGridPos);
+    if (placement) {
+      this.position = posFromGrid(placement.globalGridPos);
+    }
   }
 
   horse() {
@@ -153,6 +177,9 @@ export class Player extends GameObject {
   }
 
   reflex() {
+    if (this.isInDeathZone) {
+      return;
+    }
     if (this.isUpright) {
       this.isUpright = false;
       return;

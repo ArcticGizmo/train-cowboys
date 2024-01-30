@@ -24,6 +24,7 @@ export class GameEngine {
 
   isReady = ref(false);
   isRunning = ref(false);
+  status = ref<'ongoing' | 'win' | 'draw'>('ongoing');
 
   constructor(canvasSize: Vec2) {
     this._canvasSize = canvasSize;
@@ -105,6 +106,44 @@ export class GameEngine {
 
   reflexPlayer() {
     this.curPlayer.reflex();
+    this.nextPlayer();
+  }
+
+  endRound() {
+    const remainingPlayers = this._players.filter(p => !p.isInDeathZone);
+    const playersToRemove = this._players.filter(p => p.isInDeathZone);
+
+    // fix the next player index
+    const curPlayer = this.curPlayer;
+    if (remainingPlayers.includes(curPlayer)) {
+      this._players = remainingPlayers;
+      this._currentPlayerIndex = this._players.indexOf(curPlayer);
+    } else {
+      const playerCircle = this._players.slice();
+      playerCircle.push(...playerCircle);
+      let nextIndex = 0;
+      for (let i = this._currentPlayerIndex; i < playerCircle.length; i++) {
+        const playerToCheck = playerCircle[i];
+        if (remainingPlayers.includes(playerToCheck)) {
+          nextIndex = i;
+          break;
+        }
+      }
+
+      this._players = remainingPlayers;
+
+      this._currentPlayerIndex = nextIndex;
+    }
+
+    playersToRemove.forEach(p => p.parent?.removeChild(p));
+
+    const playerCount = this._players.length;
+    if (playerCount === 1) {
+      this.status.value = 'win';
+    } else if (playerCount === 0) {
+      this.status.value = 'draw';
+    }
+
     this.nextPlayer();
   }
 
