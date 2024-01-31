@@ -6,6 +6,7 @@ import { Sprite } from './Sprite';
 import { Resources } from './Resources';
 import { Player } from './Player';
 import { Train } from './Train';
+import { AQ, AQHelper } from './ActionQueue';
 
 const PLAYER_COUNT = 3;
 
@@ -63,6 +64,22 @@ export class GameEngine {
       this._players.push(player);
       this.addChild(player);
     }
+  }
+
+  testAQ() {
+    if (!AQ.isFinished()) {
+      console.log('-=-- still running');
+      return;
+    }
+
+    const player = this.curPlayer;
+    player.position = new Vec2(30, 30);
+    // AQ.do(AQHelper.MoveTo(player, new Vec2(50, 30), 0.05));
+    AQ.do(
+      AQHelper.DoFor((deltaTime: number) => {
+        player.position.add(new Vec2(0.005 * deltaTime, 0));
+      }, 2500)
+    );
   }
 
   private get curPlayer() {
@@ -161,6 +178,7 @@ export class GameEngine {
 
   private update(delta: number) {
     this._root.stepEntry(delta, this._root);
+    AQ.step(delta);
   }
 
   private render() {

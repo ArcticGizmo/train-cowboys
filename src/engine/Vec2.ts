@@ -50,8 +50,12 @@ export class Vec2 {
     return a.x === b.x && a.y == b.y;
   }
 
-  static add(a: Vec2, b: Vec2) {
+  static combine(a: Vec2, b: Vec2) {
     return new Vec2(a.x + b.x, a.y + b.y);
+  }
+
+  static diff(a: Vec2, b: Vec2) {
+    return new Vec2(a.x - b.x, a.y - b.y);
   }
 
   static magnitude(a: Vec2) {
@@ -67,5 +71,15 @@ export class Vec2 {
 
   static distanceBetween(a: Vec2, b: Vec2) {
     return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+  }
+
+  static isEqualOrOvershot(pos: Vec2, targetPos: Vec2, direction: Vec2) {
+    // protect against null divisor
+    if (pos.x === targetPos.x && pos.y === targetPos.y) {
+      return true;
+    }
+
+    const diff = Vec2.diff(targetPos, pos);
+    return diff.x / direction.x < 0 || diff.y / direction.y < 0;
   }
 }

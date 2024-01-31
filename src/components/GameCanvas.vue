@@ -18,6 +18,7 @@
     <button @click="onReflex()">Reflex</button>
     <br />
     <button @click="onEndRound()">End Round</button>
+    <button @click="engine.testAQ()">Test AQ</button>
   </div>
 </template>
 
