@@ -5,33 +5,47 @@ type DoneCallback = () => void;
 type ActionCallback = (deltaTime: number, done: DoneCallback) => void;
 
 export class ActionQueue {
-  private _queue: ActionCallback[] = [];
+  private _queue: ActionQueue[] = [];
+  private _actions: ActionCallback[] = [];
 
   constructor() {}
 
   isFinished() {
-    return this._queue.length === 0;
+    return this._queue.length === 0 && this._actions.length === 0;
   }
 
   step(delta: number) {
-    const cur = this._queue[0];
-    if (!cur) return;
+    if (this.isFinished()) {
+      return;
+    }
+    // run nested steps
+    this._queue.forEach(q => q.step(delta));
+    this._queue = this._queue.filter(q => !q.isFinished());
+
+    if (this._queue.length !== 0) {
+      return;
+    }
+
+    const curAction = this._actions[0];
+
+    if (!curAction) return;
 
     let isDone = false;
-    cur(delta, () => (isDone = true));
+    curAction(delta, () => (isDone = true));
 
     if (isDone) {
-      this._queue.shift();
+      this._actions.shift();
     }
   }
 
   do(callback: ActionCallback) {
-    this._queue.push(callback);
-    return this;
+    const aq = new ActionQueue().thenDo(callback);
+    this._queue.push(aq);
+    return aq;
   }
 
   thenDo(callback: ActionCallback) {
-    this._queue.push(callback);
+    this._actions.push(callback);
     return this;
   }
 

@@ -79,6 +79,18 @@ export class GameEngine {
       AQHelper.DoFor((deltaTime: number) => {
         player.position.add(new Vec2(0.005 * deltaTime, 0));
       }, 2500)
+    ).thenDo(
+      AQHelper.DoFor((deltaTime: number) => {
+        player.position.add(new Vec2(0, 0.005 * deltaTime));
+      }, 2500)
+    );
+
+    const nextPlayer = this._players[this._currentPlayerIndex + 1];
+
+    AQ.do(
+      AQHelper.DoFor((deltaTime: number) => {
+        nextPlayer.position.add(new Vec2(0.005 * deltaTime, 0));
+      }, 10_000)
     );
   }
 
