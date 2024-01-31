@@ -109,36 +109,66 @@ export class GameEngine {
   }
 
   turnPlayer() {
+    if (AQ.inProgress()) {
+      return;
+    }
     this.curPlayer.turn();
     this.nextPlayer();
   }
 
   movePlayerToNextCar() {
+    if (AQ.inProgress()) {
+      return;
+    }
     this.curPlayer.moveToNextCar();
     this.nextPlayer();
   }
 
+  bumpPlayer() {
+    if (AQ.inProgress()) {
+      return;
+    }
+
+    this.curPlayer.bump('left');
+    this.nextPlayer();
+  }
+
   shootPlayer() {
+    if (AQ.inProgress()) {
+      return;
+    }
     this.curPlayer.shoot();
     this.nextPlayer();
   }
 
   climbPlayer() {
+    if (AQ.inProgress()) {
+      return;
+    }
     this.curPlayer.climb();
     this.nextPlayer();
   }
 
   horsePlayer() {
+    if (AQ.inProgress()) {
+      return;
+    }
     this.curPlayer.horse();
     this.nextPlayer();
   }
 
   reflexPlayer() {
+    if (AQ.inProgress()) {
+      return;
+    }
     this.curPlayer.reflex();
     this.nextPlayer();
   }
 
   endRound() {
+    if (AQ.inProgress()) {
+      return;
+    }
     const remainingPlayers = this._players.filter(p => !p.isInDeathZone);
     const playersToRemove = this._players.filter(p => p.isInDeathZone);
 

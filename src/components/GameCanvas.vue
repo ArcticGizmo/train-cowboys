@@ -10,6 +10,7 @@
   <div>{{ engine.status }}</div>
   <div>
     <h1>Actions</h1>
+    <button @click="onBump()">Bump</button>
     <button @click="onMove()">Move</button>
     <button @click="onTurn()">Turn</button>
     <button @click="onShoot()">Shoot</button>
@@ -47,6 +48,11 @@ watch(
     engine.start();
   }
 );
+
+const onBump = () => {
+  console.log('--- bump');
+  engine.bumpPlayer();
+};
 
 const onMove = () => {
   console.log('--- move');

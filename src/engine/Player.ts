@@ -1,3 +1,4 @@
+import { AQ, AQHelper } from './ActionQueue';
 import { GameObject } from './GameObject';
 import { Placement } from './Placement';
 import { Resources } from './Resources';
@@ -14,6 +15,11 @@ export interface PlayerConfig {
   color: string;
   train: Train;
 }
+
+const WALKING_SPEED = 0.05;
+const SHOT_SPEED = 0.5;
+const BUMP_SPEED = 0.1;
+const HORSE_SPEED = 10;
 
 export class Player extends GameObject {
   private _sprite: Sprite;
@@ -71,9 +77,12 @@ export class Player extends GameObject {
       return;
     }
     if (!this.isUpright) {
+      // TODO: standup animation
       this.isUpright = true;
       return;
     }
+
+    // TODO: turn animation (if required)
     this._direction = this._direction === 'left' ? 'right' : 'left';
   }
 
@@ -82,13 +91,15 @@ export class Player extends GameObject {
       return;
     }
     if (!this.isUpright) {
+      // TODO: standup animation
       this.isUpright = true;
       return;
     }
-    this.doMoveToNextCar(this._direction);
+
+    this.doMoveToNextCar(this._direction, WALKING_SPEED);
   }
 
-  private doMoveToNextCar(direction: Direction) {
+  private doMoveToNextCar(direction: Direction, speed: number) {
     // get all placements
     const curPlacement = this.getPlacements().find(p => p.globalGridPos.equals(this.globalGridPos))!;
 
@@ -103,17 +114,19 @@ export class Player extends GameObject {
       nextGridPos = this._train.getCar(carIndex + 1).getPlacement(level, 'left').globalGridPos;
     }
 
-    this.position = posFromGrid(nextGridPos);
-
     // look to bump other players
     const playerToBump = this.getOtherPlayers().find(p => p.globalGridPos.equals(nextGridPos));
-    playerToBump?.bump(direction);
+
+    AQ.do(AQHelper.MoveTo(this, posFromGrid(nextGridPos), speed)).thenDo((deltaTime, done) => {
+      playerToBump?.bump(direction);
+      done();
+    });
   }
 
   bump(direction: Direction) {
     const nextPlacement = getNextHorizontalPlacement(this.getPlacements(), this.globalGridPos, direction);
     if (nextPlacement) {
-      this.moveToPlacement(nextPlacement, direction);
+      this.moveToPlacement(nextPlacement, direction, BUMP_SPEED);
     }
   }
 
@@ -122,6 +135,7 @@ export class Player extends GameObject {
       return;
     }
     if (!this.isUpright) {
+      // TODO: standup animation
       this.isUpright = true;
       return;
     }
@@ -138,6 +152,7 @@ export class Player extends GameObject {
       otherPlayers.sort((a, b) => a.globalGridPos.x - b.globalGridPos.x);
     }
 
+    // TODO: shoot animation
     const playerToShoot = otherPlayers[0];
 
     playerToShoot?.takeHit(this._direction);
@@ -147,8 +162,10 @@ export class Player extends GameObject {
     if (this.isInDeathZone) {
       return;
     }
+
+    // TODO: shot animation (animate falling down here, then move auto animated)
     this.isUpright = false;
-    this.doMoveToNextCar(pushDirection);
+    this.doMoveToNextCar(pushDirection, SHOT_SPEED);
   }
 
   climb() {
@@ -159,6 +176,9 @@ export class Player extends GameObject {
       this.isUpright = true;
       return;
     }
+
+    // TODO: fix pathing not working correctly
+    // TODO: chained animation of walking then climbing
     const placements = this.root.findAllChildrenOfType(Placement);
     const placement = getNextVerticalPlacement(placements, this.globalGridPos);
     if (placement) {
@@ -168,12 +188,15 @@ export class Player extends GameObject {
 
   horse() {
     if (!this.isUpright) {
+      // TODO: standup animation
       this.isUpright = true;
       return;
     }
+
+    // TODO: animate horse
     const placement = this._train.getEngine().getBottomLeftPlacement();
     this._direction = 'right';
-    this.moveToPlacement(placement, 'right');
+    this.moveToPlacement(placement, 'right', HORSE_SPEED);
   }
 
   reflex() {
@@ -181,19 +204,26 @@ export class Player extends GameObject {
       return;
     }
     if (this.isUpright) {
+      // TODO: animate falling over (like a comical slip)
       this.isUpright = false;
       return;
     }
 
+    // TODO: animate standing up, then shoot (might need to split animations here?)
     this.isUpright = true;
     this.shoot();
   }
 
-  private moveToPlacement(placement: Placement, direction: Direction) {
-    this.position = posFromGrid(placement.globalGridPos);
-
-    const playerToBump = this.getOtherPlayers().find(p => p.globalGridPos.equals(placement.globalGridPos));
-    playerToBump?.bump(direction);
+  private moveToPlacement(placement: Placement, direction: Direction, speed: number) {
+    const targetPos = posFromGrid(placement.globalGridPos);
+    if (this.position.equals(targetPos)) {
+      return;
+    }
+    AQ.thenDo(AQHelper.MoveTo(this, targetPos, speed)).thenDo((deltaTime, done) => {
+      const playerToBump = this.getOtherPlayers().find(p => p.globalGridPos.equals(placement.globalGridPos));
+      playerToBump?.bump(direction);
+      done();
+    });
   }
 
   private getPlacements() {
