@@ -21,10 +21,7 @@
     <button @click="onEndRound()">End Round</button>
     <button @click="engine.testAQ()">Test AQ</button>
     <br />
-    <button @click="engine.playAnimation('IDLE_RIGHT')">Idle</button>
-    <button @click="engine.playAnimation('WALK_RIGHT')">Walk</button>
-    <button @click="engine.playAnimation('SHOOT_RIGHT')">Shoot</button>
-    <button @click="engine.playAnimation('CLIMB')">Climb</button>
+    <button v-for="name in ANIMATIONS" :key="name" @click="engine.playAnimation(name)">{{ name }}</button>
   </div>
 </template>
 
@@ -32,13 +29,15 @@
 import { ref, watch } from 'vue';
 import { GameEngine } from '@/engine/GameEngine';
 import { Vec2 } from '@/engine/Vec2';
-
+import { PlayerAnimations, type PlayerAnimationName } from '@/engine/animations/playerAnimations';
 // const CANVAS_WIDTH = 460;
 const CANVAS_WIDTH = 200;
 // const CANVAS_HEIGHT = 200;
 const CANVAS_HEIGHT = 100;
 
 const engine = new GameEngine(new Vec2(CANVAS_WIDTH, CANVAS_HEIGHT));
+
+const ANIMATIONS = Object.keys(PlayerAnimations) as PlayerAnimationName[];
 
 const canvas = ref<HTMLCanvasElement>();
 
