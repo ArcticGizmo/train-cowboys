@@ -20,6 +20,8 @@
     <br />
     <button @click="onEndRound()">End Round</button>
     <button @click="engine.testAQ()">Test AQ</button>
+    <br>
+    <button @click="engine.playAnimation('IDLE_RIGHT')">Idle</button>
   </div>
 </template>
 
@@ -28,8 +30,10 @@ import { ref, watch } from 'vue';
 import { GameEngine } from '@/engine/GameEngine';
 import { Vec2 } from '@/engine/Vec2';
 
-const CANVAS_WIDTH = 460;
-const CANVAS_HEIGHT = 200;
+// const CANVAS_WIDTH = 460;
+const CANVAS_WIDTH = 200;
+// const CANVAS_HEIGHT = 200;
+const CANVAS_HEIGHT = 100;
 
 const engine = new GameEngine(new Vec2(CANVAS_WIDTH, CANVAS_HEIGHT));
 

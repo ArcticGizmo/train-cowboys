@@ -6,6 +6,9 @@ import { Sprite } from './Sprite';
 import { SpriteCircle } from './SpriteCircle';
 import { Train } from './Train';
 import { Vec2 } from './Vec2';
+import { AnimationPlayer } from './animations/AnimationPlayer';
+import { FrameIndexPattern } from './animations/FrameIndexPattern';
+import { PlayerAnimationName, PlayerAnimations } from './animations/playerAnimations';
 import { Direction } from './direction';
 import { getNextHorizontalPlacement, getNextVerticalPlacement, gridFromPos, posFromGrid } from './utils';
 
@@ -38,10 +41,14 @@ export class Player extends GameObject {
 
     this._sprite = new Sprite({
       resource: Resources.player,
-      frameSize: new Vec2(16, 16),
-      hFrames: 2,
-      vFrames: 3,
-      frame: 0
+      frameSize: new Vec2(64, 64),
+      hFrames: 6,
+      vFrames: 4,
+      frame: 0,
+      scale: 0.25,
+      animationPlayer: new AnimationPlayer({
+        IDLE_RIGHT: new FrameIndexPattern(PlayerAnimations.IDLE_RIGHT)
+      })
     });
 
     this.addChild(this._sprite);
@@ -65,11 +72,15 @@ export class Player extends GameObject {
   }
 
   step(delta: number) {
-    if (this.isUpright) {
-      this._sprite.frame = this._direction === 'left' ? 0 : 1;
-    } else {
-      this._sprite.frame = this._direction === 'left' ? 2 : 3;
-    }
+    // if (this.isUpright) {
+    //   this._sprite.frame = this._direction === 'left' ? 0 : 1;
+    // } else {
+    //   this._sprite.frame = this._direction === 'left' ? 2 : 3;
+    // }
+  }
+
+  setAnimation(name: PlayerAnimationName) {
+    this._sprite.animationPlayer?.play(name);
   }
 
   turn() {

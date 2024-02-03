@@ -1,48 +1,24 @@
-import { AnimationConfig } from './AnimationPlayer';
+import { AnimationConfig, AnimationFrame } from './AnimationPlayer';
 
-const buildWalkingFrames = (rootFrame: number): AnimationConfig => {
-  return {
-    duration: 400,
-    frames: [
-      {
-        time: 0,
-        frame: rootFrame + 1
-      },
-      {
-        time: 100,
-        frame: rootFrame
-      },
-      {
-        time: 200,
-        frame: rootFrame + 1
-      },
-      {
-        time: 300,
-        frame: rootFrame + 2
-      }
-    ]
-  };
-};
+const buildEqualFrames = (frameNumbers: number[], duration: number): AnimationConfig => {
+  const frames: AnimationFrame[] = [];
+  const timeStep = duration / frameNumbers.length;
 
-const buildIdleFrames = (rootFrame: number): AnimationConfig => {
+  for (let i = 0; i < frameNumbers.length; i++) {
+    frames.push({
+      time: timeStep * i,
+      frame: i
+    });
+  }
+
   return {
-    duration: 400,
-    frames: [
-      {
-        time: 0,
-        frame: rootFrame
-      }
-    ]
+    duration,
+    frames
   };
 };
 
 export const PlayerAnimations = {
-  WALK_DOWN: buildWalkingFrames(0),
-  WALK_UP: buildWalkingFrames(3),
-  WALK_LEFT: buildWalkingFrames(6),
-  WALK_RIGHT: buildWalkingFrames(9),
-  IDLE_DOWN: buildIdleFrames(1),
-  IDLE_UP: buildIdleFrames(4),
-  IDLE_LEFT: buildIdleFrames(7),
-  IDLE_RIGHT: buildIdleFrames(10)
+  IDLE_RIGHT: buildEqualFrames([0, 1, 2, 3], 500)
 };
+
+export type PlayerAnimationName = keyof typeof PlayerAnimations;

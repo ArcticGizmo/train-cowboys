@@ -7,6 +7,7 @@ import { Resources } from './Resources';
 import { Player } from './Player';
 import { Train } from './Train';
 import { AQ, AQHelper } from './ActionQueue';
+import { PlayerAnimationName } from './animations/playerAnimations';
 
 const PLAYER_COUNT = 3;
 
@@ -64,6 +65,15 @@ export class GameEngine {
       this._players.push(player);
       this.addChild(player);
     }
+  }
+
+  playAnimation(name: PlayerAnimationName) {
+    if (AQ.inProgress()) {
+      console.log('--- still running animation')
+      return;
+    }
+    const player = this.curPlayer;
+    player.setAnimation(name)
   }
 
   testAQ() {
