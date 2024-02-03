@@ -1,4 +1,4 @@
-import { AQ, AQHelper } from './ActionQueue';
+import { CQ, CQHelper } from './ChangeQueue';
 import { GameObject } from './GameObject';
 import { Placement } from './Placement';
 import { Resources } from './Resources';
@@ -6,8 +6,9 @@ import { Sprite } from './Sprite';
 import { SpriteCircle } from './SpriteCircle';
 import { Train } from './Train';
 import { Vec2 } from './Vec2';
-import { AnimationPlayer } from './animations/AnimationPlayer';
+import { AnimationPlayer, FramePatterns } from './animations/AnimationPlayer';
 import { FrameIndexPattern } from './animations/FrameIndexPattern';
+import { SingleShotFrameIndexPattern } from './animations/SingleShotFrameIndexPattern';
 import { PlayerAnimationName, PlayerAnimations } from './animations/playerAnimations';
 import { Direction } from './direction';
 import { getNextHorizontalPlacement, getNextVerticalPlacement, gridFromPos, posFromGrid } from './utils';
@@ -39,9 +40,13 @@ export class Player extends GameObject {
     this._train = config.train;
     this.id = config.id;
 
-    const animationPlayerConfig: Record<string, FrameIndexPattern> = {};
+    const animationPlayerConfig: FramePatterns = {};
     Object.entries(PlayerAnimations).forEach(([key, value]) => {
-      animationPlayerConfig[key] = new FrameIndexPattern(value);
+      if (value.singleShot) {
+        animationPlayerConfig[key] = new SingleShotFrameIndexPattern(value);
+      } else {
+        animationPlayerConfig[key] = new FrameIndexPattern(value);
+      }
     });
 
     this._sprite = new Sprite({
@@ -131,7 +136,7 @@ export class Player extends GameObject {
     // look to bump other players
     const playerToBump = this.getOtherPlayers().find(p => p.globalGridPos.equals(nextGridPos));
 
-    AQ.do(AQHelper.MoveTo(this, posFromGrid(nextGridPos), speed)).thenDo((deltaTime, done) => {
+    CQ.do(CQHelper.MoveTo(this, posFromGrid(nextGridPos), speed)).thenDo((deltaTime, done) => {
       playerToBump?.bump(direction);
       done();
     });
@@ -178,6 +183,7 @@ export class Player extends GameObject {
     }
 
     // TODO: shot animation (animate falling down here, then move auto animated)
+    CQ.do(CQHelper.DoFor(() => {}, 500));
     this.isUpright = false;
     this.doMoveToNextCar(pushDirection, SHOT_SPEED);
   }
@@ -233,7 +239,7 @@ export class Player extends GameObject {
     if (this.position.equals(targetPos)) {
       return;
     }
-    AQ.thenDo(AQHelper.MoveTo(this, targetPos, speed)).thenDo((deltaTime, done) => {
+    CQ.thenDo(CQHelper.MoveTo(this, targetPos, speed)).thenDo((deltaTime, done) => {
       const playerToBump = this.getOtherPlayers().find(p => p.globalGridPos.equals(placement.globalGridPos));
       playerToBump?.bump(direction);
       done();

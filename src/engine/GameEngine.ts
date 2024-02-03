@@ -6,10 +6,10 @@ import { Sprite } from './Sprite';
 import { Resources } from './Resources';
 import { Player } from './Player';
 import { Train } from './Train';
-import { AQ, AQHelper } from './ActionQueue';
+import { CQ, CQHelper } from './ChangeQueue';
 import { PlayerAnimationName } from './animations/playerAnimations';
 
-const PLAYER_COUNT = 1;
+const PLAYER_COUNT = 3;
 
 const playerColors = ['red', 'blue', 'magenta', 'black', 'white'];
 
@@ -69,7 +69,7 @@ export class GameEngine {
   }
 
   playAnimation(name: PlayerAnimationName) {
-    if (AQ.inProgress()) {
+    if (CQ.inProgress()) {
       console.log('--- still running animation');
       return;
     }
@@ -77,29 +77,29 @@ export class GameEngine {
     player.setAnimation(name);
   }
 
-  testAQ() {
-    if (!AQ.isFinished()) {
+  testCQ() {
+    if (!CQ.isFinished()) {
       console.log('-=-- still running');
       return;
     }
 
     const player = this.curPlayer;
     player.position = new Vec2(30, 30);
-    // AQ.do(AQHelper.MoveTo(player, new Vec2(50, 30), 0.05));
-    AQ.do(
-      AQHelper.DoFor((deltaTime: number) => {
+    // CQ.do(CQHelper.MoveTo(player, new Vec2(50, 30), 0.05));
+    CQ.do(
+      CQHelper.DoFor((deltaTime: number) => {
         player.position.add(new Vec2(0.005 * deltaTime, 0));
       }, 2500)
     ).thenDo(
-      AQHelper.DoFor((deltaTime: number) => {
+      CQHelper.DoFor((deltaTime: number) => {
         player.position.add(new Vec2(0, 0.005 * deltaTime));
       }, 2500)
     );
 
     const nextPlayer = this._players[this._currentPlayerIndex + 1];
 
-    AQ.do(
-      AQHelper.DoFor((deltaTime: number) => {
+    CQ.do(
+      CQHelper.DoFor((deltaTime: number) => {
         nextPlayer.position.add(new Vec2(0.005 * deltaTime, 0));
       }, 10_000)
     );
@@ -120,7 +120,7 @@ export class GameEngine {
   }
 
   turnPlayer() {
-    if (AQ.inProgress()) {
+    if (CQ.inProgress()) {
       return;
     }
     this.curPlayer.turn();
@@ -128,7 +128,7 @@ export class GameEngine {
   }
 
   movePlayerToNextCar() {
-    if (AQ.inProgress()) {
+    if (CQ.inProgress()) {
       return;
     }
     this.curPlayer.moveToNextCar();
@@ -136,7 +136,7 @@ export class GameEngine {
   }
 
   bumpPlayer() {
-    if (AQ.inProgress()) {
+    if (CQ.inProgress()) {
       return;
     }
 
@@ -145,7 +145,7 @@ export class GameEngine {
   }
 
   shootPlayer() {
-    if (AQ.inProgress()) {
+    if (CQ.inProgress()) {
       return;
     }
     this.curPlayer.shoot();
@@ -153,7 +153,7 @@ export class GameEngine {
   }
 
   climbPlayer() {
-    if (AQ.inProgress()) {
+    if (CQ.inProgress()) {
       return;
     }
     this.curPlayer.climb();
@@ -161,7 +161,7 @@ export class GameEngine {
   }
 
   horsePlayer() {
-    if (AQ.inProgress()) {
+    if (CQ.inProgress()) {
       return;
     }
     this.curPlayer.horse();
@@ -169,7 +169,7 @@ export class GameEngine {
   }
 
   reflexPlayer() {
-    if (AQ.inProgress()) {
+    if (CQ.inProgress()) {
       return;
     }
     this.curPlayer.reflex();
@@ -177,7 +177,7 @@ export class GameEngine {
   }
 
   endRound() {
-    if (AQ.inProgress()) {
+    if (CQ.inProgress()) {
       return;
     }
     const remainingPlayers = this._players.filter(p => !p.isInDeathZone);
@@ -231,7 +231,7 @@ export class GameEngine {
 
   private update(delta: number) {
     this._root.stepEntry(delta, this._root);
-    AQ.step(delta);
+    CQ.step(delta);
   }
 
   private render() {

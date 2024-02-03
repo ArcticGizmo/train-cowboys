@@ -2,11 +2,11 @@ import { GameObject } from './GameObject';
 import { Vec2 } from './Vec2';
 
 type DoneCallback = () => void;
-type ActionCallback = (deltaTime: number, done: DoneCallback) => void;
+type ChangeCallback = (deltaTime: number, done: DoneCallback) => void;
 
-export class ActionQueue {
-  private _queue: ActionQueue[] = [];
-  private _actions: ActionCallback[] = [];
+export class ChangeQueue {
+  private _queue: ChangeQueue[] = [];
+  private _actions: ChangeCallback[] = [];
 
   constructor() {}
 
@@ -42,13 +42,13 @@ export class ActionQueue {
     }
   }
 
-  do(callback: ActionCallback) {
-    const aq = new ActionQueue().thenDo(callback);
+  do(callback: ChangeCallback) {
+    const aq = new ChangeQueue().thenDo(callback);
     this._queue.push(aq);
     return aq;
   }
 
-  thenDo(callback: ActionCallback) {
+  thenDo(callback: ChangeCallback) {
     this._actions.push(callback);
     return this;
   }
@@ -59,8 +59,8 @@ export class ActionQueue {
   }
 }
 
-export class AQHelper {
-  static MoveTo(target: GameObject, targetPos: Vec2, speed: number): ActionCallback {
+export class CQHelper {
+  static MoveTo(target: GameObject, targetPos: Vec2, speed: number): ChangeCallback {
     // do i need to worry about global position here?
     const direction = Vec2.diff(targetPos, target.position).normalised();
     return (deltaTime, done) => {
@@ -80,7 +80,7 @@ export class AQHelper {
     };
   }
 
-  static DoFor(callback: (deltaTime: number) => void, duration: number): ActionCallback {
+  static DoFor(callback: (deltaTime: number) => void, duration: number): ChangeCallback {
     let timeElapsed = 0;
 
     return (deltaTime, done) => {
@@ -93,4 +93,4 @@ export class AQHelper {
   }
 }
 
-export const AQ = new ActionQueue();
+export const CQ = new ChangeQueue();

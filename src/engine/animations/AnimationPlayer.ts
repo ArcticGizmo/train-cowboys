@@ -1,8 +1,10 @@
 import { FrameIndexPattern } from './FrameIndexPattern';
+import { SingleShotFrameIndexPattern } from './SingleShotFrameIndexPattern';
 
 export interface AnimationConfig {
   duration: number;
   frames: AnimationFrame[];
+  singleShot?: boolean;
 }
 
 export interface AnimationFrame {
@@ -10,7 +12,7 @@ export interface AnimationFrame {
   frame: number;
 }
 
-export type FramePatterns = Record<string, FrameIndexPattern>;
+export type FramePatterns = Record<string, FrameIndexPattern | SingleShotFrameIndexPattern>;
 
 export class AnimationPlayer {
   private _patterns: FramePatterns;
@@ -25,8 +27,8 @@ export class AnimationPlayer {
     return this._patterns[this._activeKey].frame;
   }
 
-  play(key: string, startAtTime = 0) {
-    if (this._activeKey === key) {
+  play(key: string, startAtTime = 0, reinit = false) {
+    if (!reinit && this._activeKey === key) {
       return;
     }
     this._activeKey = key;
