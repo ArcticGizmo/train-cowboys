@@ -1,15 +1,21 @@
-import { AnimationConfig, AnimationFrame } from './AnimationPlayer';
+import { AnimationConfig } from './AnimationPlayer';
 
-const buildEqualFrames = (frameNumbers: number[], duration: number): AnimationConfig => {
-  const frames: AnimationFrame[] = [];
+interface FrameRange {
+  from: number;
+  to: number;
+}
+
+const buildEqualFrames = (maybeFrameNumbers: number[] | FrameRange, duration: number): AnimationConfig => {
+  const frameNumbers = extractRange(maybeFrameNumbers);
+
   const timeStep = duration / frameNumbers.length;
 
-  for (let i = 0; i < frameNumbers.length; i++) {
-    frames.push({
-      time: timeStep * i,
-      frame: i
-    });
-  }
+  const frames = frameNumbers.map((num, index) => {
+    return {
+      time: timeStep * index,
+      frame: num
+    };
+  });
 
   return {
     duration,
@@ -17,8 +23,34 @@ const buildEqualFrames = (frameNumbers: number[], duration: number): AnimationCo
   };
 };
 
+const extractRange = (maybeFrameNumbers: number[] | FrameRange): number[] => {
+  const asFrameRange = maybeFrameNumbers as FrameRange;
+  if (asFrameRange.to != null) {
+    return range(asFrameRange.from, asFrameRange.to);
+  }
+
+  return maybeFrameNumbers as number[];
+};
+
+const range = (first: number, last: number): number[] => {
+  const r: number[] = [];
+  if (first < last) {
+    for (let i = first; i <= last; i++) {
+      r.push(i);
+    }
+  } else {
+    for (let i = first; i >= last; i++) {
+      r.push(i);
+    }
+  }
+
+  return r;
+};
+
 export const PlayerAnimations = {
-  IDLE_RIGHT: buildEqualFrames([0, 1, 2, 3], 500)
+  IDLE_RIGHT: buildEqualFrames({ from: 0, to: 3 }, 500),
+  WALK_RIGHT: buildEqualFrames({ from: 6, to: 9 }, 500),
+  SHOOT_RIGHT: buildEqualFrames([...range(12, 20), 14, 13, 12], 1000)
 };
 
 export type PlayerAnimationName = keyof typeof PlayerAnimations;

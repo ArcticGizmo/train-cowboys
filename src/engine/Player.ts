@@ -39,16 +39,19 @@ export class Player extends GameObject {
     this._train = config.train;
     this.id = config.id;
 
+    const animationPlayerConfig: Record<string, FrameIndexPattern> = {};
+    Object.entries(PlayerAnimations).forEach(([key, value]) => {
+      animationPlayerConfig[key] = new FrameIndexPattern(value);
+    });
+
     this._sprite = new Sprite({
       resource: Resources.player,
-      frameSize: new Vec2(64, 64),
+      frameSize: new Vec2(16, 16),
       hFrames: 6,
       vFrames: 4,
       frame: 0,
-      scale: 0.25,
-      animationPlayer: new AnimationPlayer({
-        IDLE_RIGHT: new FrameIndexPattern(PlayerAnimations.IDLE_RIGHT)
-      })
+      scale: 2,
+      animationPlayer: new AnimationPlayer(animationPlayerConfig)
     });
 
     this.addChild(this._sprite);

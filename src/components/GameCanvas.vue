@@ -20,8 +20,10 @@
     <br />
     <button @click="onEndRound()">End Round</button>
     <button @click="engine.testAQ()">Test AQ</button>
-    <br>
+    <br />
     <button @click="engine.playAnimation('IDLE_RIGHT')">Idle</button>
+    <button @click="engine.playAnimation('WALK_RIGHT')">Walk</button>
+    <button @click="engine.playAnimation('SHOOT_RIGHT')">Shoot</button>
   </div>
 </template>
 
@@ -98,6 +100,13 @@ const onEndRound = () => {
 canvas {
   width: 100%;
   background-color: sandybrown;
+  image-rendering: pixelated;
+  image-rendering: optimizeSpeed;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: -o-crisp-edges;
+  image-rendering: crisp-edges;
+  -ms-interpolation-mode: nearest-neighbor;
 }
 
 button,

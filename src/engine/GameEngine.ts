@@ -9,7 +9,7 @@ import { Train } from './Train';
 import { AQ, AQHelper } from './ActionQueue';
 import { PlayerAnimationName } from './animations/playerAnimations';
 
-const PLAYER_COUNT = 3;
+const PLAYER_COUNT = 1;
 
 const playerColors = ['red', 'blue', 'magenta', 'black', 'white'];
 
@@ -34,6 +34,7 @@ export class GameEngine {
 
   bindContext(ctx: CanvasRenderingContext2D) {
     this._ctx = ctx;
+    ctx.imageSmoothingEnabled = false;
     this.isReady.value = true;
   }
 
@@ -69,11 +70,11 @@ export class GameEngine {
 
   playAnimation(name: PlayerAnimationName) {
     if (AQ.inProgress()) {
-      console.log('--- still running animation')
+      console.log('--- still running animation');
       return;
     }
     const player = this.curPlayer;
-    player.setAnimation(name)
+    player.setAnimation(name);
   }
 
   testAQ() {
