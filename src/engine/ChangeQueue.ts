@@ -60,6 +60,10 @@ export class ChangeQueue {
 }
 
 export class CQHelper {
+  static Wait(duration: number) {
+    return this.DoFor(() => null, duration);
+  }
+
   static MoveTo(target: GameObject, targetPos: Vec2, speed: number): ChangeCallback {
     // do i need to worry about global position here?
     const direction = Vec2.diff(targetPos, target.position).normalised();
@@ -88,6 +92,19 @@ export class CQHelper {
       timeElapsed += deltaTime;
       if (timeElapsed >= duration) {
         done();
+      }
+    };
+  }
+
+  static Animate(duration: number, onStart: () => void, onEnd?: () => void): ChangeCallback {
+    let timeElapsed = 0;
+
+    onStart();
+    return (deltaTime, done) => {
+      timeElapsed += deltaTime;
+      if (timeElapsed >= duration) {
+        done();
+        onEnd?.();
       }
     };
   }

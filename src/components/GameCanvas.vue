@@ -21,6 +21,7 @@
     <button @click="onEndRound()">End Round</button>
     <button @click="engine.testCQ()">Test CQ</button>
     <br />
+    <h1>Animations</h1>
     <button v-for="name in ANIMATIONS" :key="name" @click="engine.playAnimation(name)">{{ name }}</button>
   </div>
 </template>

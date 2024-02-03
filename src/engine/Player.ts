@@ -21,13 +21,13 @@ export interface PlayerConfig {
 }
 
 const WALKING_SPEED = 0.05;
-const SHOT_SPEED = 0.5;
+const SHOT_SPEED = 0.1;
 const BUMP_SPEED = 0.1;
 const HORSE_SPEED = 10;
 
 export class Player extends GameObject {
   private _sprite: Sprite;
-  private _direction: Direction = 'left';
+  private _direction: Direction = 'right';
   private _train: Train;
 
   public id: string;
@@ -115,31 +115,24 @@ export class Player extends GameObject {
       return;
     }
 
-    this.doMoveToNextCar(this._direction, WALKING_SPEED);
+    this.doMoveToNextCar(this._direction, WALKING_SPEED, true);
   }
 
-  private doMoveToNextCar(direction: Direction, speed: number) {
+  private doMoveToNextCar(direction: Direction, speed: number, animate = false) {
     // get all placements
     const curPlacement = this.getPlacements().find(p => p.globalGridPos.equals(this.globalGridPos))!;
 
     const carIndex = this._train.getCarIndexFromPlacement(curPlacement);
 
-    let nextGridPos: Vec2;
-    // TODO: fix level
+    let nextPlacement: Placement;
     const level = this._train.getEngine().getLevelFromPlacement(curPlacement);
     if (direction === 'left') {
-      nextGridPos = this._train.getCar(carIndex - 1).getPlacement(level, 'right').globalGridPos;
+      nextPlacement = this._train.getCar(carIndex - 1).getPlacement(level, 'right');
     } else {
-      nextGridPos = this._train.getCar(carIndex + 1).getPlacement(level, 'left').globalGridPos;
+      nextPlacement = this._train.getCar(carIndex + 1).getPlacement(level, 'left');
     }
 
-    // look to bump other players
-    const playerToBump = this.getOtherPlayers().find(p => p.globalGridPos.equals(nextGridPos));
-
-    CQ.do(CQHelper.MoveTo(this, posFromGrid(nextGridPos), speed)).thenDo((deltaTime, done) => {
-      playerToBump?.bump(direction);
-      done();
-    });
+    this.moveToPlacement(nextPlacement, this._direction, speed, animate);
   }
 
   bump(direction: Direction) {
@@ -171,7 +164,10 @@ export class Player extends GameObject {
       otherPlayers.sort((a, b) => a.globalGridPos.x - b.globalGridPos.x);
     }
 
-    // TODO: shoot animation
+    CQ.do(CQHelper.Animate(1000, () => this.setAnimation('SHOOT_RIGHT'))).thenDo((deltaTime, done) => {
+      this.setAnimation('IDLE_RIGHT');
+      done();
+    });
     const playerToShoot = otherPlayers[0];
 
     playerToShoot?.takeHit(this._direction);
@@ -183,9 +179,12 @@ export class Player extends GameObject {
     }
 
     // TODO: shot animation (animate falling down here, then move auto animated)
-    CQ.do(CQHelper.DoFor(() => {}, 500));
     this.isUpright = false;
-    this.doMoveToNextCar(pushDirection, SHOT_SPEED);
+    CQ.do(CQHelper.Wait(200)).thenDo((deltaTime, done) => {
+      this.setAnimation('FALL_RIGHT');
+      this.doMoveToNextCar(pushDirection, SHOT_SPEED);
+      done();
+    });
   }
 
   climb() {
@@ -201,9 +200,13 @@ export class Player extends GameObject {
     // TODO: chained animation of walking then climbing
     const placements = this.root.findAllChildrenOfType(Placement);
     const placement = getNextVerticalPlacement(placements, this.globalGridPos);
-    if (placement) {
-      this.position = posFromGrid(placement.globalGridPos);
-    }
+
+    CQ.do(CQHelper.Animate(500, () => this.setAnimation('CLIMB')))
+      .do(CQHelper.MoveTo(this, placement.globalPosition, WALKING_SPEED))
+      .thenDo((deltaTime, done) => {
+        this.setAnimation('IDLE_RIGHT');
+        done();
+      });
   }
 
   horse() {
@@ -234,16 +237,32 @@ export class Player extends GameObject {
     this.shoot();
   }
 
-  private moveToPlacement(placement: Placement, direction: Direction, speed: number) {
+  private moveToPlacement(placement: Placement, direction: Direction, speed: number, animate = false) {
     const targetPos = posFromGrid(placement.globalGridPos);
     if (this.position.equals(targetPos)) {
       return;
     }
-    CQ.thenDo(CQHelper.MoveTo(this, targetPos, speed)).thenDo((deltaTime, done) => {
-      const playerToBump = this.getOtherPlayers().find(p => p.globalGridPos.equals(placement.globalGridPos));
-      playerToBump?.bump(direction);
+
+    if (animate == false) {
+      CQ.do(CQHelper.MoveTo(this, targetPos, speed)).thenDo((deltaTime, done) => {
+        const playerToBump = this.getOtherPlayers().find(p => p.globalGridPos.equals(placement.globalGridPos));
+        playerToBump?.bump(direction);
+        done();
+      });
+      return;
+    }
+
+    CQ.thenDo((deltaTime, done) => {
+      if (animate) this.setAnimation('WALK_RIGHT');
       done();
-    });
+    })
+      .thenDo(CQHelper.MoveTo(this, targetPos, speed))
+      .thenDo((deltaTime, done) => {
+        const playerToBump = this.getOtherPlayers().find(p => p.globalGridPos.equals(placement.globalGridPos));
+        playerToBump?.bump(direction);
+        if (animate) this.setAnimation('IDLE_RIGHT');
+        done();
+      });
   }
 
   private getPlacements() {
