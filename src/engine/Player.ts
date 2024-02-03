@@ -48,7 +48,7 @@ export class Player extends GameObject {
       resource: Resources.player,
       frameSize: new Vec2(16, 16),
       hFrames: 6,
-      vFrames: 4,
+      vFrames: 7,
       frame: 0,
       scale: 2,
       animationPlayer: new AnimationPlayer(animationPlayerConfig)

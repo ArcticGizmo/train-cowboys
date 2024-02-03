@@ -50,7 +50,8 @@ const range = (first: number, last: number): number[] => {
 export const PlayerAnimations = {
   IDLE_RIGHT: buildEqualFrames({ from: 0, to: 3 }, 500),
   WALK_RIGHT: buildEqualFrames({ from: 6, to: 9 }, 500),
-  SHOOT_RIGHT: buildEqualFrames([...range(12, 20), 14, 13, 12], 1000)
+  SHOOT_RIGHT: buildEqualFrames([...range(12, 20), 14, 13, 12], 1000),
+  CLIMB: buildEqualFrames({ from: 24, to: 27 }, 1000)
 };
 
 export type PlayerAnimationName = keyof typeof PlayerAnimations;

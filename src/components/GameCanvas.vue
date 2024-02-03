@@ -24,6 +24,7 @@
     <button @click="engine.playAnimation('IDLE_RIGHT')">Idle</button>
     <button @click="engine.playAnimation('WALK_RIGHT')">Walk</button>
     <button @click="engine.playAnimation('SHOOT_RIGHT')">Shoot</button>
+    <button @click="engine.playAnimation('CLIMB')">Climb</button>
   </div>
 </template>
 
