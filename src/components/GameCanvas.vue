@@ -7,7 +7,7 @@
     <button @click="engine.start()">Start</button>
     <button @click="engine.stop()">Stop</button>
   </div> -->
-  <div>{{ engine.status }}</div>
+  <!-- <div>{{ engine.status }}</div>
   <div>
     <h1>Actions</h1>
     <button @click="onBump()">Bump</button>
@@ -23,7 +23,7 @@
     <br />
     <h1>Animations</h1>
     <button v-for="name in ANIMATIONS" :key="name" @click="engine.playAnimation(name)">{{ name }}</button>
-  </div>
+  </div> -->
 </template>
 
 <script setup lang="ts">
@@ -31,71 +31,74 @@ import { ref, watch } from 'vue';
 import { GameEngine } from '@/engine/GameEngine';
 import { Vec2 } from '@/engine/Vec2';
 import { PlayerAnimations, type PlayerAnimationName } from '@/engine/animations/playerAnimations';
+import { TrainCowboys } from '@/engine/TrainCowboys';
 const CANVAS_WIDTH = 460;
 const CANVAS_HEIGHT = 200;
 
 // const CANVAS_WIDTH = 200;
 // const CANVAS_HEIGHT = 100;
-
-const engine = new GameEngine(new Vec2(CANVAS_WIDTH, CANVAS_HEIGHT));
-
-const ANIMATIONS = Object.keys(PlayerAnimations) as PlayerAnimationName[];
-
 const canvas = ref<HTMLCanvasElement>();
 
-watch(
-  () => canvas.value,
-  c => {
-    const ctx = c!.getContext('2d')!;
-    if (!ctx) {
-      throw 'Context not defined';
-    }
-    engine.bindContext(ctx);
+const game = new TrainCowboys(canvas);
 
-    engine.init();
-    engine.start();
-  }
-);
+// const engine = new GameEngine(new Vec2(CANVAS_WIDTH, CANVAS_HEIGHT));
 
-const onBump = () => {
-  console.log('--- bump');
-  engine.bumpPlayer();
-};
+// const ANIMATIONS = Object.keys(PlayerAnimations) as PlayerAnimationName[];
 
-const onMove = () => {
-  console.log('--- move');
-  engine.movePlayerToNextCar();
-};
 
-const onTurn = () => {
-  console.log('--- turn');
-  engine.turnPlayer();
-};
+// watch(
+//   () => canvas.value,
+//   c => {
+//     const ctx = c!.getContext('2d')!;
+//     if (!ctx) {
+//       throw 'Context not defined';
+//     }
+//     engine.bindContext(ctx);
 
-const onShoot = () => {
-  console.log('--- shoot');
-  engine.shootPlayer();
-};
+//     engine.init();
+//     engine.start();
+//   }
+// );
 
-const onClimb = () => {
-  console.log('--- climb');
-  engine.climbPlayer();
-};
+// const onBump = () => {
+//   console.log('--- bump');
+//   engine.bumpPlayer();
+// };
 
-const onHorse = () => {
-  console.log('--- horse');
-  engine.horsePlayer();
-};
+// const onMove = () => {
+//   console.log('--- move');
+//   engine.movePlayerToNextCar();
+// };
 
-const onReflex = () => {
-  console.log('--- reflex');
-  engine.reflexPlayer();
-};
+// const onTurn = () => {
+//   console.log('--- turn');
+//   engine.turnPlayer();
+// };
 
-const onEndRound = () => {
-  console.log('--- end round');
-  engine.endRound();
-};
+// const onShoot = () => {
+//   console.log('--- shoot');
+//   engine.shootPlayer();
+// };
+
+// const onClimb = () => {
+//   console.log('--- climb');
+//   engine.climbPlayer();
+// };
+
+// const onHorse = () => {
+//   console.log('--- horse');
+//   engine.horsePlayer();
+// };
+
+// const onReflex = () => {
+//   console.log('--- reflex');
+//   engine.reflexPlayer();
+// };
+
+// const onEndRound = () => {
+//   console.log('--- end round');
+//   engine.endRound();
+// };
 </script>
 
 <style scoped>

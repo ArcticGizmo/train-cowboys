@@ -9,105 +9,94 @@ import { Train } from './Train';
 import { CQ, CQHelper } from './ChangeQueue';
 import { PlayerAnimationName } from './animations/playerAnimations';
 
-const PLAYER_COUNT = 3;
-
-const playerColors = ['red', 'blue', 'magenta', 'black', 'white'];
-
 export class GameEngine {
   private _ctx: CanvasRenderingContext2D = null!;
   private _loop = new GameLoop(
     delta => this.update(delta),
     () => this.render()
   );
-  private _canvasSize: Vec2;
-  private _root = new GameObject();
-  private _players: Player[] = [];
-  private _currentPlayerIndex = 0;
 
-  isReady = ref(false);
+  canvasSize: Vec2;
+
+  root = new GameObject();
   isRunning = ref(false);
-  status = ref<'ongoing' | 'win' | 'draw'>('ongoing');
 
-  constructor(canvasSize: Vec2) {
-    this._canvasSize = canvasSize;
-  }
-
-  bindContext(ctx: CanvasRenderingContext2D) {
+  constructor(ctx: CanvasRenderingContext2D) {
     this._ctx = ctx;
     ctx.imageSmoothingEnabled = false;
-    this.isReady.value = true;
+    this.canvasSize = new Vec2(this._ctx.canvas.width, this._ctx.canvas.height);
   }
 
-  init() {
-    const bg = new Sprite({
-      resource: Resources.grid,
-      frameSize: new Vec2(1024, 1024),
-      opacity: 0.1
-    });
+  // init() {
+  //   const bg = new Sprite({
+  //     resource: Resources.grid,
+  //     frameSize: new Vec2(1024, 1024),
+  //     opacity: 0.1
+  //   });
 
-    this.addChild(bg);
+  //   this.addChild(bg);
 
-    // create the train
-    const train = new Train({
-      gridPosition: new Vec2(1, 4),
-      playerCount: PLAYER_COUNT
-    });
-    this.addChild(train);
+  //   // create the train
+  //   const train = new Train({
+  //     gridPosition: new Vec2(1, 4),
+  //     playerCount: PLAYER_COUNT
+  //   });
+  //   this.addChild(train);
 
-    // create players
-    for (let pIndex = 0; pIndex < PLAYER_COUNT; pIndex++) {
-      const playerPos = train.getCar(pIndex + 2).getPlacement('top', 'left').globalGridPos;
-      const player = new Player({
-        id: `player-${pIndex}`,
-        gridPos: playerPos,
-        color: playerColors[pIndex],
-        train
-      });
-      this._players.push(player);
-      this.addChild(player);
-    }
-  }
+  //   // create players
+  //   for (let pIndex = 0; pIndex < PLAYER_COUNT; pIndex++) {
+  //     const playerPos = train.getCar(pIndex + 2).getPlacement('top', 'left').globalGridPos;
+  //     const player = new Player({
+  //       id: `player-${pIndex}`,
+  //       gridPos: playerPos,
+  //       color: playerColors[pIndex],
+  //       train
+  //     });
+  //     this._players.push(player);
+  //     this.addChild(player);
+  //   }
+  // }
 
-  playAnimation(name: PlayerAnimationName) {
-    if (CQ.inProgress()) {
-      console.log('--- still running animation');
-      return;
-    }
-    const player = this.curPlayer;
-    player.setAnimation(name);
-  }
+  // playAnimation(name: PlayerAnimationName) {
+  //   if (CQ.inProgress()) {
+  //     console.log('--- still running animation');
+  //     return;
+  //   }
+  //   const player = this.curPlayer;
+  //   player.setAnimation(name);
+  // }
 
-  testCQ() {
-    if (!CQ.isFinished()) {
-      console.log('-=-- still running');
-      return;
-    }
+  // testCQ() {
+  //   if (!CQ.isFinished()) {
+  //     console.log('-=-- still running');
+  //     return;
+  //   }
 
-    const player = this.curPlayer;
-    player.position = new Vec2(30, 30);
-    // CQ.do(CQHelper.MoveTo(player, new Vec2(50, 30), 0.05));
-    CQ.do(
-      CQHelper.DoFor((deltaTime: number) => {
-        player.position.add(new Vec2(0.005 * deltaTime, 0));
-      }, 2500)
-    ).thenDo(
-      CQHelper.DoFor((deltaTime: number) => {
-        player.position.add(new Vec2(0, 0.005 * deltaTime));
-      }, 2500)
-    );
+  //   const player = this.curPlayer;
+  //   player.position = new Vec2(30, 30);
+  //   // CQ.do(CQHelper.MoveTo(player, new Vec2(50, 30), 0.05));
+  //   CQ.do(
+  //     CQHelper.DoFor((deltaTime: number) => {
+  //       player.position.add(new Vec2(0.005 * deltaTime, 0));
+  //     }, 2500)
+  //   ).thenDo(
+  //     CQHelper.DoFor((deltaTime: number) => {
+  //       player.position.add(new Vec2(0, 0.005 * deltaTime));
+  //     }, 2500)
+  //   );
 
-    const nextPlayer = this._players[this._currentPlayerIndex + 1];
+  //   const nextPlayer = this._players[this._currentPlayerIndex + 1];
 
-    CQ.do(
-      CQHelper.DoFor((deltaTime: number) => {
-        nextPlayer.position.add(new Vec2(0.005 * deltaTime, 0));
-      }, 10_000)
-    );
-  }
+  //   CQ.do(
+  //     CQHelper.DoFor((deltaTime: number) => {
+  //       nextPlayer.position.add(new Vec2(0.005 * deltaTime, 0));
+  //     }, 10_000)
+  //   );
+  // }
 
-  private get curPlayer() {
-    return this._players[this._currentPlayerIndex];
-  }
+  // private get curPlayer() {
+  //   return this._players[this._currentPlayerIndex];
+  // }
 
   start() {
     this.isRunning.value = true;
@@ -119,125 +108,125 @@ export class GameEngine {
     this._loop.stop();
   }
 
-  turnPlayer() {
-    if (CQ.inProgress()) {
-      return;
-    }
-    this.curPlayer.turn();
-    this.nextPlayer();
-  }
+  // turnPlayer() {
+  //   if (CQ.inProgress()) {
+  //     return;
+  //   }
+  //   this.curPlayer.turn();
+  //   this.nextPlayer();
+  // }
 
-  movePlayerToNextCar() {
-    if (CQ.inProgress()) {
-      return;
-    }
-    this.curPlayer.moveToNextCar();
-    this.nextPlayer();
-  }
+  // movePlayerToNextCar() {
+  //   if (CQ.inProgress()) {
+  //     return;
+  //   }
+  //   this.curPlayer.moveToNextCar();
+  //   this.nextPlayer();
+  // }
 
-  bumpPlayer() {
-    if (CQ.inProgress()) {
-      return;
-    }
+  // bumpPlayer() {
+  //   if (CQ.inProgress()) {
+  //     return;
+  //   }
 
-    this.curPlayer.bump('left');
-    this.nextPlayer();
-  }
+  //   this.curPlayer.bump('left');
+  //   this.nextPlayer();
+  // }
 
-  shootPlayer() {
-    if (CQ.inProgress()) {
-      return;
-    }
-    this.curPlayer.shoot();
-    this.nextPlayer();
-  }
+  // shootPlayer() {
+  //   if (CQ.inProgress()) {
+  //     return;
+  //   }
+  //   this.curPlayer.shoot();
+  //   this.nextPlayer();
+  // }
 
-  climbPlayer() {
-    if (CQ.inProgress()) {
-      return;
-    }
-    this.curPlayer.climb();
-    this.nextPlayer();
-  }
+  // climbPlayer() {
+  //   if (CQ.inProgress()) {
+  //     return;
+  //   }
+  //   this.curPlayer.climb();
+  //   this.nextPlayer();
+  // }
 
-  horsePlayer() {
-    if (CQ.inProgress()) {
-      return;
-    }
-    this.curPlayer.horse();
-    this.nextPlayer();
-  }
+  // horsePlayer() {
+  //   if (CQ.inProgress()) {
+  //     return;
+  //   }
+  //   this.curPlayer.horse();
+  //   this.nextPlayer();
+  // }
 
-  reflexPlayer() {
-    if (CQ.inProgress()) {
-      return;
-    }
-    this.curPlayer.reflex();
-    this.nextPlayer();
-  }
+  // reflexPlayer() {
+  //   if (CQ.inProgress()) {
+  //     return;
+  //   }
+  //   this.curPlayer.reflex();
+  //   this.nextPlayer();
+  // }
 
-  endRound() {
-    if (CQ.inProgress()) {
-      return;
-    }
-    const remainingPlayers = this._players.filter(p => !p.isInDeathZone);
-    const playersToRemove = this._players.filter(p => p.isInDeathZone);
+  // endRound() {
+  //   if (CQ.inProgress()) {
+  //     return;
+  //   }
+  //   const remainingPlayers = this._players.filter(p => !p.isInDeathZone);
+  //   const playersToRemove = this._players.filter(p => p.isInDeathZone);
 
-    // fix the next player index
-    const curPlayer = this.curPlayer;
-    if (remainingPlayers.includes(curPlayer)) {
-      this._players = remainingPlayers;
-      this._currentPlayerIndex = this._players.indexOf(curPlayer);
-    } else {
-      const playerCircle = this._players.slice();
-      playerCircle.push(...playerCircle);
-      let nextIndex = 0;
-      for (let i = this._currentPlayerIndex; i < playerCircle.length; i++) {
-        const playerToCheck = playerCircle[i];
-        if (remainingPlayers.includes(playerToCheck)) {
-          nextIndex = i;
-          break;
-        }
-      }
+  //   // fix the next player index
+  //   const curPlayer = this.curPlayer;
+  //   if (remainingPlayers.includes(curPlayer)) {
+  //     this._players = remainingPlayers;
+  //     this._currentPlayerIndex = this._players.indexOf(curPlayer);
+  //   } else {
+  //     const playerCircle = this._players.slice();
+  //     playerCircle.push(...playerCircle);
+  //     let nextIndex = 0;
+  //     for (let i = this._currentPlayerIndex; i < playerCircle.length; i++) {
+  //       const playerToCheck = playerCircle[i];
+  //       if (remainingPlayers.includes(playerToCheck)) {
+  //         nextIndex = i;
+  //         break;
+  //       }
+  //     }
 
-      this._players = remainingPlayers;
+  //     this._players = remainingPlayers;
 
-      this._currentPlayerIndex = nextIndex;
-    }
+  //     this._currentPlayerIndex = nextIndex;
+  //   }
 
-    playersToRemove.forEach(p => p.parent?.removeChild(p));
+  //   playersToRemove.forEach(p => p.parent?.removeChild(p));
 
-    const playerCount = this._players.length;
-    if (playerCount === 1) {
-      this.status.value = 'win';
-    } else if (playerCount === 0) {
-      this.status.value = 'draw';
-    }
+  //   const playerCount = this._players.length;
+  //   if (playerCount === 1) {
+  //     this.status.value = 'win';
+  //   } else if (playerCount === 0) {
+  //     this.status.value = 'draw';
+  //   }
 
-    this.nextPlayer();
-  }
+  //   this.nextPlayer();
+  // }
 
-  private nextPlayer() {
-    let nextId = this._currentPlayerIndex + 1;
-    if (nextId >= this._players.length) {
-      nextId = 0;
-    }
-    this._currentPlayerIndex = nextId;
-  }
+  // private nextPlayer() {
+  //   let nextId = this._currentPlayerIndex + 1;
+  //   if (nextId >= this._players.length) {
+  //     nextId = 0;
+  //   }
+  //   this._currentPlayerIndex = nextId;
+  // }
 
-  private addChild(gameObject: GameObject) {
-    this._root.addChild(gameObject);
-  }
+  // private addChild(gameObject: GameObject) {
+  //   this._root.addChild(gameObject);
+  // }
 
   private update(delta: number) {
-    this._root.stepEntry(delta, this._root);
+    this.root.stepEntry(delta, this.root);
     CQ.step(delta);
   }
 
   private render() {
     // clear everything to prevent artifacts
-    this._ctx.clearRect(0, 0, this._canvasSize.x, this._canvasSize.y);
+    this._ctx.clearRect(0, 0, this.canvasSize.x, this.canvasSize.y);
 
-    this._root.draw(this._ctx, 0, 0);
+    this.root.draw(this._ctx, 0, 0);
   }
 }
