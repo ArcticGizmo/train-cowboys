@@ -6,6 +6,7 @@ import { GameEngine } from './GameEngine';
 import { Resources } from './Resources';
 import { Sprite } from './Sprite';
 import { TimelineBuilder } from './Timeline';
+import { posFromGrid } from './utils';
 
 export type GameStatus = 'ongoing' | 'win' | 'draw';
 
@@ -76,17 +77,18 @@ export class TrainCowboys {
     const p = this.curPlayer;
     p.gridPos = new Vec2(4, 4);
 
-    const speed = 0.05;
-    let time = 0;
-    await this._engine.registerHandle((done, deltaTime) => {
-      time += deltaTime;
-      console.log('---- run');
-      if (time > 1500) {
-        done();
-      }
+    // const speed = 0.05;
+    // let time = 0;
+    // await this._engine.registerHandle((done, deltaTime) => {
+    //   time += deltaTime;
+    //   console.log('---- run');
+    //   if (time > 1500) {
+    //     done();
+    //   }
 
-      p.position.add(new Vec2(1, 0).scale(speed * deltaTime));
-    });
+    //   p.position.add(new Vec2(1, 0).scale(speed * deltaTime));
+    // });
+    await this._engine.moveTo(p, posFromGrid(new Vec2(10, 4)), 500);
 
     console.log('---- finished');
 

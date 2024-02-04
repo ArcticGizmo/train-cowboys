@@ -68,7 +68,29 @@ export class GameEngine {
     return h.promise;
   }
 
-  // async moveTo(obj: GameObject, targetPos: Vec2) {}
+  async moveTo(target: GameObject, targetPos: Vec2, duration: number) {
+    if (duration <= 0) duration = 1;
+    const diff = Vec2.diff(targetPos, target.position);
+    const direction = Vec2.normalised(diff);
+    const distance = diff.magnitude();
+
+    const speed = distance / duration;
+    return this.registerHandle((done, deltaTime) => {
+      const newPos = direction
+        .copy()
+        .scale(deltaTime * speed)
+        .add(target.position);
+
+      const isFinished = Vec2.isEqualOrOvershot(newPos, targetPos, direction);
+
+      if (isFinished) {
+        target.position.set(targetPos);
+        done();
+      } else {
+        target.position.set(newPos);
+      }
+    });
+  }
 
   start() {
     this.isRunning.value = true;
