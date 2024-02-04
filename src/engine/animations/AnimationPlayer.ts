@@ -1,10 +1,8 @@
-import { FrameIndexPattern } from './FrameIndexPattern';
-import { SingleShotFrameIndexPattern } from './SingleShotFrameIndexPattern';
+import { AnimationPattern } from './AnimationPattern';
 
-export interface AnimationConfig {
+export interface AnimationDefinition {
   duration: number;
   frames: AnimationFrame[];
-  singleShot?: boolean;
 }
 
 export interface AnimationFrame {
@@ -12,14 +10,18 @@ export interface AnimationFrame {
   frame: number;
 }
 
-export type FramePatterns = Record<string, FrameIndexPattern | SingleShotFrameIndexPattern>;
+export type AnimationPatterns = Record<string, AnimationPattern>;
 
 export class AnimationPlayer {
-  private _patterns: FramePatterns;
+  private _patterns: AnimationPatterns;
   private _activeKey: string;
+  private _isContinuous = true;
 
-  constructor(patterns: FramePatterns) {
+  isFinished = true;
+
+  constructor(patterns: AnimationPatterns) {
     this._patterns = patterns;
+    // default to the first pattern
     this._activeKey = Object.keys(patterns)[0];
   }
 
@@ -27,15 +29,41 @@ export class AnimationPlayer {
     return this._patterns[this._activeKey].frame;
   }
 
-  play(key: string, startAtTime = 0, reinit = false) {
-    if (!reinit && this._activeKey === key) {
+  play(key: string) {
+    if (this._activeKey === key && this._isContinuous) {
+      // don't restart the animation, it is already playing
       return;
     }
+
+    this.isFinished = false;
+    this._isContinuous = true;
     this._activeKey = key;
-    this._patterns[key].currentTime = startAtTime;
+    this._patterns[key].currentTime = 0;
+  }
+
+  playOnce(key: string) {
+    // this one will always trigger the start of the animation
+    this._isContinuous = false;
+    this._activeKey = key;
+    this._patterns[key].currentTime = 0;
   }
 
   step(delta: number) {
-    this._patterns[this._activeKey].step(delta);
+    const pattern = this._patterns[this._activeKey];
+    const isDone = pattern.step(delta);
+
+    // if still running, nothing to report
+    if (!isDone) {
+      return;
+    }
+
+    // if done, but in continuous mode, restart animation
+    if (this._isContinuous) {
+      pattern.currentTime = 0;
+      return;
+    }
+
+    // if done and in single shot mode, mark as finished
+    this.isFinished = true;
   }
 }

@@ -6,9 +6,8 @@ import { Sprite } from './Sprite';
 import { SpriteCircle } from './SpriteCircle';
 import { Train } from './Train';
 import { Vec2 } from './Vec2';
-import { AnimationPlayer, FramePatterns } from './animations/AnimationPlayer';
-import { FrameIndexPattern } from './animations/FrameIndexPattern';
-import { SingleShotFrameIndexPattern } from './animations/SingleShotFrameIndexPattern';
+import { AnimationPlayer, AnimationPatterns } from './animations/AnimationPlayer';
+import { AnimationPattern } from './animations/AnimationPattern';
 import { PlayerAnimationName, PlayerAnimations } from './animations/playerAnimations';
 import { Direction } from './direction';
 import { getNextHorizontalPlacement, getNextVerticalPlacement, gridFromPos, posFromGrid } from './utils';
@@ -20,17 +19,11 @@ export interface PlayerConfig {
   // train: Train;
 }
 
-const WALKING_SPEED = 0.05;
-const SHOT_SPEED = 0.1;
-const BUMP_SPEED = 0.1;
-const HORSE_SPEED = 10;
-
 export class Player extends GameObject {
   private _sprite: Sprite;
-  private _direction: Direction = 'right';
   private _indicator: SpriteCircle;
-  // private _train: Train;
 
+  public direction: Direction = 'right';
   public id: string;
   public isAlive = true;
   public isUpright = true;
@@ -39,16 +32,11 @@ export class Player extends GameObject {
   constructor(config: PlayerConfig) {
     super({ position: posFromGrid(config.gridPos ?? Vec2.ZERO()) });
 
-    // this._train = config.train;
     this.id = config.id;
 
-    const animationPlayerConfig: FramePatterns = {};
+    const animationPlayerConfig: AnimationPatterns = {};
     Object.entries(PlayerAnimations).forEach(([key, value]) => {
-      if (value.singleShot) {
-        animationPlayerConfig[key] = new SingleShotFrameIndexPattern(value);
-      } else {
-        animationPlayerConfig[key] = new FrameIndexPattern(value);
-      }
+      animationPlayerConfig[key] = new AnimationPattern(value);
     });
 
     this._sprite = new Sprite({
@@ -71,6 +59,10 @@ export class Player extends GameObject {
     this.addChild(this._indicator);
   }
 
+  set gridPos(value: Vec2) {
+    this.position = posFromGrid(value);
+  }
+
   get globalGridPos() {
     return gridFromPos(this.globalPosition);
   }
@@ -85,18 +77,12 @@ export class Player extends GameObject {
     this._indicator.radius = 1;
   }
 
+  step(delta: number) {}
+
   // get isInDeathZone() {
   //   const curPlacement = this.getPlacements().find(p => p.globalGridPos.equals(this.globalGridPos))!;
   //   return this._train.isInDeathZone(curPlacement);
   // }
-
-  step(delta: number) {
-    // if (this.isUpright) {
-    //   this._sprite.frame = this._direction === 'left' ? 0 : 1;
-    // } else {
-    //   this._sprite.frame = this._direction === 'left' ? 2 : 3;
-    // }
-  }
 
   // setAnimation(name: PlayerAnimationName) {
   //   this._sprite.animationPlayer?.play(name);

@@ -6,6 +6,7 @@
   <div>
     <h3>Actions</h3>
     <button @click="game.nextPlayer()">Next Player</button>
+    <button @click="game.test()">Test Timeline</button>
   </div>
 </template>
 
@@ -22,7 +23,7 @@ const CANVAS_WIDTH = 200;
 const CANVAS_HEIGHT = 100;
 const canvas = ref<HTMLCanvasElement>();
 
-const game = new TrainCowboys(canvas);
+const game = new TrainCowboys({ playerCount: 2, canvas });
 
 // const engine = new GameEngine(new Vec2(CANVAS_WIDTH, CANVAS_HEIGHT));
 

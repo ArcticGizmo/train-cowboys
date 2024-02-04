@@ -9,12 +9,47 @@ import { Train } from './Train';
 import { CQ, CQHelper } from './ChangeQueue';
 import { PlayerAnimationName } from './animations/playerAnimations';
 
+type Resolve = (value: void | PromiseLike<void>) => void;
+export type HandleCallback = (done: () => void, delta: number) => void;
+
+class Handle {
+  private _resolve: Resolve = null!;
+  private _cb: HandleCallback;
+
+  promise: Promise<void>;
+  private _doneCallback: () => void;
+
+  isDone = false;
+
+  constructor(cb: HandleCallback) {
+    this._cb = cb;
+    this._doneCallback = () => this.done();
+    this.promise = new Promise(res => {
+      this._resolve = res;
+    });
+  }
+
+  private done() {
+    this.isDone = true;
+    this._resolve();
+  }
+
+  step(delta: number) {
+    if (this.isDone) {
+      return;
+    }
+
+    this._cb(this._doneCallback, delta);
+  }
+}
+
 export class GameEngine {
   private _ctx: CanvasRenderingContext2D = null!;
   private _loop = new GameLoop(
     delta => this.update(delta),
     () => this.render()
   );
+  private _handles: Handle[] = [];
 
   canvasSize: Vec2;
 
@@ -25,6 +60,38 @@ export class GameEngine {
     this._ctx = ctx;
     ctx.imageSmoothingEnabled = false;
     this.canvasSize = new Vec2(this._ctx.canvas.width, this._ctx.canvas.height);
+  }
+
+  async registerHandle(cb: HandleCallback) {
+    const h = new Handle(cb);
+    this._handles.push(h);
+    return h.promise;
+  }
+
+  // async moveTo(obj: GameObject, targetPos: Vec2) {}
+
+  start() {
+    this.isRunning.value = true;
+    this._loop.start();
+  }
+
+  stop() {
+    this.isRunning.value = false;
+    this._loop.stop();
+  }
+
+  private update(delta: number) {
+    this.root.stepEntry(delta, this.root);
+
+    this._handles.forEach(h => h.step(delta));
+    this._handles = this._handles.filter(h => !h.isDone);
+  }
+
+  private render() {
+    // clear everything to prevent artifacts
+    this._ctx.clearRect(0, 0, this.canvasSize.x, this.canvasSize.y);
+
+    this.root.draw(this._ctx, 0, 0);
   }
 
   // init() {
@@ -97,16 +164,6 @@ export class GameEngine {
   // private get curPlayer() {
   //   return this._players[this._currentPlayerIndex];
   // }
-
-  start() {
-    this.isRunning.value = true;
-    this._loop.start();
-  }
-
-  stop() {
-    this.isRunning.value = false;
-    this._loop.stop();
-  }
 
   // turnPlayer() {
   //   if (CQ.inProgress()) {
@@ -217,16 +274,4 @@ export class GameEngine {
   // private addChild(gameObject: GameObject) {
   //   this._root.addChild(gameObject);
   // }
-
-  private update(delta: number) {
-    this.root.stepEntry(delta, this.root);
-    CQ.step(delta);
-  }
-
-  private render() {
-    // clear everything to prevent artifacts
-    this._ctx.clearRect(0, 0, this.canvasSize.x, this.canvasSize.y);
-
-    this.root.draw(this._ctx, 0, 0);
-  }
 }

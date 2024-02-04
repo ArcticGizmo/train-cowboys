@@ -1,12 +1,12 @@
-import { AnimationConfig } from './AnimationPlayer';
+import { AnimationDefinition } from './AnimationPlayer';
 
-export class FrameIndexPattern {
-  private _config: AnimationConfig;
+export class AnimationPattern {
+  private _config: AnimationDefinition;
   private _duration: number;
 
   public currentTime: number = 0;
 
-  constructor(config: AnimationConfig) {
+  constructor(config: AnimationDefinition) {
     this._config = config;
     this._duration = config.duration;
   }
@@ -24,8 +24,6 @@ export class FrameIndexPattern {
 
   step(delta: number) {
     this.currentTime += delta;
-    if (this.currentTime >= this._duration) {
-      this.currentTime = 0;
-    }
+    return this.currentTime >= this._duration;
   }
 }
