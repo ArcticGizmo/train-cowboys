@@ -282,7 +282,21 @@ export class TrainCowboys {
     this.nextPlayer();
   }
 
-  async horse() {}
+  async horse() {
+    const player = this.curPlayer;
+
+    if (player.isStunned) {
+      await this.standup(player);
+      this.nextPlayer();
+      return;
+    }
+
+    const placement = this._train.getEngine().getBottomLeftPlacement();
+    // TODO: this movement will become a path below the train
+    await this._engine.moveToGrid(player, placement.globalGridPos, 1000);
+    // TODO: animations -- fall -- horse mount -- horse ride -- horse dismount
+    player.direction = 'right';
+  }
 
   private async tryBump(bumper: Player, gridPos: Vec2, direction: Direction) {
     const playerToBump = this.getOtherPlayers(bumper).find(p => p.globalGridPos.equals(gridPos));
