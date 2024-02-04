@@ -33,12 +33,13 @@ const range = (first: number, last: number): number[] => {
 
 export const PlayerAnimations = {
   IDLE_RIGHT: buildEqualFrames(range(0, 3), 500),
-  WALK_RIGHT: buildEqualFrames(range(6, 9), 500),
-  SHOOT_RIGHT: buildEqualFrames([...range(12, 20), ...range(14, 12)], 1000),
-  CLIMB: buildEqualFrames(range(24, 27), 1000),
-  FALL_RIGHT: buildEqualFrames(range(30, 34), 500),
-  TURN_FROM_RIGHT: buildEqualFrames(range(36, 38), 500),
-  REFLEX_RIGHT: buildEqualFrames(range(42, 51), 1500)
+  WALK_RIGHT: buildEqualFrames(range(5, 8), 500),
+  SHOOT_RIGHT: buildEqualFrames([...range(10, 18), ...range(12, 10)], 1000),
+  CLIMB: buildEqualFrames(range(20, 23), 1000),
+  FALL_RIGHT: buildEqualFrames(range(25, 29), 500),
+  TURN_FROM_RIGHT: buildEqualFrames(range(30, 32), 500),
+  REFLEX_RIGHT: buildEqualFrames(range(35, 45), 1500),
+  STAND_RIGHT: buildEqualFrames(range(50, 59), 1500)
 };
 
 export type PlayerAnimationName = keyof typeof PlayerAnimations;

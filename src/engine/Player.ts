@@ -38,7 +38,7 @@ export class Player extends GameObject {
     this._sprite = new Sprite({
       resource: Resources.player,
       frameSize: new Vec2(16, 16),
-      hFrames: 6,
+      hFrames: 5,
       vFrames: 25,
       frame: 0,
       animationPlayer: new AnimationPlayer(animationPlayerConfig)

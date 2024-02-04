@@ -310,7 +310,9 @@ export class TrainCowboys {
   }
 
   private async standup(player: Player) {
-    player.playAnimation('IDLE_RIGHT');
+    player.playAnimation('STAND_RIGHT', true);
+    await delay(1500);
     player.isStunned = false;
+    player.playAnimation('IDLE_RIGHT');
   }
 }
