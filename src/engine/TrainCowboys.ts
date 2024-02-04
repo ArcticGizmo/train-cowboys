@@ -51,20 +51,41 @@ export class TrainCowboys {
 
     this.addChild(bg);
 
+    // create some players
+    this.addPlayer(0);
+    this.addPlayer(1);
+
+    this._players[this._currentPlayerIndex].select();
+
+    // start the game automatically
+    this._engine.start();
+  }
+
+  nextPlayer() {
+    let nextId = this._currentPlayerIndex + 1;
+    if (nextId >= this._players.length) {
+      nextId = 0;
+    }
+    this._currentPlayerIndex = nextId;
+
+    // set selection
+    this._players.forEach(p => p.unselect());
+    this._players[nextId].select();
+  }
+
+  private addPlayer(index: number) {
     // create a single player for testing purposes
     const player = new Player({
-      id: 'player-1',
-      gridPos: new Vec2(2, 2),
-      color: playerColors[0]
+      id: `player-${index}`,
+      gridPos: new Vec2(2 + 4 * index, 2),
+      color: playerColors[index]
     });
 
+    this._players.push(player);
     this.addChild(player);
-
-    this._engine.start();
   }
 
   private addChild(obj: GameObject) {
     this._engine.root.addChild(obj);
-    return this;
   }
 }

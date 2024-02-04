@@ -9,22 +9,22 @@ export interface SpriteCircleConfig {
 }
 
 export class SpriteCircle extends GameObject {
-  private _color: string;
-  private _radius: number;
-  private _opacity: number;
+  public color: string;
+  public radius: number;
+  public opacity: number;
 
   constructor(config: SpriteCircleConfig) {
     super({ position: config.position });
-    this._radius = config.radius ?? 1;
-    this._color = config.color ?? 'purple';
-    this._opacity = config.opacity ?? 1;
+    this.radius = config.radius ?? 1;
+    this.color = config.color ?? 'purple';
+    this.opacity = config.opacity ?? 1;
   }
 
   drawImage(ctx: CanvasRenderingContext2D, x: number, y: number) {
     ctx.beginPath();
-    ctx.globalAlpha = this._opacity;
-    ctx.arc(x, y, this._radius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = this._color;
+    ctx.globalAlpha = this.opacity;
+    ctx.arc(x, y, this.radius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = this.color;
     ctx.fill();
     ctx.globalAlpha = 1;
   }

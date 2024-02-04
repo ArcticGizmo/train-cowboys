@@ -28,11 +28,13 @@ const HORSE_SPEED = 10;
 export class Player extends GameObject {
   private _sprite: Sprite;
   private _direction: Direction = 'right';
+  private _indicator: SpriteCircle;
   // private _train: Train;
 
   public id: string;
   public isAlive = true;
   public isUpright = true;
+  public isSelected = false;
 
   constructor(config: PlayerConfig) {
     super({ position: posFromGrid(config.gridPos ?? Vec2.ZERO()) });
@@ -55,23 +57,32 @@ export class Player extends GameObject {
       hFrames: 6,
       vFrames: 7,
       frame: 0,
-      scale: 2,
       animationPlayer: new AnimationPlayer(animationPlayerConfig)
     });
 
     this.addChild(this._sprite);
 
-    this.addChild(
-      new SpriteCircle({
-        position: new Vec2(8, -4),
-        radius: 3,
-        color: config.color
-      })
-    );
+    this._indicator = new SpriteCircle({
+      position: new Vec2(8, -4),
+      radius: 1,
+      color: config.color
+    });
+
+    this.addChild(this._indicator);
   }
 
   get globalGridPos() {
     return gridFromPos(this.globalPosition);
+  }
+
+  select() {
+    this.isSelected = true;
+    this._indicator.radius = 3;
+  }
+
+  unselect() {
+    this.isSelected = false;
+    this._indicator.radius = 1;
   }
 
   // get isInDeathZone() {

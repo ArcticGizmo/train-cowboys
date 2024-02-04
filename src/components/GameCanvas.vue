@@ -1,29 +1,12 @@
 <template>
   <canvas ref="canvas" style="border: 1px solid black" :width="CANVAS_WIDTH" :height="CANVAS_HEIGHT" />
-  <!-- <div>
-    <h1>Status</h1>
-    <p>isRunning: {{ engine.isRunning }}</p>
-    <h1>buttons and stuff</h1>
-    <button @click="engine.start()">Start</button>
-    <button @click="engine.stop()">Stop</button>
-  </div> -->
-  <!-- <div>{{ engine.status }}</div>
   <div>
-    <h1>Actions</h1>
-    <button @click="onBump()">Bump</button>
-    <button @click="onMove()">Move</button>
-    <button @click="onTurn()">Turn</button>
-    <button @click="onShoot()">Shoot</button>
-    <button @click="onClimb()">Climb</button>
-    <button @click="onHorse()">Horse</button>
-    <button @click="onReflex()">Reflex</button>
-    <br />
-    <button @click="onEndRound()">End Round</button>
-    <button @click="engine.testCQ()">Test CQ</button>
-    <br />
-    <h1>Animations</h1>
-    <button v-for="name in ANIMATIONS" :key="name" @click="engine.playAnimation(name)">{{ name }}</button>
-  </div> -->
+    <h3>Status: {{ game.status }}</h3>
+  </div>
+  <div>
+    <h3>Actions</h3>
+    <button @click="game.nextPlayer()">Next Player</button>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -32,11 +15,11 @@ import { GameEngine } from '@/engine/GameEngine';
 import { Vec2 } from '@/engine/Vec2';
 import { PlayerAnimations, type PlayerAnimationName } from '@/engine/animations/playerAnimations';
 import { TrainCowboys } from '@/engine/TrainCowboys';
-const CANVAS_WIDTH = 460;
-const CANVAS_HEIGHT = 200;
+// const CANVAS_WIDTH = 460;
+// const CANVAS_HEIGHT = 200;
 
-// const CANVAS_WIDTH = 200;
-// const CANVAS_HEIGHT = 100;
+const CANVAS_WIDTH = 200;
+const CANVAS_HEIGHT = 100;
 const canvas = ref<HTMLCanvasElement>();
 
 const game = new TrainCowboys(canvas);
@@ -44,7 +27,6 @@ const game = new TrainCowboys(canvas);
 // const engine = new GameEngine(new Vec2(CANVAS_WIDTH, CANVAS_HEIGHT));
 
 // const ANIMATIONS = Object.keys(PlayerAnimations) as PlayerAnimationName[];
-
 
 // watch(
 //   () => canvas.value,
@@ -116,6 +98,6 @@ canvas {
 
 button,
 p {
-  font-size: 2rem;
+  font-size: 1rem;
 }
 </style>
