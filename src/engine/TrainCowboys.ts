@@ -5,10 +5,8 @@ import { Player } from './Player';
 import { GameEngine } from './GameEngine';
 import { Resources } from './Resources';
 import { Sprite } from './Sprite';
-import { TimelineBuilder } from './Timeline';
 import { getNextHorizonalMovePlacement, getNextHorizontalBumpPlacement, getNextVerticalPlacement, posFromGrid } from './utils';
 import { Train } from './Train';
-import { Placement } from './Placement';
 import { Direction } from './direction';
 
 export type GameStatus = 'ongoing' | 'win' | 'draw';
@@ -314,64 +312,5 @@ export class TrainCowboys {
   private async standup(player: Player) {
     player.playAnimation('IDLE_RIGHT');
     player.isStunned = false;
-  }
-
-  // ============ debug stuff ==============
-  async test() {
-    console.log('--- testing movement');
-    const p = this.curPlayer;
-    p.gridPos = new Vec2(2, 2);
-
-    // Does the following
-    // - move to the right
-    // - climb down
-    // - pause for a second
-    // - move to the right
-    // - shoot
-    // - climb up
-    p.playAnimation('WALK_RIGHT');
-    await this._engine.moveToGrid(p, new Vec2(4, 2), 500);
-    p.playAnimation('CLIMB');
-    await this._engine.moveToGrid(p, new Vec2(4, 4), 500);
-    p.playAnimation('IDLE_RIGHT');
-    await delay(1000);
-    p.playAnimation('WALK_RIGHT');
-    await this._engine.moveToGrid(p, new Vec2(6, 4), 500);
-    p.playAnimation('SHOOT_RIGHT', true);
-    await delay(1000);
-    p.playAnimation('CLIMB');
-    await this._engine.moveToGrid(p, new Vec2(6, 2), 500);
-    p.playAnimation('IDLE_RIGHT');
-    console.log('---- finished');
-  }
-
-  async test2() {
-    console.log('--- testing movement');
-    const p1 = this._players[0];
-    const p2 = this._players[1];
-
-    p1.gridPos = new Vec2(2, 2);
-    p1.playAnimation('IDLE_RIGHT');
-
-    p2.gridPos = new Vec2(4, 2);
-    p2.playAnimation('IDLE_RIGHT');
-
-    // player 1 shoots player 2
-    p1.playAnimation('SHOOT_RIGHT', true);
-
-    await Promise.all([
-      // revert player 2 animation
-      delay(1000).then(() => {
-        p1.playAnimation('IDLE_RIGHT');
-      }),
-      // make player 2 take impact
-      delay(500).then(async () => {
-        p2.playAnimation('FALL_RIGHT', true);
-        await delay(100);
-        await this._engine.moveToGrid(p2, new Vec2(6, 2), 50);
-      })
-    ]);
-
-    console.log('---- finished');
   }
 }

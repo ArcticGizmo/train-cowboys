@@ -15,16 +15,11 @@
   <div>
     <h3>Debug Actions</h3>
     <button @click="game.nextPlayer()">Next Player</button>
-    <button @click="game.test()">Test Timeline</button>
-    <button @click="game.test2()">Test Timeline2</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { GameEngine } from '@/engine/GameEngine';
-import { Vec2 } from '@/engine/Vec2';
-import { PlayerAnimations, type PlayerAnimationName } from '@/engine/animations/playerAnimations';
+import { ref } from 'vue';
 import { TrainCowboys } from '@/engine/TrainCowboys';
 const CANVAS_WIDTH = 300;
 const CANVAS_HEIGHT = 200;
@@ -34,64 +29,6 @@ const CANVAS_HEIGHT = 200;
 const canvas = ref<HTMLCanvasElement>();
 
 const game = new TrainCowboys({ playerCount: 2, canvas });
-
-// const engine = new GameEngine(new Vec2(CANVAS_WIDTH, CANVAS_HEIGHT));
-
-// const ANIMATIONS = Object.keys(PlayerAnimations) as PlayerAnimationName[];
-
-// watch(
-//   () => canvas.value,
-//   c => {
-//     const ctx = c!.getContext('2d')!;
-//     if (!ctx) {
-//       throw 'Context not defined';
-//     }
-//     engine.bindContext(ctx);
-
-//     engine.init();
-//     engine.start();
-//   }
-// );
-
-// const onBump = () => {
-//   console.log('--- bump');
-//   engine.bumpPlayer();
-// };
-
-// const onMove = () => {
-//   console.log('--- move');
-//   engine.movePlayerToNextCar();
-// };
-
-// const onTurn = () => {
-//   console.log('--- turn');
-//   engine.turnPlayer();
-// };
-
-// const onShoot = () => {
-//   console.log('--- shoot');
-//   engine.shootPlayer();
-// };
-
-// const onClimb = () => {
-//   console.log('--- climb');
-//   engine.climbPlayer();
-// };
-
-// const onHorse = () => {
-//   console.log('--- horse');
-//   engine.horsePlayer();
-// };
-
-// const onReflex = () => {
-//   console.log('--- reflex');
-//   engine.reflexPlayer();
-// };
-
-// const onEndRound = () => {
-//   console.log('--- end round');
-//   engine.endRound();
-// };
 </script>
 
 <style scoped>
