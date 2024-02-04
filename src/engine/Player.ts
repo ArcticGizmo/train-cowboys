@@ -26,7 +26,7 @@ export class Player extends GameObject {
   public direction: Direction = 'right';
   public id: string;
   public isAlive = true;
-  public isUpright = true;
+  public isStunned = false;
   public isSelected = false;
 
   constructor(config: PlayerConfig) {

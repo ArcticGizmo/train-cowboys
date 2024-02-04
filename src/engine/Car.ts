@@ -52,6 +52,9 @@ export class Car extends GameObject {
   }
 
   getLevelFromPlacement(placement: Placement): Level {
+    console.log(placement.globalGridPos);
+    console.log(this._topPlacements[0].globalGridPos);
+    console.log(this._bottomPlacements[0].globalGridPos);
     if (this._topPlacements.some(p => p.globalGridPos.y === placement.globalGridPos.y)) {
       return 'top';
     }
@@ -60,5 +63,9 @@ export class Car extends GameObject {
 
   getBottomLeftPlacement() {
     return this._bottomPlacements[0];
+  }
+
+  getAllPlacements() {
+    return [...this._topPlacements, ...this._bottomPlacements];
   }
 }

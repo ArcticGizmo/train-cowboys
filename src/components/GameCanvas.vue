@@ -5,8 +5,13 @@
   </div>
   <div>
     <h3>Actions</h3>
+    <button @click="game.move()">Move</button>
+  </div>
+  <div>
+    <h3>Debug Actions</h3>
     <button @click="game.nextPlayer()">Next Player</button>
     <button @click="game.test()">Test Timeline</button>
+    <button @click="game.test2()">Test Timeline2</button>
   </div>
 </template>
 
@@ -16,11 +21,11 @@ import { GameEngine } from '@/engine/GameEngine';
 import { Vec2 } from '@/engine/Vec2';
 import { PlayerAnimations, type PlayerAnimationName } from '@/engine/animations/playerAnimations';
 import { TrainCowboys } from '@/engine/TrainCowboys';
-// const CANVAS_WIDTH = 460;
-// const CANVAS_HEIGHT = 200;
+const CANVAS_WIDTH = 300;
+const CANVAS_HEIGHT = 200;
 
-const CANVAS_WIDTH = 200;
-const CANVAS_HEIGHT = 100;
+// const CANVAS_WIDTH = 200;
+// const CANVAS_HEIGHT = 100;
 const canvas = ref<HTMLCanvasElement>();
 
 const game = new TrainCowboys({ playerCount: 2, canvas });

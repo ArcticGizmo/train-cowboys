@@ -40,6 +40,10 @@ export class Train extends GameObject {
     this._cars.forEach(c => this.addChild(c));
   }
 
+  getAllPlacements() {
+    return this._cars.flatMap(c => c.getAllPlacements());
+  }
+
   getCar(carIndex: number) {
     return this._cars[carIndex];
   }

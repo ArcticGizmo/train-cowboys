@@ -2,12 +2,6 @@ import { ref } from 'vue';
 import { GameObject } from './GameObject';
 import { Vec2 } from './Vec2';
 import { GameLoop } from './GameLoop';
-import { Sprite } from './Sprite';
-import { Resources } from './Resources';
-import { Player } from './Player';
-import { Train } from './Train';
-import { CQ, CQHelper } from './ChangeQueue';
-import { PlayerAnimationName } from './animations/playerAnimations';
 import { posFromGrid } from './utils';
 
 type Resolve = (value: void | PromiseLike<void>) => void;
