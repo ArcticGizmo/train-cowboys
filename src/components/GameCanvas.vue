@@ -6,6 +6,8 @@
   <div>
     <h3>Actions</h3>
     <button @click="game.move()">Move</button>
+    <button @click="game.climb()">Climb</button>
+    <button @click="game.shoot()">Shoot</button>
   </div>
   <div>
     <h3>Debug Actions</h3>

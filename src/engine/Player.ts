@@ -10,7 +10,7 @@ import { AnimationPlayer, AnimationPatterns, PlayRequest } from './animations/An
 import { AnimationPattern } from './animations/AnimationPattern';
 import { PlayerAnimationName, PlayerAnimations } from './animations/playerAnimations';
 import { Direction } from './direction';
-import { getNextHorizontalPlacement, getNextVerticalPlacement, gridFromPos, posFromGrid } from './utils';
+import { gridFromPos, posFromGrid } from './utils';
 
 export interface PlayerConfig {
   id: string;
@@ -82,6 +82,10 @@ export class Player extends GameObject {
   unselect() {
     this.isSelected = false;
     this._indicator.radius = 1;
+  }
+
+  changeDirection() {
+    this.direction = this.direction === 'left' ? 'right' : 'left';
   }
 
   step(delta: number) {}

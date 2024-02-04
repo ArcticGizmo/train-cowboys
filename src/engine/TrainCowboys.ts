@@ -6,7 +6,7 @@ import { GameEngine } from './GameEngine';
 import { Resources } from './Resources';
 import { Sprite } from './Sprite';
 import { TimelineBuilder } from './Timeline';
-import { getNextHorizontalPlacement, posFromGrid } from './utils';
+import { getNextHorizonalMovePlacement, getNextHorizontalBumpPlacement, getNextVerticalPlacement, posFromGrid } from './utils';
 import { Train } from './Train';
 import { Placement } from './Placement';
 import { Direction } from './direction';
@@ -114,6 +114,10 @@ export class TrainCowboys {
     this._engine.root.addChild(obj);
   }
 
+  private getOtherPlayers(notThis: Player) {
+    return this._players.filter(p => p !== notThis);
+  }
+
   // ============ actions ===============
   async move() {
     const player = this.curPlayer;
@@ -125,36 +129,114 @@ export class TrainCowboys {
     }
 
     // determine new position
-    const placements = this._train.getAllPlacements();
-    const curPlacement = placements.find(p => p.globalGridPos.equals(player.globalGridPos))!;
-
-    const carIndex = this._train.getCarIndexFromPlacement(curPlacement);
-
-    let nextPlacement: Placement;
-    const level = this._train.getEngine().getLevelFromPlacement(curPlacement);
-    if (player.direction === 'left') {
-      nextPlacement = this._train.getCar(carIndex - 1).getPlacement(level, 'right');
-    } else {
-      nextPlacement = this._train.getCar(carIndex + 1).getPlacement(level, 'left');
-    }
+    const nextPlacement = getNextHorizonalMovePlacement(this._train, player.globalGridPos, player.direction);
 
     // move player
     player.playAnimation('WALK_RIGHT');
     await this._engine.moveToGrid(player, nextPlacement.globalGridPos, 500);
+    player.playAnimation('IDLE_RIGHT');
 
     // recursively bump other players
     await this.tryBump(player, nextPlacement.globalGridPos, player.direction);
-    player.playAnimation('IDLE_RIGHT');
     this.nextPlayer();
   }
 
+  async shoot() {
+    const player = this.curPlayer;
+
+    if (player.isStunned) {
+      await this.standup(player);
+      this.nextPlayer();
+      return;
+    }
+
+    const { x, y } = player.globalGridPos;
+
+    let otherPlayers = this.getOtherPlayers(player).filter(p => p.isAlive && !p.isStunned && p.globalGridPos.y === y);
+
+    if (player.direction === 'left') {
+      otherPlayers = otherPlayers.filter(p => p.globalGridPos.x < x);
+      otherPlayers.sort((a, b) => b.globalGridPos.x - a.globalGridPos.x);
+    } else {
+      otherPlayers = otherPlayers.filter(p => p.globalGridPos.x > x);
+      otherPlayers.sort((a, b) => a.globalGridPos.x - b.globalGridPos.x);
+    }
+
+    const playerToShoot = otherPlayers[0];
+
+    player.playAnimation('SHOOT_RIGHT', true);
+
+    const effects = [delay(1000).then(() => player.playAnimation('IDLE_RIGHT'))];
+
+    if (playerToShoot) {
+      playerToShoot.isStunned = true;
+      const targetPlacement = getNextHorizonalMovePlacement(this._train, playerToShoot.globalGridPos, player.direction);
+      delay(500).then(async () => {
+        playerToShoot.playAnimation('FALL_RIGHT', true);
+        await delay(100);
+        await this._engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, 200);
+      });
+    }
+
+    await Promise.all(effects);
+
+    this.nextPlayer();
+  }
+
+  async turn() {
+    const player = this.curPlayer;
+
+    if (player.isStunned) {
+      await this.standup(player);
+      this.nextPlayer();
+      return;
+    }
+
+    player.changeDirection();
+    // TODO: update animation for the correct direction
+  }
+
+  async climb() {
+    // TODO: add a wrapper to prevent other actions being run
+    // before this action has been completed
+    const player = this.curPlayer;
+
+    if (player.isStunned) {
+      await this.standup(player);
+      this.nextPlayer();
+      return;
+    }
+
+    const curGrid = player.globalGridPos;
+    const placements = this._train.getAllPlacements();
+    // TODO: need to iron out the movement required here
+    // is it your closest side? What if you are in the middle?
+    const nextPlacement = getNextVerticalPlacement(placements, curGrid);
+
+    // TODO: move in the x direction to the ladder
+
+    // climb up ladder
+    player.playAnimation('CLIMB');
+    await this._engine.moveToGrid(player, nextPlacement.globalGridPos, 500);
+    player.playAnimation('IDLE_RIGHT');
+
+    // recursively bump other players
+    // TODO: figure out which direction bumping should work in
+    await this.tryBump(player, nextPlacement.globalGridPos, player.direction);
+    this.nextPlayer();
+  }
+
+  async reflex() {}
+
+  async horse() {}
+
   private async tryBump(bumper: Player, gridPos: Vec2, direction: Direction) {
-    const playerToBump = this._players.find(p => p !== bumper && p.globalGridPos.equals(gridPos));
+    const playerToBump = this.getOtherPlayers(bumper).find(p => p.globalGridPos.equals(gridPos));
     if (!playerToBump) {
       return;
     }
 
-    const nextPlacement = getNextHorizontalPlacement(this._train.getAllPlacements(), gridPos, direction);
+    const nextPlacement = getNextHorizontalBumpPlacement(this._train.getAllPlacements(), gridPos, direction);
     playerToBump.playAnimation('WALK_RIGHT');
     await this._engine.moveToGrid(playerToBump, nextPlacement.globalGridPos, 250);
     playerToBump.playAnimation('IDLE_RIGHT');
