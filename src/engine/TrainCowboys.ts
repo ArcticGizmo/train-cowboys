@@ -171,11 +171,13 @@ export class TrainCowboys {
     if (playerToShoot) {
       playerToShoot.isStunned = true;
       const targetPlacement = getNextHorizonalMovePlacement(this._train, playerToShoot.globalGridPos, player.direction);
-      delay(500).then(async () => {
-        playerToShoot.playAnimation('FALL_RIGHT', true);
-        await delay(100);
-        await this._engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, 200);
-      });
+      effects.push(
+        delay(500).then(async () => {
+          playerToShoot.playAnimation('FALL_RIGHT', true);
+          await delay(100);
+          await this._engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, 200);
+        })
+      );
     }
 
     await Promise.all(effects);
@@ -192,8 +194,10 @@ export class TrainCowboys {
       return;
     }
 
+    player.playAnimation('TURN_FROM_RIGHT', true);
+    await delay(500);
     player.changeDirection();
-    // TODO: update animation for the correct direction
+    player.playAnimation('IDLE_RIGHT');
   }
 
   async climb() {
@@ -217,7 +221,7 @@ export class TrainCowboys {
 
     // climb up ladder
     player.playAnimation('CLIMB');
-    await this._engine.moveToGrid(player, nextPlacement.globalGridPos, 500);
+    await this._engine.moveToGrid(player, nextPlacement.globalGridPos, 1000);
     player.playAnimation('IDLE_RIGHT');
 
     // recursively bump other players
@@ -226,7 +230,57 @@ export class TrainCowboys {
     this.nextPlayer();
   }
 
-  async reflex() {}
+  async reflex() {
+    // TODO: reflex cannot work across rounds, so maybe a reflex counter
+    // can be reset when required? (doulbe check the rules on that one)
+    const player = this.curPlayer;
+
+    if (!player.isStunned) {
+      // falldown
+      player.playAnimation('FALL_RIGHT', true);
+      await delay(500);
+      player.isStunned = true;
+      this.nextPlayer();
+      return;
+    }
+
+    const { x, y } = player.globalGridPos;
+
+    let otherPlayers = this.getOtherPlayers(player).filter(p => p.isAlive && !p.isStunned && p.globalGridPos.y === y);
+
+    if (player.direction === 'left') {
+      otherPlayers = otherPlayers.filter(p => p.globalGridPos.x < x);
+      otherPlayers.sort((a, b) => b.globalGridPos.x - a.globalGridPos.x);
+    } else {
+      otherPlayers = otherPlayers.filter(p => p.globalGridPos.x > x);
+      otherPlayers.sort((a, b) => a.globalGridPos.x - b.globalGridPos.x);
+    }
+
+    const playerToShoot = otherPlayers[0];
+
+    // reflex
+    player.playAnimation('REFLEX_RIGHT', true);
+
+    const effects = [delay(1500).then(() => player.playAnimation('IDLE_RIGHT'))];
+    player.isStunned = false;
+
+    if (playerToShoot) {
+      playerToShoot.isStunned = true;
+      const targetPlacement = getNextHorizonalMovePlacement(this._train, playerToShoot.globalGridPos, player.direction);
+      effects.push(
+        delay(500).then(async () => {
+          playerToShoot.playAnimation('FALL_RIGHT', true);
+          await delay(100);
+          await this._engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, 200);
+        })
+      );
+    }
+
+    await Promise.all(effects);
+    player.playAnimation('IDLE_RIGHT');
+
+    this.nextPlayer();
+  }
 
   async horse() {}
 

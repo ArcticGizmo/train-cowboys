@@ -43,7 +43,7 @@ export class Player extends GameObject {
       resource: Resources.player,
       frameSize: new Vec2(16, 16),
       hFrames: 6,
-      vFrames: 7,
+      vFrames: 25,
       frame: 0,
       animationPlayer: new AnimationPlayer(animationPlayerConfig)
     });

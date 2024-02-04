@@ -8,6 +8,9 @@
     <button @click="game.move()">Move</button>
     <button @click="game.climb()">Climb</button>
     <button @click="game.shoot()">Shoot</button>
+    <button @click="game.turn()">Turn</button>
+    <button @click="game.reflex()">reflex</button>
+    <button @click="game.horse()">Horse</button>
   </div>
   <div>
     <h3>Debug Actions</h3>
