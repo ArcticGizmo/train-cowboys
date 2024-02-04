@@ -10,6 +10,11 @@ export interface AnimationFrame {
   frame: number;
 }
 
+export interface PlayRequest {
+  key: string;
+  once?: boolean;
+}
+
 export type AnimationPatterns = Record<string, AnimationPattern>;
 
 export class AnimationPlayer {
@@ -29,7 +34,15 @@ export class AnimationPlayer {
     return this._patterns[this._activeKey].frame;
   }
 
-  play(key: string) {
+  play(req: PlayRequest) {
+    if (req.once) {
+      this.playOnce(req.key);
+    } else {
+      this.playForever(req.key);
+    }
+  }
+
+  playForever(key: string) {
     if (this._activeKey === key && this._isContinuous) {
       // don't restart the animation, it is already playing
       return;

@@ -17,6 +17,8 @@ export interface TrainCowboysConfig {
   playerCount: number;
 }
 
+const delay = (duration: number) => new Promise(r => setTimeout(r, duration));
+
 export class TrainCowboys {
   private _playerCount: number;
   private _engine: GameEngine = null!;
@@ -75,21 +77,28 @@ export class TrainCowboys {
   async test() {
     console.log('--- testing movement');
     const p = this.curPlayer;
-    p.gridPos = new Vec2(4, 4);
+    p.gridPos = new Vec2(2, 2);
 
-    // const speed = 0.05;
-    // let time = 0;
-    // await this._engine.registerHandle((done, deltaTime) => {
-    //   time += deltaTime;
-    //   console.log('---- run');
-    //   if (time > 1500) {
-    //     done();
-    //   }
-
-    //   p.position.add(new Vec2(1, 0).scale(speed * deltaTime));
-    // });
-    await this._engine.moveTo(p, posFromGrid(new Vec2(10, 4)), 500);
-
+    // Does the following
+    // - move to the right
+    // - climb down
+    // - pause for a second
+    // - move to the right
+    // - shoot
+    // - climb up
+    p.playAnimation('WALK_RIGHT');
+    await this._engine.moveToGrid(p, new Vec2(4, 2), 500);
+    p.playAnimation('CLIMB');
+    await this._engine.moveToGrid(p, new Vec2(4, 4), 500);
+    p.playAnimation('IDLE_RIGHT');
+    await delay(1000);
+    p.playAnimation('WALK_RIGHT');
+    await this._engine.moveToGrid(p, new Vec2(6, 4), 500);
+    p.playAnimation('SHOOT_RIGHT', true);
+    await delay(1000);
+    p.playAnimation('CLIMB');
+    await this._engine.moveToGrid(p, new Vec2(6, 2), 500);
+    p.playAnimation('IDLE_RIGHT');
     console.log('---- finished');
 
     // const tl = new TimelineBuilder()

@@ -8,6 +8,7 @@ import { Player } from './Player';
 import { Train } from './Train';
 import { CQ, CQHelper } from './ChangeQueue';
 import { PlayerAnimationName } from './animations/playerAnimations';
+import { posFromGrid } from './utils';
 
 type Resolve = (value: void | PromiseLike<void>) => void;
 export type HandleCallback = (done: () => void, delta: number) => void;
@@ -90,6 +91,10 @@ export class GameEngine {
         target.position.set(newPos);
       }
     });
+  }
+
+  async moveToGrid(target: GameObject, targetGrid: Vec2, duration: number) {
+    return this.moveTo(target, posFromGrid(targetGrid), duration);
   }
 
   start() {

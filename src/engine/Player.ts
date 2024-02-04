@@ -6,7 +6,7 @@ import { Sprite } from './Sprite';
 import { SpriteCircle } from './SpriteCircle';
 import { Train } from './Train';
 import { Vec2 } from './Vec2';
-import { AnimationPlayer, AnimationPatterns } from './animations/AnimationPlayer';
+import { AnimationPlayer, AnimationPatterns, PlayRequest } from './animations/AnimationPlayer';
 import { AnimationPattern } from './animations/AnimationPattern';
 import { PlayerAnimationName, PlayerAnimations } from './animations/playerAnimations';
 import { Direction } from './direction';
@@ -65,6 +65,13 @@ export class Player extends GameObject {
 
   get globalGridPos() {
     return gridFromPos(this.globalPosition);
+  }
+
+  playAnimation(key: PlayerAnimationName, once = false) {
+    this._sprite.animationPlayer?.play({
+      key,
+      once
+    });
   }
 
   select() {
