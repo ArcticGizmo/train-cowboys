@@ -130,9 +130,9 @@ export class TrainCowboys {
     const nextPlacement = getNextHorizonalMovePlacement(this._train, player.globalGridPos, player.direction);
 
     // move player
-    player.playAnimation('WALK_RIGHT');
+    player.playAnimation('WALK');
     await this._engine.moveToGrid(player, nextPlacement.globalGridPos, 500);
-    player.playAnimation('IDLE_RIGHT');
+    player.playAnimation('IDLE');
 
     // recursively bump other players
     await this.tryBump(player, nextPlacement.globalGridPos, player.direction);
@@ -162,16 +162,16 @@ export class TrainCowboys {
 
     const playerToShoot = otherPlayers[0];
 
-    player.playAnimation('SHOOT_RIGHT', true);
+    player.playAnimation('SHOOT', true);
 
-    const effects = [delay(1000).then(() => player.playAnimation('IDLE_RIGHT'))];
+    const effects = [delay(1000).then(() => player.playAnimation('IDLE'))];
 
     if (playerToShoot) {
       playerToShoot.isStunned = true;
       const targetPlacement = getNextHorizonalMovePlacement(this._train, playerToShoot.globalGridPos, player.direction);
       effects.push(
         delay(500).then(async () => {
-          playerToShoot.playAnimation('FALL_RIGHT', true);
+          playerToShoot.playAnimation('FALL', true);
           await delay(100);
           await this._engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, 200);
         })
@@ -192,10 +192,13 @@ export class TrainCowboys {
       return;
     }
 
-    player.playAnimation('TURN_FROM_RIGHT', true);
+    player.playAnimation('TURN_FROM', true);
     await delay(500);
+    console.log(player.direction);
     player.changeDirection();
-    player.playAnimation('IDLE_RIGHT');
+    console.log(player.direction);
+    player.playAnimation('IDLE');
+    this.nextPlayer();
   }
 
   async climb() {
@@ -220,7 +223,7 @@ export class TrainCowboys {
     // climb up ladder
     player.playAnimation('CLIMB');
     await this._engine.moveToGrid(player, nextPlacement.globalGridPos, 1000);
-    player.playAnimation('IDLE_RIGHT');
+    player.playAnimation('IDLE');
 
     // recursively bump other players
     // TODO: figure out which direction bumping should work in
@@ -235,7 +238,7 @@ export class TrainCowboys {
 
     if (!player.isStunned) {
       // falldown
-      player.playAnimation('FALL_RIGHT', true);
+      player.playAnimation('FALL', true);
       await delay(500);
       player.isStunned = true;
       this.nextPlayer();
@@ -257,9 +260,9 @@ export class TrainCowboys {
     const playerToShoot = otherPlayers[0];
 
     // reflex
-    player.playAnimation('REFLEX_RIGHT', true);
+    player.playAnimation('REFLEX', true);
 
-    const effects = [delay(1500).then(() => player.playAnimation('IDLE_RIGHT'))];
+    const effects = [delay(1500).then(() => player.playAnimation('IDLE'))];
     player.isStunned = false;
 
     if (playerToShoot) {
@@ -267,7 +270,7 @@ export class TrainCowboys {
       const targetPlacement = getNextHorizonalMovePlacement(this._train, playerToShoot.globalGridPos, player.direction);
       effects.push(
         delay(500).then(async () => {
-          playerToShoot.playAnimation('FALL_RIGHT', true);
+          playerToShoot.playAnimation('FALL', true);
           await delay(100);
           await this._engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, 200);
         })
@@ -275,7 +278,7 @@ export class TrainCowboys {
     }
 
     await Promise.all(effects);
-    player.playAnimation('IDLE_RIGHT');
+    player.playAnimation('IDLE');
 
     this.nextPlayer();
   }
@@ -303,16 +306,16 @@ export class TrainCowboys {
     }
 
     const nextPlacement = getNextHorizontalBumpPlacement(this._train.getAllPlacements(), gridPos, direction);
-    playerToBump.playAnimation('WALK_RIGHT');
+    playerToBump.playAnimation('WALK');
     await this._engine.moveToGrid(playerToBump, nextPlacement.globalGridPos, 250);
-    playerToBump.playAnimation('IDLE_RIGHT');
+    playerToBump.playAnimation('IDLE');
     await this.tryBump(playerToBump, nextPlacement.globalGridPos, direction);
   }
 
   private async standup(player: Player) {
-    player.playAnimation('STAND_RIGHT', true);
+    player.playAnimation('STAND', true);
     await delay(1500);
     player.isStunned = false;
-    player.playAnimation('IDLE_RIGHT');
+    player.playAnimation('IDLE');
   }
 }

@@ -5,7 +5,7 @@ import { SpriteCircle } from './SpriteCircle';
 import { Vec2 } from './Vec2';
 import { AnimationPlayer, AnimationPatterns, PlayRequest } from './animations/AnimationPlayer';
 import { AnimationPattern } from './animations/AnimationPattern';
-import { PlayerAnimationName, PlayerAnimations } from './animations/playerAnimations';
+import { PlayerAnimationBaseName, PlayerAnimationName, PlayerAnimations } from './animations/playerAnimations';
 import { Direction } from './direction';
 import { gridFromPos, posFromGrid } from './utils';
 
@@ -53,6 +53,8 @@ export class Player extends GameObject {
     });
 
     this.addChild(this._indicator);
+
+    this.playAnimation('IDLE');
   }
 
   set gridPos(value: Vec2) {
@@ -63,7 +65,8 @@ export class Player extends GameObject {
     return gridFromPos(this.globalPosition);
   }
 
-  playAnimation(key: PlayerAnimationName, once = false) {
+  playAnimation(base: PlayerAnimationBaseName, once = false) {
+    const key = `${base}_${this.direction.toUpperCase()}` as PlayerAnimationName;
     this._sprite.animationPlayer?.play({
       key,
       once
