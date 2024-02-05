@@ -43,3 +43,4 @@ export const getNextHorizonalMovePlacement = (train: Train, curGridPos: Vec2, di
 export const getNextVerticalPlacement = (placements: Placement[], curGridPos: Vec2) => {
   return placements.find(p => p.globalGridPos.x === curGridPos.x && p.globalGridPos.y !== curGridPos.y)!;
 };
+

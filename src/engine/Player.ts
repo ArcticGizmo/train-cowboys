@@ -19,7 +19,7 @@ export class Player extends GameObject {
   private _sprite: Sprite;
   private _indicator: SpriteCircle;
 
-  public direction: Direction = 'right';
+  public direction: Direction = 'left';
   public id: string;
   public isAlive = true;
   public isStunned = false;
@@ -39,7 +39,7 @@ export class Player extends GameObject {
       resource: Resources.player,
       frameSize: new Vec2(16, 16),
       hFrames: 5,
-      vFrames: 25,
+      vFrames: 30,
       frame: 0,
       animationPlayer: new AnimationPlayer(animationPlayerConfig)
     });
@@ -67,6 +67,10 @@ export class Player extends GameObject {
 
   playAnimation(base: PlayerAnimationBaseName, once = false) {
     const key = `${base}_${this.direction.toUpperCase()}` as PlayerAnimationName;
+    this.playAnimationByKey(key, once);
+  }
+
+  playAnimationByKey(key: PlayerAnimationName, once = false) {
     this._sprite.animationPlayer?.play({
       key,
       once

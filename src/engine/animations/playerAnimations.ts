@@ -33,7 +33,7 @@ const range = (first: number, last: number): number[] => {
 };
 
 // frame offset for varient
-const MIRROR_OFFSET = 12 * 5;
+const MIRROR_OFFSET = 15 * 5;
 
 type MirroredAnimationDefinition<T extends string> = Required<{
   [key in `${T}_RIGHT` | `${T}_LEFT`]: AnimationDefinition;
@@ -57,7 +57,9 @@ export const PlayerAnimations = {
   ...buildMirroredEqualFrames('FALL', range(25, 29), 500),
   ...buildMirroredEqualFrames('TURN_FROM', range(30, 32), 500),
   ...buildMirroredEqualFrames('REFLEX', range(35, 45), 1500),
-  ...buildMirroredEqualFrames('STAND', range(50, 59), 1500)
+  ...buildMirroredEqualFrames('STAND', range(50, 59), 1500),
+  ...buildMirroredEqualFrames('FREE_FALL', range(60, 64), 1000),
+  ...buildMirroredEqualFrames('TUMBLE', range(65, 70), 500)
 };
 
 export type PlayerAnimationName = keyof typeof PlayerAnimations;

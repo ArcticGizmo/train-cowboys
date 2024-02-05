@@ -8,6 +8,7 @@ import { Sprite } from './Sprite';
 import { getNextHorizonalMovePlacement, getNextHorizontalBumpPlacement, getNextVerticalPlacement, posFromGrid } from './utils';
 import { Train } from './Train';
 import { Direction } from './direction';
+import { Placement } from './Placement';
 
 export type GameStatus = 'ongoing' | 'win' | 'draw';
 
@@ -115,19 +116,63 @@ export class TrainCowboys {
     return this._players.filter(p => p !== notThis);
   }
 
+  private playerInDeathZone(player: Player) {
+    const placement = this._train.getAllPlacements().find(p => p.globalGridPos.equals(player.globalGridPos))!;
+    return this._train.isInDeathZone(placement);
+  }
+
+  private async animateFallingFromTrain(player: Player) {
+    // TODO: groudY might be static for drawing the tracks?
+    const groundY = this._train.getEngine().getBottomLeftPlacement().globalGridPos.y + 1;
+    player.playAnimation('FREE_FALL');
+    const fallTo = new Vec2(player.globalGridPos.x, groundY);
+    await this._engine.moveToGrid(player, fallTo, 250);
+
+    player.direction = 'left';
+    player.playAnimation('TUMBLE', true);
+    await this._engine.moveToGrid(player, new Vec2(30, groundY), 1000);
+  }
+
   // ============ actions ===============
   async move() {
     const player = this.curPlayer;
 
-    if (player.isStunned) {
-      await this.standup(player);
+    if (this.playerInDeathZone(player)) {
+      await this.animateFallingFromTrain(player);
+      // TODO: kill/remove the player
       this.nextPlayer();
       return;
     }
 
+    if (player)
+      if (player.isStunned) {
+        await this.standup(player);
+        this.nextPlayer();
+        return;
+      }
+
     // determine new position
     const nextPlacement = getNextHorizonalMovePlacement(this._train, player.globalGridPos, player.direction);
 
+    if (this._train.isInDeathZone(nextPlacement)) {
+      await this.moveUnsafe(player, nextPlacement);
+    } else {
+      await this.moveSafe(player, nextPlacement);
+    }
+  }
+
+  private async moveUnsafe(player: Player, nextPlacement: Placement) {
+    // play falling animation
+    player.changeDirection();
+    player.playAnimation('FALL', true);
+    // this prevents players from being shot while in mid air
+    player.isStunned = true;
+    await this._engine.moveToGrid(player, nextPlacement.globalGridPos, 500);
+    player.playAnimation('FREE_FALL');
+    this.nextPlayer();
+  }
+
+  private async moveSafe(player: Player, nextPlacement: Placement) {
     // move player
     player.playAnimation('WALK');
     await this._engine.moveToGrid(player, nextPlacement.globalGridPos, 500);
@@ -193,9 +238,7 @@ export class TrainCowboys {
 
     player.playAnimation('TURN_FROM', true);
     await delay(500);
-    console.log(player.direction);
     player.changeDirection();
-    console.log(player.direction);
     player.playAnimation('IDLE');
     this.nextPlayer();
   }
@@ -213,8 +256,7 @@ export class TrainCowboys {
 
     const curGrid = player.globalGridPos;
     const placements = this._train.getAllPlacements();
-    // TODO: need to iron out the movement required here
-    // is it your closest side? What if you are in the middle?
+    // TODO: move player so back is against car divider
     const nextPlacement = getNextVerticalPlacement(placements, curGrid);
 
     // TODO: move in the x direction to the ladder
@@ -285,7 +327,7 @@ export class TrainCowboys {
   async horse() {
     const player = this.curPlayer;
 
-    if (player.isStunned) {
+    if (!this.playerInDeathZone(player) && player.isStunned) {
       await this.standup(player);
       this.nextPlayer();
       return;
@@ -295,7 +337,9 @@ export class TrainCowboys {
     // TODO: this movement will become a path below the train
     await this._engine.moveToGrid(player, placement.globalGridPos, 1000);
     // TODO: animations -- fall -- horse mount -- horse ride -- horse dismount
-    player.direction = 'right';
+    player.direction = 'left';
+    player.isStunned = false;
+    player.playAnimation('IDLE');
   }
 
   private async tryBump(bumper: Player, gridPos: Vec2, direction: Direction) {
