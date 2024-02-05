@@ -96,7 +96,6 @@ export class TrainCowboys {
   }
 
   private addPlayer(index: number) {
-    // create a single player for testing purposes
     const gridPos = this._train.getCar(index + 1).getPlacement('bottom', 'left').globalGridPos;
     const player = new Player({
       id: `player-${index}`,

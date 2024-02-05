@@ -1,4 +1,4 @@
-import { KeepWithEnding, RemoveAndKeepWithEnding, RemoveEnding } from '@/types/typeHelpers';
+import { RemoveAndKeepWithEnding } from '@/types/typeHelpers';
 import { AnimationDefinition } from './AnimationPlayer';
 
 const buildEqualFrames = (frameNumbers: number[], duration: number): AnimationDefinition => {
@@ -62,7 +62,6 @@ export const PlayerAnimations = {
 
 export type PlayerAnimationName = keyof typeof PlayerAnimations;
 
-
 // Does this need to be done ... no ... but why not learn some TS magic.
 // This allows us to add on the direciton afterwards
-export type PlayerAnimationBaseName = RemoveAndKeepWithEnding<PlayerAnimationName, '_LEFT'>
+export type PlayerAnimationBaseName = RemoveAndKeepWithEnding<PlayerAnimationName, '_LEFT'>;
