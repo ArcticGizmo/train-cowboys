@@ -27,6 +27,7 @@ export class TrainCowboys {
   private _players: Player[] = [];
   private _currentPlayerIndex = 0;
   private _train: Train = null!;
+  private _actionRunning = false;
 
   isReady = ref(false);
 
@@ -67,6 +68,7 @@ export class TrainCowboys {
   }
 
   init() {
+    this._actionRunning = false;
     this._players = [];
     this._currentPlayerIndex = 0;
 
@@ -147,7 +149,26 @@ export class TrainCowboys {
   }
 
   // ============ actions ===============
+  private async doAction(action: () => Promise<void>) {
+    if (this._actionRunning) {
+      console.warn('action in progress. Request has been ignored');
+      return;
+    }
+
+    this._actionRunning = true;
+
+    try {
+      await action();
+    } finally {
+      this._actionRunning = false;
+    }
+  }
+
   async move() {
+    await this.doAction(() => this.doMove());
+  }
+
+  async doMove() {
     const player = this.curPlayer;
 
     if (this.playerInDeathZone(player)) {
@@ -197,6 +218,10 @@ export class TrainCowboys {
   }
 
   async shoot() {
+    await this.doAction(() => this.doShoot());
+  }
+
+  async doShoot() {
     const player = this.curPlayer;
 
     if (player.isStunned) {
@@ -241,6 +266,10 @@ export class TrainCowboys {
   }
 
   async turn() {
+    await this.doAction(() => this.doTurn());
+  }
+
+  async doTurn() {
     const player = this.curPlayer;
 
     if (this.playerInDeathZone(player)) {
@@ -264,6 +293,10 @@ export class TrainCowboys {
   }
 
   async climb() {
+    await this.doAction(() => this.doClimb());
+  }
+
+  async doClimb() {
     // TODO: add a wrapper to prevent other actions being run
     // before this action has been completed
     const player = this.curPlayer;
@@ -300,6 +333,10 @@ export class TrainCowboys {
   }
 
   async reflex() {
+    await this.doAction(() => this.doReflex());
+  }
+
+  async doReflex() {
     // TODO: reflex cannot work across rounds, so maybe a reflex counter
     // can be reset when required? (doulbe check the rules on that one)
     const player = this.curPlayer;
@@ -359,6 +396,10 @@ export class TrainCowboys {
   }
 
   async horse() {
+    await this.doAction(() => this.doHorse());
+  }
+
+  async doHorse() {
     const player = this.curPlayer;
 
     if (!this.playerInDeathZone(player) && player.isStunned) {
@@ -390,6 +431,10 @@ export class TrainCowboys {
   }
 
   async endRound() {
+    await this.doAction(() => this.doEndRound());
+  }
+
+  async doEndRound() {
     // if any player is in the death zone, kill them
     const placements = this._train.getAllPlacements();
     const playersInDeathZone = this._players.filter(player => {
