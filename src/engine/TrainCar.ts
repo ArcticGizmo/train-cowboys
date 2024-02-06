@@ -1,33 +1,80 @@
 import { GameObject } from './GameObject';
 import { Placement } from './Placement';
+import { Resources } from './Resources';
 import { SpriteRect } from './SpirteRect';
+import { Sprite } from './Sprite';
 import { Vec2 } from './Vec2';
 import { Direction } from './direction';
 import { Level } from './level';
 import { posFromGrid } from './utils';
 
-export interface CarConfig {
+export interface TrainCarConfig {
   gridPos: Vec2;
+  width: number;
   placementCount: number;
   color: string;
+  noSprites?: boolean;
 }
 
-export class Car extends GameObject {
+// 80 x 64
+
+const buildSprite = (gridPos: Vec2, xIndex: number) => {
+  return new Sprite({
+    position: posFromGrid(gridPos),
+    resource: Resources.trainCar,
+    frameSize: new Vec2(16, 64),
+    vFrames: 1,
+    hFrames: 5,
+    frame: xIndex
+  });
+};
+
+const buildSprites = (width: number) => {
+  // makes the trains look less weird
+  const s: Sprite[] = [];
+  const innerSegmentCount = width - 4; // because the start and ends
+
+  const grid = new Vec2(-1, 0);
+
+  // add start side
+  s.push(buildSprite(grid, 0));
+  grid.x += 1;
+
+  // add ladder
+  s.push(buildSprite(grid, 1));
+  grid.x += 1;
+
+  // add inner segments
+  for (let i = 0; i < innerSegmentCount; i++) {
+    s.push(buildSprite(grid, 2));
+    grid.x += 1;
+  }
+
+  // add ladder
+  s.push(buildSprite(grid, 3));
+  grid.x += 1;
+
+  // add right side
+  s.push(buildSprite(grid, 4));
+  grid.x += 1;
+
+  return s;
+};
+
+export class TrainCar extends GameObject {
   private _topPlacements: Placement[] = [];
   private _bottomPlacements: Placement[] = [];
 
-  constructor(config: CarConfig) {
+  constructor(config: TrainCarConfig) {
     super({ position: posFromGrid(config.gridPos) });
-    this.addChild(
-      new SpriteRect({
-        position: Vec2.ZERO(),
-        size: posFromGrid(new Vec2(config.placementCount, 4)),
-        color: config.color,
-        opacity: 0.1
-      })
-    );
 
-    for (let i = 0; i < config.placementCount; i++) {
+    const placementCount = config.width - 2;
+
+    if (!config.noSprites) {
+      buildSprites(config.width).map(s => this.addChild(s));
+    }
+
+    for (let i = 0; i < placementCount; i++) {
       const topPlacement = new Placement({
         gridPos: new Vec2(i, 0)
       });
@@ -35,7 +82,7 @@ export class Car extends GameObject {
       this.addChild(topPlacement);
 
       const bottomPlacement = new Placement({
-        gridPos: new Vec2(i, 3)
+        gridPos: new Vec2(i, 2)
       });
       this._bottomPlacements.push(bottomPlacement);
       this.addChild(bottomPlacement);

@@ -1,8 +1,10 @@
 import { GameObject } from './GameObject';
 import { Vec2 } from './Vec2';
 import * as utils from './utils';
-import { Car } from './Car';
+import { TrainCar } from './TrainCar';
 import { Placement } from './Placement';
+
+const MIN_WIDTH = 6;
 
 export interface TrainConfig {
   gridPosition: Vec2;
@@ -10,31 +12,37 @@ export interface TrainConfig {
 }
 
 export class Train extends GameObject {
-  private _cars: Car[] = [];
+  private _cars: TrainCar[] = [];
   constructor(config: TrainConfig) {
     super({
       position: utils.posFromGrid(config.gridPosition)
     });
 
+    const width = Math.max(config.playerCount + 2, MIN_WIDTH);
+
     const startAt = Vec2.ZERO();
+    const movePos = () => (startAt.x += width);
+
     const placementCount = config.playerCount;
 
     // build the space at the front
-    this._cars.push(new Car({ gridPos: startAt, placementCount, color: 'grey' }));
-    startAt.x += placementCount + 1;
+    this._cars.push(new TrainCar({ gridPos: startAt, width, placementCount, color: 'grey', noSprites: true }));
+    movePos();
 
     // engine
-    this._cars.push(new Car({ gridPos: startAt, placementCount, color: 'black' }));
-    startAt.x += placementCount + 1;
+    // TODO: add engine sprite
+    // will likely be a longer sprite so might need to move by more than 6
+    this._cars.push(new TrainCar({ gridPos: startAt, width, placementCount, color: 'black' }));
+    movePos();
 
     // make the train cars
     for (let carIndex = 0; carIndex < placementCount + 1; carIndex++) {
-      this._cars.push(new Car({ gridPos: startAt, placementCount, color: 'brown' }));
-      startAt.x += placementCount + 1;
+      this._cars.push(new TrainCar({ gridPos: startAt, width, placementCount, color: 'brown' }));
+      movePos();
     }
 
     // build space at the back
-    this._cars.push(new Car({ gridPos: startAt, placementCount, color: 'grey' }));
+    this._cars.push(new TrainCar({ gridPos: startAt, width, placementCount, color: 'grey', noSprites: true }));
 
     // add objects
     this._cars.forEach(c => this.addChild(c));
@@ -57,8 +65,6 @@ export class Train extends GameObject {
         return i;
       }
     }
-
-    // this should not happen
     return -1;
   }
 

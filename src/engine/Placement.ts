@@ -13,7 +13,7 @@ export class Placement extends GameObject {
 
     const sprite = new SpriteCircle({
       position: new Vec2(8, 8),
-      radius: 3,
+      radius: 2,
       color: 'green'
     });
     this.addChild(sprite);

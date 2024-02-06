@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { GameStatus, TrainCowboys } from '@/engine/TrainCowboys';
-const CANVAS_WIDTH = 300;
+const CANVAS_WIDTH = 700;
 const CANVAS_HEIGHT = 200;
 
 // const CANVAS_WIDTH = 200;
@@ -34,7 +34,7 @@ const CANVAS_HEIGHT = 200;
 const gameStatus = ref<GameStatus>('ongoing');
 const canvas = ref<HTMLCanvasElement>();
 
-const game = new TrainCowboys({ playerCount: 2, canvas });
+const game = new TrainCowboys({ playerCount: 3, canvas });
 
 const onEndRound = async () => {
   await game.endRound();
