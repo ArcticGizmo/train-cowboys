@@ -21,7 +21,6 @@ export class Player extends GameObject {
 
   public direction: Direction = 'left';
   public id: string;
-  public isAlive = true;
   public isStunned = false;
   public isSelected = false;
   public loot = 0;

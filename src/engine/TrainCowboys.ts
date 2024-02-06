@@ -55,6 +55,10 @@ export class TrainCowboys {
     return this._players[this._currentPlayerIndex];
   }
 
+  stop() {
+    this._engine.stop();
+  }
+
   reset() {
     this._engine.root.destroyChildren();
     this._engine.stop();
@@ -148,9 +152,8 @@ export class TrainCowboys {
 
     if (this.playerInDeathZone(player)) {
       await this.animateFallingFromTrain(player);
-      player.isAlive = false;
-      // TODO: kill/remove the player
       this.nextPlayer();
+      this.removePlayer(player);
       return;
     }
 
@@ -204,7 +207,7 @@ export class TrainCowboys {
 
     const { x, y } = player.globalGridPos;
 
-    let otherPlayers = this.getOtherPlayers(player).filter(p => p.isAlive && !p.isStunned && p.globalGridPos.y === y);
+    let otherPlayers = this.getOtherPlayers(player).filter(p => !p.isStunned && p.globalGridPos.y === y);
 
     if (player.direction === 'left') {
       otherPlayers = otherPlayers.filter(p => p.globalGridPos.x < x);
@@ -301,7 +304,7 @@ export class TrainCowboys {
 
     const { x, y } = player.globalGridPos;
 
-    let otherPlayers = this.getOtherPlayers(player).filter(p => p.isAlive && !p.isStunned && p.globalGridPos.y === y);
+    let otherPlayers = this.getOtherPlayers(player).filter(p => !p.isStunned && p.globalGridPos.y === y);
 
     if (player.direction === 'left') {
       otherPlayers = otherPlayers.filter(p => p.globalGridPos.x < x);
@@ -378,9 +381,9 @@ export class TrainCowboys {
 
     await Promise.all(
       playersInDeathZone.map(async (p, index) => {
-        p.isAlive = false;
         await delay(index * 100);
-        return this.animateFallingFromTrain(p);
+        await this.animateFallingFromTrain(p);
+        this.removePlayer(p);
       })
     );
 

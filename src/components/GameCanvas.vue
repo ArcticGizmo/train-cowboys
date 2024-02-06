@@ -18,7 +18,7 @@
     <h3>Debug Actions</h3>
     <button @click="game.nextPlayer()">Next Player</button>
     <button @click="game.die()">Die</button>
-    <button @click="game.reset()">RESET</button>
+    <button @click="onReset()">RESET</button>
   </div>
 </template>
 
@@ -38,6 +38,15 @@ const game = new TrainCowboys({ playerCount: 2, canvas });
 const onEndRound = async () => {
   await game.endRound();
   gameStatus.value = game.getGameStatus();
+  if (gameStatus.value !== 'ongoing') {
+    console.log(gameStatus.value);
+    game.stop();
+  }
+};
+
+const onReset = () => {
+  game.reset();
+  gameStatus.value = 'ongoing';
 };
 </script>
 
