@@ -24,6 +24,7 @@ export class Player extends GameObject {
   public isAlive = true;
   public isStunned = false;
   public isSelected = false;
+  public loot = 0;
 
   constructor(config: PlayerConfig) {
     super({ position: posFromGrid(config.gridPos ?? Vec2.ZERO()) });

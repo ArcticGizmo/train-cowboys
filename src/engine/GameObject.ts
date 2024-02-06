@@ -73,6 +73,18 @@ export class GameObject {
     this.children = this.children.filter(c => c !== child);
   }
 
+  destroy() {
+    this.onDestroy();
+    this.parent?.removeChild(this);
+  }
+
+  destroyChildren() {
+    this.children.forEach(c => c.destroyChildren());
+    this.destroy();
+  }
+
+  onDestroy() {}
+
   findAllChildrenOfType<T extends GameObject>(type: Constructor<T>): T[] {
     const children = this.children.flatMap(c => c.findAllChildrenOfType(type));
     if (this instanceof type) children.push(this);

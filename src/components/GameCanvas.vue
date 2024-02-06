@@ -1,35 +1,44 @@
 <template>
   <canvas ref="canvas" style="border: 1px solid black" :width="CANVAS_WIDTH" :height="CANVAS_HEIGHT" />
   <div>
-    <h3>Status: {{ game.status }}</h3>
+    <h3>Status: {{ gameStatus }}</h3>
   </div>
   <div>
     <h3>Actions</h3>
     <button @click="game.move()">Move</button>
-    
+
     <button @click="game.climb()">Climb</button>
     <button @click="game.shoot()">Shoot</button>
     <button @click="game.turn()">Turn</button>
     <button @click="game.reflex()">reflex</button>
     <button @click="game.horse()">Horse</button>
+    <button @click="onEndRound">END ROUND</button>
   </div>
   <div>
     <h3>Debug Actions</h3>
     <button @click="game.nextPlayer()">Next Player</button>
+    <button @click="game.die()">Die</button>
+    <button @click="game.reset()">RESET</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { TrainCowboys } from '@/engine/TrainCowboys';
+import { GameStatus, TrainCowboys } from '@/engine/TrainCowboys';
 const CANVAS_WIDTH = 300;
 const CANVAS_HEIGHT = 200;
 
 // const CANVAS_WIDTH = 200;
 // const CANVAS_HEIGHT = 100;
+const gameStatus = ref<GameStatus>('ongoing');
 const canvas = ref<HTMLCanvasElement>();
 
 const game = new TrainCowboys({ playerCount: 2, canvas });
+
+const onEndRound = async () => {
+  await game.endRound();
+  gameStatus.value = game.getGameStatus();
+};
 </script>
 
 <style scoped>

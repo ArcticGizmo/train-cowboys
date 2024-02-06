@@ -29,7 +29,6 @@ export class TrainCowboys {
   private _train: Train = null!;
 
   isReady = ref(false);
-  status = ref<GameStatus>('ongoing');
 
   constructor(config: TrainCowboysConfig) {
     this._playerCount = config.playerCount;
@@ -56,7 +55,17 @@ export class TrainCowboys {
     return this._players[this._currentPlayerIndex];
   }
 
+  reset() {
+    this._engine.root.destroyChildren();
+    this._engine.stop();
+    this._engine = new GameEngine(this._engine.ctx);
+    this.init();
+  }
+
   init() {
+    this._players = [];
+    this._currentPlayerIndex = 0;
+
     // create the background
     const bg = new Sprite({
       resource: Resources.grid,
@@ -122,7 +131,7 @@ export class TrainCowboys {
   }
 
   private async animateFallingFromTrain(player: Player) {
-    // TODO: groudY might be static for drawing the tracks?
+    // TODO: groundY might be static for drawing the tracks?
     const groundY = this._train.getEngine().getBottomLeftPlacement().globalGridPos.y + 1;
     player.playAnimation('FREE_FALL');
     const fallTo = new Vec2(player.globalGridPos.x, groundY);
@@ -139,6 +148,7 @@ export class TrainCowboys {
 
     if (this.playerInDeathZone(player)) {
       await this.animateFallingFromTrain(player);
+      player.isAlive = false;
       // TODO: kill/remove the player
       this.nextPlayer();
       return;
@@ -248,6 +258,9 @@ export class TrainCowboys {
     // before this action has been completed
     const player = this.curPlayer;
 
+    console.log(this._currentPlayerIndex);
+    console.dir(player);
+
     if (player.isStunned) {
       await this.standup(player);
       this.nextPlayer();
@@ -355,10 +368,59 @@ export class TrainCowboys {
     await this.tryBump(playerToBump, nextPlacement.globalGridPos, direction);
   }
 
+  async endRound() {
+    // if any player is in the death zone, kill them
+    const placements = this._train.getAllPlacements();
+    const playersInDeathZone = this._players.filter(player => {
+      const placement = placements.find(p => p.globalGridPos.equals(player.globalGridPos))!;
+      return this._train.isInDeathZone(placement);
+    });
+
+    await Promise.all(
+      playersInDeathZone.map(async (p, index) => {
+        p.isAlive = false;
+        await delay(index * 100);
+        return this.animateFallingFromTrain(p);
+      })
+    );
+
+    // remove the last car
+
+    // change the starting player for the next round
+  }
+
+  private removePlayer(player: Player) {
+    const toRemove = this._players.find(p => p === player);
+
+    if (!toRemove) {
+      return;
+    }
+
+    player.destroy();
+    this._players = this._players.filter(p => p !== player);
+  }
+
   private async standup(player: Player) {
     player.playAnimation('STAND', true);
     await delay(1500);
     player.isStunned = false;
     player.playAnimation('IDLE');
+  }
+
+  getGameStatus(): GameStatus {
+    const playerCount = this._players.length;
+    if (playerCount === 0) return 'draw';
+    if (playerCount === 1) return 'win';
+
+    // TODO: if there is only the locamotive, the winner is based on
+    // who has the most loot. Might need a more robust return for this one
+    return 'ongoing';
+  }
+
+  // ================ debug ==============
+  public die() {
+    const player = this.curPlayer;
+    this.removePlayer(player);
+    this.nextPlayer();
   }
 }
