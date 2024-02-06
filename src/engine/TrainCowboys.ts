@@ -243,6 +243,13 @@ export class TrainCowboys {
   async turn() {
     const player = this.curPlayer;
 
+    if (this.playerInDeathZone(player)) {
+      await this.animateFallingFromTrain(player);
+      this.nextPlayer();
+      this.removePlayer(player);
+      return;
+    }
+
     if (player.isStunned) {
       await this.standup(player);
       this.nextPlayer();
@@ -261,8 +268,12 @@ export class TrainCowboys {
     // before this action has been completed
     const player = this.curPlayer;
 
-    console.log(this._currentPlayerIndex);
-    console.dir(player);
+    if (this.playerInDeathZone(player)) {
+      await this.animateFallingFromTrain(player);
+      this.nextPlayer();
+      this.removePlayer(player);
+      return;
+    }
 
     if (player.isStunned) {
       await this.standup(player);
@@ -292,6 +303,13 @@ export class TrainCowboys {
     // TODO: reflex cannot work across rounds, so maybe a reflex counter
     // can be reset when required? (doulbe check the rules on that one)
     const player = this.curPlayer;
+
+    if (this.playerInDeathZone(player)) {
+      await this.animateFallingFromTrain(player);
+      this.nextPlayer();
+      this.removePlayer(player);
+      return;
+    }
 
     if (!player.isStunned) {
       // falldown
