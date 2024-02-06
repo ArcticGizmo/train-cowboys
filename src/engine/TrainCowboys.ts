@@ -61,7 +61,7 @@ export class TrainCowboys {
   }
 
   reset() {
-    this._engine.root.destroyChildren();
+    this._engine.root.destroy(true);
     this._engine.stop();
     this._engine = new GameEngine(this._engine.ctx);
     this.init();
@@ -108,7 +108,7 @@ export class TrainCowboys {
 
     // set selection
     this._players.forEach(p => p.unselect());
-    this._players[nextId].select();
+    this._players[nextId]?.select();
   }
 
   private addPlayer(index: number) {
@@ -435,6 +435,7 @@ export class TrainCowboys {
   }
 
   async doEndRound() {
+    console.log('--- end round');
     // if any player is in the death zone, kill them
     const placements = this._train.getAllPlacements();
     const playersInDeathZone = this._players.filter(player => {
@@ -451,8 +452,31 @@ export class TrainCowboys {
     );
 
     // remove the last car
+    const caboose = this._train.getCaboose();
+
+    // if any players are on the last car, play animation
+    // sending them off the screen
+    const deathX = this._train.getCaboose().getBottomLeftPlacement().globalGridPos.x;
+    const playersOnCaboose = this._players.filter(p => p.globalGridPos.x >= deathX);
+
+    // TODO: add caboose explosions
+    await Promise.all(
+      playersOnCaboose.map(async p => {
+        await this.animateFallingFromTrain(p);
+        this.removePlayer(p);
+      })
+    );
+
+    this._train.removeCaboose();
+
+    // TODO: add car animations and explosions (once there are car graphics)
+
+    // add loot animation to get player furthest to the back
 
     // change the starting player for the next round
+    this.nextPlayer();
+
+    await delay(1000);
   }
 
   private removePlayer(player: Player) {
@@ -488,5 +512,9 @@ export class TrainCowboys {
     const player = this.curPlayer;
     this.removePlayer(player);
     this.nextPlayer();
+  }
+
+  public removeLastCar() {
+    this._train.removeCaboose();
   }
 }

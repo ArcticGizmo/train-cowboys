@@ -45,6 +45,9 @@ export class Train extends GameObject {
   }
 
   getCar(carIndex: number) {
+    if (carIndex < 0) {
+      carIndex = this._cars.length + carIndex;
+    }
     return this._cars[carIndex];
   }
 
@@ -63,8 +66,20 @@ export class Train extends GameObject {
     return this._cars[1];
   }
 
+  getCaboose() {
+    return this.getCar(-2);
+  }
+
   isInDeathZone(placement: Placement) {
     const index = this.getCarIndexFromPlacement(placement);
     return index === 0 || index === this._cars.length - 1;
+  }
+
+  removeCaboose() {
+    if (this._cars.length <= 3) {
+      throw 'Cannot remove engine';
+    }
+    const lastCar = this._cars.pop()!;
+    lastCar.destroy(true);
   }
 }

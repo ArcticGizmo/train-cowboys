@@ -73,14 +73,13 @@ export class GameObject {
     this.children = this.children.filter(c => c !== child);
   }
 
-  destroy() {
+  destroy(children = false) {
+    if (children) {
+      this.children.forEach(c => c.destroy(true));
+    }
+
     this.onDestroy();
     this.parent?.removeChild(this);
-  }
-
-  destroyChildren() {
-    this.children.forEach(c => c.destroyChildren());
-    this.destroy();
   }
 
   onDestroy() {}

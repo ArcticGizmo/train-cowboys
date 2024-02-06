@@ -19,6 +19,7 @@
     <button @click="game.nextPlayer()">Next Player</button>
     <button @click="game.die()">Die</button>
     <button @click="onReset()">RESET</button>
+    <button @click="game.removeLastCar()">Remove Car</button>
   </div>
 </template>
 
