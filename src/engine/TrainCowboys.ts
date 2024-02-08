@@ -144,11 +144,11 @@ export class TrainCowboys {
     const groundY = this._train.getEngine().getBottomLeftPlacement().globalGridPos.y + 1;
     player.playAnimation('FREE_FALL');
     const fallTo = new Vec2(player.globalGridPos.x, groundY);
-    await this._engine.moveToGrid(player, fallTo, 250);
+    await this._engine.moveToGrid(player, fallTo, { duration: 250 });
 
     player.direction = 'left';
     player.playAnimation('TUMBLE', true);
-    await this._engine.moveToGrid(player, new Vec2(30, groundY), 1000);
+    await this._engine.moveToGrid(player, new Vec2(30, groundY), { duration: 1000 });
   }
 
   // ============ actions ===============
@@ -204,7 +204,7 @@ export class TrainCowboys {
     player.playAnimation('FALL', true);
     // this prevents players from being shot while in mid air
     player.isStunned = true;
-    await this._engine.moveToGrid(player, nextPlacement.globalGridPos, 500);
+    await this._engine.moveToGrid(player, nextPlacement.globalGridPos, { duration: 500 });
     player.playAnimation('FREE_FALL');
     this.nextPlayer();
   }
@@ -212,7 +212,7 @@ export class TrainCowboys {
   private async moveSafe(player: Player, nextPlacement: Placement) {
     // move player
     player.playAnimation('WALK');
-    await this._engine.moveToGrid(player, nextPlacement.globalGridPos, 500);
+    await this._engine.moveToGrid(player, nextPlacement.globalGridPos, { speed: 40 });
     player.playAnimation('IDLE');
 
     // recursively bump other players
@@ -258,7 +258,7 @@ export class TrainCowboys {
         delay(500).then(async () => {
           playerToShoot.playAnimation('FALL', true);
           await delay(100);
-          await this._engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, 200);
+          await this._engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, { duration: 500 });
         })
       );
     }
@@ -326,7 +326,7 @@ export class TrainCowboys {
 
     // climb up ladder
     player.playAnimation('CLIMB');
-    await this._engine.moveToGrid(player, nextPlacement.globalGridPos, 1000);
+    await this._engine.moveToGrid(player, nextPlacement.globalGridPos, { duration: 1000 });
     player.playAnimation('IDLE');
 
     // recursively bump other players
@@ -387,7 +387,7 @@ export class TrainCowboys {
         delay(500).then(async () => {
           playerToShoot.playAnimation('FALL', true);
           await delay(100);
-          await this._engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, 200);
+          await this._engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, { duration: 200 });
         })
       );
     }
@@ -413,7 +413,7 @@ export class TrainCowboys {
 
     const placement = this._train.getEngine().getBottomLeftPlacement();
     // TODO: this movement will become a path below the train
-    await this._engine.moveToGrid(player, placement.globalGridPos, 1000);
+    await this._engine.moveToGrid(player, placement.globalGridPos, { duration: 1000 });
     // TODO: animations -- fall -- horse mount -- horse ride -- horse dismount
     player.direction = 'left';
     player.isStunned = false;
@@ -428,7 +428,7 @@ export class TrainCowboys {
 
     const nextPlacement = getNextHorizontalBumpPlacement(this._train.getAllPlacements(), gridPos, direction);
     playerToBump.playAnimation('WALK');
-    await this._engine.moveToGrid(playerToBump, nextPlacement.globalGridPos, 250);
+    await this._engine.moveToGrid(playerToBump, nextPlacement.globalGridPos, { duration: 1000 });
     playerToBump.playAnimation('IDLE');
     await this.tryBump(playerToBump, nextPlacement.globalGridPos, direction);
   }

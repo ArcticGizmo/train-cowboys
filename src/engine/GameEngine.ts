@@ -7,6 +7,8 @@ import { posFromGrid } from './utils';
 type Resolve = (value: void | PromiseLike<void>) => void;
 export type HandleCallback = (done: () => void, delta: number) => void;
 
+type Timing = { duration: number } | { speed: number };
+
 class Handle {
   private _resolve: Resolve = null!;
   private _cb: HandleCallback;
@@ -38,6 +40,19 @@ class Handle {
   }
 }
 
+const durationFromTiming = (timing: Timing) => {
+  const t = timing as any;
+  if (t.duration) {
+    return t.duration;
+  }
+
+  if (t.speed >= 0) {
+    return 1000 / t.speed;
+  }
+
+  return 0;
+};
+
 export class GameEngine {
   private _loop = new GameLoop(
     delta => this.update(delta),
@@ -63,13 +78,23 @@ export class GameEngine {
     return h.promise;
   }
 
-  async moveTo(target: GameObject, targetPos: Vec2, duration: number) {
-    if (duration <= 0) duration = 1;
+  async moveTo(target: GameObject, targetPos: Vec2, timing: Timing) {
+    const t = timing as any;
+
     const diff = Vec2.diff(targetPos, target.position);
     const direction = Vec2.normalised(diff);
-    const distance = diff.magnitude();
 
-    const speed = distance / duration;
+    let speed = t.speed / 1000;
+
+    if (t.duration) {
+      let duration = t.duration;
+      if (duration <= 0) duration = 1;
+
+      const distance = diff.magnitude();
+
+      speed = distance / duration;
+    }
+
     return this.registerHandle((done, deltaTime) => {
       const newPos = direction
         .copy()
@@ -87,8 +112,8 @@ export class GameEngine {
     });
   }
 
-  async moveToGrid(target: GameObject, targetGrid: Vec2, duration: number) {
-    return this.moveTo(target, posFromGrid(targetGrid), duration);
+  async moveToGrid(target: GameObject, targetGrid: Vec2, timing: Timing) {
+    return this.moveTo(target, posFromGrid(targetGrid), timing);
   }
 
   start() {

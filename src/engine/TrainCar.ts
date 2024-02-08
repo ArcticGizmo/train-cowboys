@@ -34,13 +34,14 @@ const buildSprite = (gridPos: Vec2, xIndex: number) => {
 
 const buildSmoke = (grid: Vec2) => {
   const smoke = new Sprite({
-    position: posFromGrid(grid).add(new Vec2(14, 38)),
+    position: posFromGrid(grid).add(new Vec2(14, 44)),
     resource: Resources.smoke,
     frameSize: new Vec2(150, 150),
     vFrames: 1,
     hFrames: 4,
-    scale: 0.12,
+    scale: 0.08,
     xScale: 0.24,
+    opacity: 0.5,
     animationPlayer: new AnimationPlayer({
       NORMAL: new AnimationPattern(SmokeAnimations.NORMAL)
     })
@@ -84,7 +85,7 @@ const buildSprites = (width: number) => {
   s.push(buildSprite(grid, 4));
   grid.x += 1;
 
-  return [...s, ...w];
+  return [...s];
 };
 
 export class TrainCar extends GameObject {
@@ -113,6 +114,20 @@ export class TrainCar extends GameObject {
       this._bottomPlacements.push(bottomPlacement);
       this.addChild(bottomPlacement);
     }
+  }
+
+  clearSprites() {
+    const keep: GameObject[] = [];
+
+    for (let c of this.children) {
+      if (c instanceof Sprite) {
+        c.destroy();
+      } else {
+        keep.push(c);
+      }
+    }
+
+    this.children = keep;
   }
 
   getPlacement(level: Level, enterFrom: Direction) {
