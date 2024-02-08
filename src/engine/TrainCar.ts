@@ -4,6 +4,9 @@ import { Resources } from './Resources';
 import { SpriteRect } from './SpirteRect';
 import { Sprite } from './Sprite';
 import { Vec2 } from './Vec2';
+import { AnimationPattern } from './animations/AnimationPattern';
+import { AnimationPlayer } from './animations/AnimationPlayer';
+import { SmokeAnimations } from './animations/smokeAnimations';
 import { Direction } from './direction';
 import { Level } from './level';
 import { posFromGrid } from './utils';
@@ -29,15 +32,36 @@ const buildSprite = (gridPos: Vec2, xIndex: number) => {
   });
 };
 
+const buildSmoke = (grid: Vec2) => {
+  const smoke = new Sprite({
+    position: posFromGrid(grid).add(new Vec2(14, 38)),
+    resource: Resources.smoke,
+    frameSize: new Vec2(150, 150),
+    vFrames: 1,
+    hFrames: 4,
+    scale: 0.12,
+    animationPlayer: new AnimationPlayer({
+      NORMAL: new AnimationPattern(SmokeAnimations.NORMAL)
+    })
+  });
+
+  smoke.animationPlayer?.playForever('NORMAL', Math.random() * 1000, true);
+
+  return smoke;
+};
+
 const buildSprites = (width: number) => {
   // makes the trains look less weird
   const s: Sprite[] = [];
+  const w: Sprite[] = [];
   const innerSegmentCount = width - 4; // because the start and ends
 
   const grid = new Vec2(-1, 0);
 
   // add start side
   s.push(buildSprite(grid, 0));
+  w.push(buildSmoke(grid));
+
   grid.x += 1;
 
   // add ladder
@@ -52,13 +76,14 @@ const buildSprites = (width: number) => {
 
   // add ladder
   s.push(buildSprite(grid, 3));
+  w.push(buildSmoke(grid));
   grid.x += 1;
 
   // add right side
   s.push(buildSprite(grid, 4));
   grid.x += 1;
 
-  return s;
+  return [...s, ...w];
 };
 
 export class TrainCar extends GameObject {

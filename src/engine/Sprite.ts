@@ -21,9 +21,9 @@ export class Sprite extends GameObject {
   private _hFrames: number;
   private _vFrames: number;
   frame: number;
-  private _scale: number;
-  private _opacity: number;
-  public animationPlayer?: AnimationPlayer;
+  scale: number;
+  opacity: number;
+  animationPlayer?: AnimationPlayer;
 
   private _frameMap: Map<number, Vec2> = new Map();
 
@@ -34,8 +34,8 @@ export class Sprite extends GameObject {
     this._hFrames = config.hFrames ?? 1;
     this._vFrames = config.vFrames ?? 1;
     this.frame = config.frame ?? 0;
-    this._scale = config.scale ?? 1;
-    this._opacity = config.opacity ?? 1;
+    this.scale = config.scale ?? 1;
+    this.opacity = config.opacity ?? 1;
 
     this.animationPlayer = config.animationPlayer;
 
@@ -73,7 +73,7 @@ export class Sprite extends GameObject {
 
     const { x: frameSizeX, y: frameSizeY } = this._frameSize;
 
-    ctx.globalAlpha = this._opacity;
+    ctx.globalAlpha = this.opacity;
     ctx.drawImage(
       this._resource.image,
       frame?.x ?? 0,
@@ -82,8 +82,8 @@ export class Sprite extends GameObject {
       frameSizeY,
       x,
       y,
-      frameSizeX * this._scale,
-      frameSizeY * this._scale
+      frameSizeX * this.scale,
+      frameSizeY * this.scale
     );
     ctx.globalAlpha = 1;
   }

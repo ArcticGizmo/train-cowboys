@@ -1,4 +1,4 @@
-import { Ref, ref, watch } from 'vue';
+import { Fragment, Ref, ref, watch } from 'vue';
 import { Vec2 } from './Vec2';
 import { GameObject } from './GameObject';
 import { Player } from './Player';
@@ -9,6 +9,9 @@ import { getNextHorizonalMovePlacement, getNextHorizontalBumpPlacement, getNextV
 import { Train } from './Train';
 import { Direction } from './direction';
 import { Placement } from './Placement';
+import { AnimationPlayer } from './animations/AnimationPlayer';
+import { AnimationPattern } from './animations/AnimationPattern';
+import { SmokeAnimations } from './animations/smokeAnimations';
 
 export type GameStatus = 'ongoing' | 'win' | 'draw';
 

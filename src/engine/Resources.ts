@@ -21,5 +21,6 @@ export const Resources = {
   player: resource('/sprites/cowboy.png'),
   trainCar: resource('/sprites/train-car.png'),
   square: resource('/sprites/square.png'),
-  grid: resource('/sprites/grid.png')
+  grid: resource('/sprites/grid.png'),
+  smoke: resource('/sprites/smoke.png')
 };

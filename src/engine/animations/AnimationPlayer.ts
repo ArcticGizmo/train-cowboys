@@ -42,8 +42,8 @@ export class AnimationPlayer {
     }
   }
 
-  playForever(key: string) {
-    if (this._activeKey === key && this._isContinuous) {
+  playForever(key: string, time = 0, force = false) {
+    if (this._activeKey === key && !force && this._isContinuous) {
       // don't restart the animation, it is already playing
       return;
     }
@@ -51,14 +51,14 @@ export class AnimationPlayer {
     this.isFinished = false;
     this._isContinuous = true;
     this._activeKey = key;
-    this._patterns[key].currentTime = 0;
+    this._patterns[key].currentTime = time;
   }
 
-  playOnce(key: string) {
+  playOnce(key: string, time = 0) {
     // this one will always trigger the start of the animation
     this._isContinuous = false;
     this._activeKey = key;
-    this._patterns[key].currentTime = 0;
+    this._patterns[key].currentTime = time;
   }
 
   step(delta: number) {

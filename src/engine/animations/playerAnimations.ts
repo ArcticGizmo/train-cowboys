@@ -1,36 +1,6 @@
 import { RemoveAndKeepWithEnding } from '@/types/typeHelpers';
 import { AnimationDefinition } from './AnimationPlayer';
-
-const buildEqualFrames = (frameNumbers: number[], duration: number): AnimationDefinition => {
-  const timeStep = duration / frameNumbers.length;
-
-  const frames = frameNumbers.map((num, index) => {
-    return {
-      time: timeStep * index,
-      frame: num
-    };
-  });
-
-  return {
-    duration,
-    frames
-  };
-};
-
-const range = (first: number, last: number): number[] => {
-  const r: number[] = [];
-  if (first < last) {
-    for (let i = first; i <= last; i++) {
-      r.push(i);
-    }
-  } else {
-    for (let i = last; i >= last; i--) {
-      r.push(i);
-    }
-  }
-
-  return r;
-};
+import { buildEqualFrames, range } from './animationHelpers';
 
 // frame offset for varient
 const MIRROR_OFFSET = 15 * 5;
