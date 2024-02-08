@@ -40,6 +40,7 @@ const buildSmoke = (grid: Vec2) => {
     vFrames: 1,
     hFrames: 4,
     scale: 0.12,
+    xScale: 0.24,
     animationPlayer: new AnimationPlayer({
       NORMAL: new AnimationPattern(SmokeAnimations.NORMAL)
     })

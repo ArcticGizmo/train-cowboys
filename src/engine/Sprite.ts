@@ -10,6 +10,8 @@ export interface SpriteConfig {
   vFrames?: number;
   frame?: number;
   scale?: number;
+  xScale?: number;
+  yScale?: number;
   position?: Vec2;
   opacity?: number;
   animationPlayer?: AnimationPlayer;
@@ -21,7 +23,8 @@ export class Sprite extends GameObject {
   private _hFrames: number;
   private _vFrames: number;
   frame: number;
-  scale: number;
+  xScale: number;
+  yScale: number;
   opacity: number;
   animationPlayer?: AnimationPlayer;
 
@@ -34,7 +37,8 @@ export class Sprite extends GameObject {
     this._hFrames = config.hFrames ?? 1;
     this._vFrames = config.vFrames ?? 1;
     this.frame = config.frame ?? 0;
-    this.scale = config.scale ?? 1;
+    this.xScale = config.xScale ?? config.scale ?? 1;
+    this.yScale = config.yScale ?? config.scale ?? 1;
     this.opacity = config.opacity ?? 1;
 
     this.animationPlayer = config.animationPlayer;
@@ -82,8 +86,8 @@ export class Sprite extends GameObject {
       frameSizeY,
       x,
       y,
-      frameSizeX * this.scale,
-      frameSizeY * this.scale
+      frameSizeX * this.xScale,
+      frameSizeY * this.yScale
     );
     ctx.globalAlpha = 1;
   }
