@@ -5,7 +5,7 @@ import { Player } from './Player';
 import { GameEngine } from './GameEngine';
 import { Resources } from './Resources';
 import { Sprite } from './Sprite';
-import { getNextHorizonalMovePlacement, getNextHorizontalBumpPlacement, getNextVerticalPlacement, posFromGrid } from './utils';
+import { getNextHorizonalMovePlacement, getNextHorizontalBumpPlacement, getClimbTarget, posFromGrid } from './utils';
 import { Train } from './Train';
 import { Direction } from './direction';
 import { Placement } from './Placement';
@@ -327,20 +327,28 @@ export class TrainCowboys {
     }
 
     const curGrid = player.globalGridPos;
-    const placements = this._train.getAllPlacements();
+    const curPlacement = this._train.getAllPlacements().find(p => p.globalGridPos.equals(curGrid))!;
+    const carIndex = this._train.getCarIndexFromPlacement(curPlacement);
+    const placements = this._train.getCar(carIndex).getAllPlacements();
+
     // TODO: move player so back is against car divider
-    const nextPlacement = getNextVerticalPlacement(placements, curGrid);
+    const climbTarget = getClimbTarget(placements, curGrid, player.direction);
 
-    // TODO: move in the x direction to the ladder
+    // walk to under/over the ladder
+    player.changeDirection();
+    player.playAnimation('WALK');
+    const prepSpot = new Vec2(climbTarget.globalGridPos.x, player.globalGridPos.y);
+    await this._engine.moveToGrid(player, prepSpot, { speed: 40 });
 
-    // climb up ladder
+    // traverse the ladder
+    // TODO: handle direction changes
+    player.changeDirection();
     player.playAnimation('CLIMB');
-    await this._engine.moveToGrid(player, nextPlacement.globalGridPos, { duration: 1000 });
+    await this._engine.moveToGrid(player, climbTarget.globalGridPos, { duration: 1000 });
     player.playAnimation('IDLE');
 
-    // recursively bump other players
-    // TODO: figure out which direction bumping should work in
-    await this.tryBump(player, nextPlacement.globalGridPos, player.direction);
+    await this.tryBump(player, climbTarget.globalGridPos, player.direction);
+
     this.nextPlayer();
   }
 

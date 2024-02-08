@@ -40,7 +40,10 @@ export const getNextHorizonalMovePlacement = (train: Train, curGridPos: Vec2, di
   }
 };
 
-export const getNextVerticalPlacement = (placements: Placement[], curGridPos: Vec2) => {
-  return placements.find(p => p.globalGridPos.x === curGridPos.x && p.globalGridPos.y !== curGridPos.y)!;
-};
+export const getClimbTarget = (placements: Placement[], curGridPos: Vec2, direction: Direction) => {
+  // get left and right target placements
+  const placementsOnLevel = placements.filter(p => p.globalGridPos.y !== curGridPos.y);
+  placementsOnLevel.sort((a, b) => a.globalGridPos.x - b.globalGridPos.x);
 
+  return direction === 'right' ? placementsOnLevel[0] : placementsOnLevel[placementsOnLevel.length - 1];
+};

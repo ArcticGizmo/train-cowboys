@@ -82,8 +82,12 @@ export class GameEngine {
     const t = timing as any;
 
     const diff = Vec2.diff(targetPos, target.position);
-    const direction = Vec2.normalised(diff);
 
+    if (diff.magnitude() < 0.01) {
+      return;
+    }
+
+    const direction = Vec2.normalised(diff);
     let speed = t.speed / 1000;
 
     if (t.duration) {
