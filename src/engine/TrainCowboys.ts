@@ -254,11 +254,20 @@ export class TrainCowboys {
     if (playerToShoot) {
       playerToShoot.isStunned = true;
       const targetPlacement = getNextHorizonalMovePlacement(this._train, playerToShoot.globalGridPos, player.direction);
+      const isUnsafe = this._train.isInDeathZone(targetPlacement);
       effects.push(
         delay(500).then(async () => {
           playerToShoot.playAnimation('FALL', true);
           await delay(100);
+
           await this._engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, { duration: 500 });
+
+          if (isUnsafe) {
+            playerToShoot.isStunned = true;
+            playerToShoot.playAnimation('FREE_FALL');
+          } else {
+            await this.tryBump(playerToShoot, targetPlacement.globalGridPos, player.direction);
+          }
         })
       );
     }

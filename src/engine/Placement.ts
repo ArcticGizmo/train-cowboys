@@ -3,7 +3,7 @@ import { SpriteCircle } from './SpriteCircle';
 import { Vec2 } from './Vec2';
 import { gridFromPos, posFromGrid } from './utils';
 
-const RENDER_PLACEMENTS = false;
+const RENDER_PLACEMENTS = true;
 
 export interface PlacementConfig {
   gridPos: Vec2;
