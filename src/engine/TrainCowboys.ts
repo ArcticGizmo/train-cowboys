@@ -148,7 +148,7 @@ export class TrainCowboys {
 
     player.direction = 'left';
     player.playAnimation('TUMBLE', true);
-    await this._engine.moveToGrid(player, new Vec2(30, groundY), { duration: 1000 });
+    await this._engine.moveToGrid(player, new Vec2(this._playerCount * 40, groundY), { duration: 1000 });
   }
 
   // ============ actions ===============
@@ -435,6 +435,7 @@ export class TrainCowboys {
     player.direction = 'left';
     player.isStunned = false;
     player.playAnimation('IDLE');
+    this.nextPlayer();
   }
 
   private async tryBump(bumper: Player, gridPos: Vec2, direction: Direction) {
