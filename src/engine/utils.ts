@@ -3,7 +3,7 @@ import { Train } from './Train';
 import { Vec2 } from './Vec2';
 import { Direction } from './direction';
 
-const GRID_SIZE = 16;
+export const GRID_SIZE = 32;
 
 export const posFromGrid = (gridPos: Vec2) => {
   return new Vec2(gridPos.x * GRID_SIZE, gridPos.y * GRID_SIZE);

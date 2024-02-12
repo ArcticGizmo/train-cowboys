@@ -22,5 +22,7 @@ export const Resources = {
   trainCar: resource('/sprites/train-car.png'),
   square: resource('/sprites/square.png'),
   grid: resource('/sprites/grid.png'),
-  smoke: resource('/sprites/smoke.png')
+  smoke: resource('/sprites/smoke.png'),
+  astronaut: resource('/sprites/astronaut.png'),
+  station: resource('/sprites/station.png')
 };
