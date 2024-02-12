@@ -84,7 +84,7 @@ export class SpaceShip extends GameObject {
     moveDown();
 
     // create playerCount + 1 segments
-    for (let seg = 0; seg < placeCount - 1; seg++) {
+    for (let seg = 0; seg < playerCount; seg++) {
       const regionIndex = seg + 2;
       sprites.push(buildSegmentSprite(startAt, 13));
       moveDown();
@@ -101,6 +101,9 @@ export class SpaceShip extends GameObject {
       moveDown();
       placements.push(...buildPlacements(startAt, regionIndex));
       sprites.push(buildSegmentSprite(startAt, 10));
+      moveDown();
+      placements.push(...buildPlacements(startAt, regionIndex));
+      sprites.push(buildSegmentSprite(startAt, 11));
       moveDown();
     }
 
