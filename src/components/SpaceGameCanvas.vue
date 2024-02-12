@@ -26,13 +26,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { SpaceCowboys, type GameStatus } from '@/game/SpaceCowboys';
-const CANVAS_WIDTH = 600;
-const CANVAS_HEIGHT = 1200;
+const CANVAS_WIDTH = 1200;
+const CANVAS_HEIGHT = 400;
 
 const gameStatus = ref<GameStatus>('ongoing');
 const canvas = ref<HTMLCanvasElement>();
 
-const game = new SpaceCowboys({ playerCount: 4, canvas });
+const game = new SpaceCowboys({ playerCount: 3, canvas });
 
 // const onEndRound = async () => {
 //   await game.endRound();

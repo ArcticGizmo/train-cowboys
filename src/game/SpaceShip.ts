@@ -5,8 +5,8 @@ import { PlacementMarker } from './PlacementMarker';
 import { Sprite } from '@/engine/Sprite';
 import { Resources } from '@/engine/Resources';
 
-const LEFT = 1;
-const RIGHT = 3;
+const TOP = 1;
+const BOTTOM = 3;
 
 export type GameStatus = 'ongoing' | 'win' | 'draw';
 
@@ -19,17 +19,17 @@ const buildSegmentSprite = (gridPos: Vec2, frame: number) => {
   return new Sprite({
     resource: Resources.station,
     position: posFromGrid(gridPos),
-    frameSize: new Vec2(5 * GRID_SIZE, GRID_SIZE),
-    vFrames: 20,
-    hFrames: 1,
+    frameSize: new Vec2(GRID_SIZE, 5 * GRID_SIZE),
+    vFrames: 17,
+    hFrames: 17,
     frame
   });
 };
 
 const buildPlacements = (gridPos: Vec2, regionIndex: number) => {
   return [
-    new PlacementMarker({ gridPos: new Vec2(LEFT, gridPos.y), regionIndex }),
-    new PlacementMarker({ gridPos: new Vec2(RIGHT, gridPos.y), regionIndex })
+    new PlacementMarker({ gridPos: new Vec2(gridPos.x, TOP), regionIndex }),
+    new PlacementMarker({ gridPos: new Vec2(gridPos.x, BOTTOM), regionIndex })
   ];
 };
 
@@ -40,75 +40,83 @@ export class SpaceShip extends GameObject {
   }
 
   setup(playerCount: number) {
+    // TODO: break this up into smaller components
+    // make it so that sprite overlap for simplicity
+    // (this will make it easier to animate)
     const placeCount = Math.max(playerCount, 4);
     const startAt = Vec2.ZERO();
     const sprites: Sprite[] = [];
     const placements: PlacementMarker[] = [];
 
-    const moveDown = (step = 1) => (startAt.y += step);
+    const moveRight = (step = 1) => (startAt.x += step);
 
     // build the placements outside the ship
     placements.push(...buildPlacements(startAt, 0));
-    moveDown();
+    moveRight();
 
     // build the front of the ship
-    sprites.push(
-      new Sprite({
-        resource: Resources.station,
-        position: posFromGrid(new Vec2(0, startAt.y)),
-        frameSize: new Vec2(5 * GRID_SIZE, 4 * GRID_SIZE)
-      })
-    );
-    moveDown(4);
+    sprites.push(buildSegmentSprite(startAt, 0));
+    moveRight();
+    sprites.push(buildSegmentSprite(startAt, 1));
+    moveRight();
+    sprites.push(buildSegmentSprite(startAt, 2));
+    moveRight();
+    sprites.push(buildSegmentSprite(startAt, 3));
+    moveRight();
 
     placements.push(...buildPlacements(startAt, 1));
     sprites.push(buildSegmentSprite(startAt, 4));
-    moveDown();
+    moveRight();
 
     // build the cockpit
     placements.push(...buildPlacements(startAt, 1));
-    sprites.push(buildSegmentSprite(startAt, 6));
-    moveDown();
+    sprites.push(buildSegmentSprite(startAt, 5));
+    moveRight();
 
     for (let i = 0; i < placeCount - 4; i++) {
       placements.push(...buildPlacements(startAt, 1));
-      sprites.push(buildSegmentSprite(startAt, 8));
-      moveDown();
+      sprites.push(buildSegmentSprite(startAt, 6));
+      moveRight();
     }
 
     placements.push(...buildPlacements(startAt, 1));
-    sprites.push(buildSegmentSprite(startAt, 10));
-    moveDown();
+    sprites.push(buildSegmentSprite(startAt, 7));
+    moveRight();
     placements.push(...buildPlacements(startAt, 1));
-    sprites.push(buildSegmentSprite(startAt, 11));
-    moveDown();
+    sprites.push(buildSegmentSprite(startAt, 8));
+    moveRight();
 
     // create playerCount + 1 segments
     for (let seg = 0; seg < playerCount; seg++) {
       const regionIndex = seg + 2;
-      sprites.push(buildSegmentSprite(startAt, 13));
-      moveDown();
-      placements.push(...buildPlacements(startAt, regionIndex));
-      sprites.push(buildSegmentSprite(startAt, 11));
-      moveDown();
-      for (let i = 0; i < placeCount - 4; i++) {
-        placements.push(...buildPlacements(startAt, regionIndex));
-        sprites.push(buildSegmentSprite(startAt, 8));
-        moveDown();
-      }
+      sprites.push(buildSegmentSprite(startAt, 9));
+      moveRight();
       placements.push(...buildPlacements(startAt, regionIndex));
       sprites.push(buildSegmentSprite(startAt, 8));
-      moveDown();
+      moveRight();
       placements.push(...buildPlacements(startAt, regionIndex));
-      sprites.push(buildSegmentSprite(startAt, 10));
-      moveDown();
+      sprites.push(buildSegmentSprite(startAt, 5));
+      moveRight();
+      for (let i = 0; i < placeCount - 4; i++) {
+        placements.push(...buildPlacements(startAt, regionIndex));
+        sprites.push(buildSegmentSprite(startAt, 6));
+        moveRight();
+      }
       placements.push(...buildPlacements(startAt, regionIndex));
-      sprites.push(buildSegmentSprite(startAt, 11));
-      moveDown();
+      sprites.push(buildSegmentSprite(startAt, 7));
+      moveRight();
+      if (seg !== placeCount - 1) {
+        placements.push(...buildPlacements(startAt, regionIndex));
+        sprites.push(buildSegmentSprite(startAt, 8));
+        moveRight();
+      }
     }
 
-    sprites.push(buildSegmentSprite(startAt, 16))
-    moveDown();
+    // add the back portion
+    sprites.push(buildSegmentSprite(startAt, 10));
+    moveRight();
+    sprites.push(buildSegmentSprite(startAt, 11));
+    moveRight();
     placements.push(...buildPlacements(startAt, playerCount + 1));
 
     // attach
