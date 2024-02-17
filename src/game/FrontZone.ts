@@ -8,7 +8,7 @@ import { Resources } from '@/engine/Resources';
 const TOP = 1;
 const BOTTOM = 3;
 
-export interface DeathZoneConfig {
+export interface FrontZoneConfig {
   gridPos: Vec2;
   regionIndex: number;
 }
@@ -31,8 +31,8 @@ const buildPlacements = (gridPos: Vec2, regionIndex: number) => {
   ];
 };
 
-export class DeathZone extends GameObject {
-  constructor(config: DeathZoneConfig) {
+export class FrontZone extends GameObject {
+  constructor(config: FrontZoneConfig) {
     super({ position: posFromGrid(config.gridPos) });
 
     const startAt = Vec2.ZERO();
@@ -41,11 +41,22 @@ export class DeathZone extends GameObject {
     const placements: PlacementMarker[] = [];
     const sprites: Sprite[] = [];
 
-    sprites.push(buildSegmentSprite(startAt, 10));
-    moveRight();
-    sprites.push(buildSegmentSprite(startAt, 11));
-    moveRight();
+    // build the placements outside the ship
     placements.push(...buildPlacements(startAt, config.regionIndex));
+    moveRight();
+
+    // build the nose cone
+    sprites.push(buildSegmentSprite(startAt, 0));
+    moveRight();
+    sprites.push(buildSegmentSprite(startAt, 1));
+    moveRight();
+    sprites.push(buildSegmentSprite(startAt, 2));
+    moveRight();
+    sprites.push(buildSegmentSprite(startAt, 3));
+    moveRight();
+
+    // build the floor overlay (for the walls)
+    sprites.push(buildSegmentSprite(startAt, 4));
 
     sprites.forEach(s => this.addChild(s));
     placements.forEach(p => this.addChild(p));

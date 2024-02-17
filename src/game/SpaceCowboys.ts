@@ -130,9 +130,9 @@ export class SpaceCowboys {
     return this.players.filter(p => p !== notThis);
   }
 
-  private playerInDeathZone(player: Player) {
+  private playerInEndZone(player: Player) {
     // const placement = this._train.getAllPlacements().find(p => p.globalGridPos.equals(player.globalGridPos))!;
-    // return this._train.isInDeathZone(placement);
+    // return this._train.isInEndZone(placement);
     return false;
   }
 

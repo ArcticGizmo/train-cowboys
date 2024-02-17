@@ -27,6 +27,10 @@ export class PlacementMarker extends GameObject {
     }
   }
 
+  get gridPos() {
+    return gridFromPos(this.position);
+  }
+
   get globalGridPos() {
     return gridFromPos(this.globalPosition);
   }

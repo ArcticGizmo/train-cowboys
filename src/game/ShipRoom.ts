@@ -4,6 +4,8 @@ import { Vec2 } from '@/engine/Vec2';
 import { GRID_SIZE, posFromGrid } from '@/engine/utils';
 import { PlacementMarker } from './PlacementMarker';
 import { Resources } from '@/engine/Resources';
+import { Level } from './level.type';
+import { Direction } from './direction.type';
 
 const TOP = 1;
 const BOTTOM = 3;
@@ -12,6 +14,7 @@ export interface ShipRoomConfig {
   gridPos: Vec2;
   placementCount: number;
   regionIndex: number;
+  hideFrontSprites?: boolean;
 }
 
 const buildPlacements = (gridPos: Vec2, regionIndex: number) => {
@@ -87,10 +90,16 @@ export class ShipRoom extends GameObject {
     const moveRight = (step = 1) => (startAt.x += step);
 
     // TODO: build the overlap to the previous shuttle
-    sprites.push(buildSegmentSprite(startAt, 8));
+    if (!config.hideFrontSprites) {
+      sprites.push(buildSegmentSprite(startAt, 8));
+    }
     moveRight();
-    sprites.push(buildSegmentSprite(startAt, 9));
+    if (!config.hideFrontSprites) {
+      sprites.push(buildSegmentSprite(startAt, 9));
+    }
     moveRight();
+    
+    // create room
     sprites.push(...buildEngineSprites(startAt.x));
     placements.push(...buildPlacements(startAt, regionIndex));
     sprites.push(buildSegmentSprite(startAt, 8));
@@ -112,5 +121,22 @@ export class ShipRoom extends GameObject {
     // attach
     sprites.forEach(s => this.addChild(s));
     placements.forEach(p => this.addChild(p));
+  }
+
+  private getTopPlacements() {
+    return this.placements.filter(p => p.gridPos.y === TOP);
+  }
+
+  private getBottomPlacements() {
+    return this.placements.filter(p => p.gridPos.y === BOTTOM);
+  }
+
+  getEnteringPlacement(level: Level, enteringFrom: Direction) {
+    const placements = level === 'top' ? this.getTopPlacements() : this.getBottomPlacements();
+    return enteringFrom === 'left' ? placements[0] : placements[placements.length - 1];
+  }
+
+  getPlacements() {
+    return this.placements;
   }
 }
