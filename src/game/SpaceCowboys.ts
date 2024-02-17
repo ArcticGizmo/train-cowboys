@@ -61,7 +61,7 @@ export class SpaceCowboys {
     this.addChild(bg);
 
     // create spaceship
-    this.ship = new SpaceShip({ gridPos: new Vec2(1, 6), playerCount: this.playerCount });
+    this.ship = new SpaceShip({ gridPos: new Vec2(1, 3), playerCount: this.playerCount });
     this.addChild(this.ship);
 
     this.engine.start();

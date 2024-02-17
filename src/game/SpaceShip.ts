@@ -26,6 +26,46 @@ const buildSegmentSprite = (gridPos: Vec2, frame: number) => {
   });
 };
 
+const buildEngineSprites = (xPos: number) => {
+  const engineLeft = new Sprite({
+    position: posFromGrid(new Vec2(xPos, 5)),
+    resource: Resources.station,
+    frameSize: new Vec2(GRID_SIZE * 4, GRID_SIZE),
+    vFrames: 7,
+    hFrames: 1,
+    frame: 6
+  });
+
+  const engineEffectLeft = new Sprite({
+    position: posFromGrid(new Vec2(xPos + 3, 5)),
+    resource: Resources.station,
+    frameSize: new Vec2(GRID_SIZE, GRID_SIZE),
+    vFrames: 6,
+    hFrames: 5,
+    frame: 29
+  });
+
+  const engineRight = new Sprite({
+    position: posFromGrid(new Vec2(xPos, -1)),
+    resource: Resources.station,
+    frameSize: new Vec2(GRID_SIZE * 4, GRID_SIZE),
+    vFrames: 7,
+    hFrames: 1,
+    frame: 5
+  });
+
+  const engineEffectRight = new Sprite({
+    position: posFromGrid(new Vec2(xPos + 3, -1)),
+    resource: Resources.station,
+    frameSize: new Vec2(GRID_SIZE, GRID_SIZE),
+    vFrames: 6,
+    hFrames: 5,
+    frame: 29
+  });
+
+  return [engineLeft, engineEffectLeft, engineRight, engineEffectRight];
+};
+
 const buildPlacements = (gridPos: Vec2, regionIndex: number) => {
   return [
     new PlacementMarker({ gridPos: new Vec2(gridPos.x, TOP), regionIndex }),
@@ -64,11 +104,12 @@ export class SpaceShip extends GameObject {
     sprites.push(buildSegmentSprite(startAt, 3));
     moveRight();
 
+    // build the cockpit
     placements.push(...buildPlacements(startAt, 1));
     sprites.push(buildSegmentSprite(startAt, 4));
+    sprites.push(...buildEngineSprites(startAt.x));
     moveRight();
 
-    // build the cockpit
     placements.push(...buildPlacements(startAt, 1));
     sprites.push(buildSegmentSprite(startAt, 5));
     moveRight();
@@ -91,6 +132,7 @@ export class SpaceShip extends GameObject {
       const regionIndex = seg + 2;
       sprites.push(buildSegmentSprite(startAt, 9));
       moveRight();
+      sprites.push(...buildEngineSprites(startAt.x));
       placements.push(...buildPlacements(startAt, regionIndex));
       sprites.push(buildSegmentSprite(startAt, 8));
       moveRight();
@@ -105,14 +147,13 @@ export class SpaceShip extends GameObject {
       placements.push(...buildPlacements(startAt, regionIndex));
       sprites.push(buildSegmentSprite(startAt, 7));
       moveRight();
-      if (seg !== placeCount - 1) {
-        placements.push(...buildPlacements(startAt, regionIndex));
-        sprites.push(buildSegmentSprite(startAt, 8));
-        moveRight();
-      }
+      placements.push(...buildPlacements(startAt, regionIndex));
+      sprites.push(buildSegmentSprite(startAt, 8));
+      moveRight();
     }
 
     // add the back portion
+    startAt.x -= 1;
     sprites.push(buildSegmentSprite(startAt, 10));
     moveRight();
     sprites.push(buildSegmentSprite(startAt, 11));
