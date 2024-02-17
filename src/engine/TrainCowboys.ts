@@ -5,13 +5,10 @@ import { Player } from './Player';
 import { GameEngine } from './GameEngine';
 import { Resources } from './Resources';
 import { Sprite } from './Sprite';
-import { getNextHorizonalMovePlacement, getNextHorizontalBumpPlacement, getClimbTarget, posFromGrid } from './utils';
 import { Train } from './Train';
-import { Direction } from './direction';
+import { Direction } from './direction.type';
 import { Placement } from './Placement';
-import { AnimationPlayer } from './animations/AnimationPlayer';
-import { AnimationPattern } from './animations/AnimationPattern';
-import { SmokeAnimations } from './animations/smokeAnimations';
+import { getNextHorizontalBumpPlacement } from './movement';
 
 export type GameStatus = 'ongoing' | 'win' | 'draw';
 
@@ -115,7 +112,7 @@ export class TrainCowboys {
   }
 
   private addPlayer(index: number) {
-    const gridPos = this._train.getCar(index + 1).getPlacement('bottom', 'left').globalGridPos;
+    const gridPos = this._train.getCar(index + 0).getEnteringPlacement('bottom', 'right').globalGridPos;
     const player = new Player({
       id: `player-${index}`,
       gridPos,
@@ -132,11 +129,6 @@ export class TrainCowboys {
 
   private getOtherPlayers(notThis: Player) {
     return this._players.filter(p => p !== notThis);
-  }
-
-  private playerInDeathZone(player: Player) {
-    const placement = this._train.getAllPlacements().find(p => p.globalGridPos.equals(player.globalGridPos))!;
-    return this._train.isInDeathZone(placement);
   }
 
   private async animateFallingFromTrain(player: Player) {
@@ -174,24 +166,22 @@ export class TrainCowboys {
   async doMove() {
     const player = this.curPlayer;
 
-    if (this.playerInDeathZone(player)) {
+    if (player.isInDeathZone()) {
       await this.animateFallingFromTrain(player);
       this.nextPlayer();
       this.removePlayer(player);
       return;
     }
 
-    if (player)
-      if (player.isStunned) {
-        await this.standup(player);
-        this.nextPlayer();
-        return;
-      }
+    if (player.isStunned) {
+      await this.standup(player);
+      this.nextPlayer();
+      return;
+    }
 
     // determine new position
-    const nextPlacement = getNextHorizonalMovePlacement(this._train, player.globalGridPos, player.direction);
-
-    if (this._train.isInDeathZone(nextPlacement)) {
+    const nextPlacement = this._train.getNextHorizontalMovePlacement(player.placement, player.direction);
+    if (nextPlacement.isDeathZone) {
       await this.moveUnsafe(player, nextPlacement);
     } else {
       await this.moveSafe(player, nextPlacement);
@@ -216,7 +206,7 @@ export class TrainCowboys {
     player.playAnimation('IDLE');
 
     // recursively bump other players
-    await this.tryBump(player, nextPlacement.globalGridPos, player.direction);
+    await this.tryBump(player, nextPlacement, player.direction);
     this.nextPlayer();
   }
 
@@ -226,6 +216,13 @@ export class TrainCowboys {
 
   async doShoot() {
     const player = this.curPlayer;
+
+    if (player.isInDeathZone()) {
+      await this.animateFallingFromTrain(player);
+      this.nextPlayer();
+      this.removePlayer(player);
+      return;
+    }
 
     if (player.isStunned) {
       await this.standup(player);
@@ -253,8 +250,8 @@ export class TrainCowboys {
 
     if (playerToShoot) {
       playerToShoot.isStunned = true;
-      const targetPlacement = getNextHorizonalMovePlacement(this._train, playerToShoot.globalGridPos, player.direction);
-      const isUnsafe = this._train.isInDeathZone(targetPlacement);
+      const targetPlacement = this._train.getNextHorizontalMovePlacement(playerToShoot.placement, player.direction);
+      const isUnsafe = targetPlacement.isDeathZone;
       effects.push(
         delay(500).then(async () => {
           playerToShoot.playAnimation('FALL', true);
@@ -266,7 +263,7 @@ export class TrainCowboys {
             playerToShoot.isStunned = true;
             playerToShoot.playAnimation('FREE_FALL');
           } else {
-            await this.tryBump(playerToShoot, targetPlacement.globalGridPos, player.direction);
+            await this.tryBump(playerToShoot, targetPlacement, player.direction);
           }
         })
       );
@@ -284,7 +281,7 @@ export class TrainCowboys {
   async doTurn() {
     const player = this.curPlayer;
 
-    if (this.playerInDeathZone(player)) {
+    if (player.isInDeathZone()) {
       await this.animateFallingFromTrain(player);
       this.nextPlayer();
       this.removePlayer(player);
@@ -313,7 +310,7 @@ export class TrainCowboys {
     // before this action has been completed
     const player = this.curPlayer;
 
-    if (this.playerInDeathZone(player)) {
+    if (player.isInDeathZone()) {
       await this.animateFallingFromTrain(player);
       this.nextPlayer();
       this.removePlayer(player);
@@ -326,13 +323,7 @@ export class TrainCowboys {
       return;
     }
 
-    const curGrid = player.globalGridPos;
-    const curPlacement = this._train.getAllPlacements().find(p => p.globalGridPos.equals(curGrid))!;
-    const carIndex = this._train.getCarIndexFromPlacement(curPlacement);
-    const placements = this._train.getCar(carIndex).getAllPlacements();
-
-    // TODO: move player so back is against car divider
-    const climbTarget = getClimbTarget(placements, curGrid, player.direction);
+    const climbTarget = this._train.getClimbTarget(player.placement.carIndex, player.placement.level, player.direction);
 
     // walk to under/over the ladder
     player.changeDirection();
@@ -347,7 +338,7 @@ export class TrainCowboys {
     await this._engine.moveToGrid(player, climbTarget.globalGridPos, { duration: 1000 });
     player.playAnimation('IDLE');
 
-    await this.tryBump(player, climbTarget.globalGridPos, player.direction);
+    await this.tryBump(player, climbTarget, player.direction);
 
     this.nextPlayer();
   }
@@ -361,7 +352,7 @@ export class TrainCowboys {
     // can be reset when required? (doulbe check the rules on that one)
     const player = this.curPlayer;
 
-    if (this.playerInDeathZone(player)) {
+    if (player.isInDeathZone()) {
       await this.animateFallingFromTrain(player);
       this.nextPlayer();
       this.removePlayer(player);
@@ -399,7 +390,7 @@ export class TrainCowboys {
 
     if (playerToShoot) {
       playerToShoot.isStunned = true;
-      const targetPlacement = getNextHorizonalMovePlacement(this._train, playerToShoot.globalGridPos, player.direction);
+      const targetPlacement = this._train.getNextHorizontalMovePlacement(playerToShoot.placement, player.direction);
       effects.push(
         delay(500).then(async () => {
           playerToShoot.playAnimation('FALL', true);
@@ -422,33 +413,37 @@ export class TrainCowboys {
   async doHorse() {
     const player = this.curPlayer;
 
-    if (!this.playerInDeathZone(player) && player.isStunned) {
+    if (player.isStunned && player.isInSafeZone()) {
       await this.standup(player);
       this.nextPlayer();
       return;
     }
 
     const placement = this._train.getEngine().getBottomLeftPlacement();
-    // TODO: this movement will become a path below the train
+
+    // TODO: this movement will become a path below the train (with horse animation)
+    // potentially look at the player jumping off screen and the horse comes back in frame
     await this._engine.moveToGrid(player, placement.globalGridPos, { duration: 1000 });
     // TODO: animations -- fall -- horse mount -- horse ride -- horse dismount
     player.direction = 'left';
     player.isStunned = false;
     player.playAnimation('IDLE');
+
+    await this.tryBump(player, placement, 'right');
     this.nextPlayer();
   }
 
-  private async tryBump(bumper: Player, gridPos: Vec2, direction: Direction) {
-    const playerToBump = this.getOtherPlayers(bumper).find(p => p.globalGridPos.equals(gridPos));
+  private async tryBump(bumper: Player, placement: Placement, direction: Direction) {
+    const playerToBump = this.getOtherPlayers(bumper).find(p => p.globalGridPos.equals(placement.globalGridPos));
     if (!playerToBump) {
       return;
     }
 
-    const nextPlacement = getNextHorizontalBumpPlacement(this._train.getAllPlacements(), gridPos, direction);
+    const nextPlacement = this._train.getNextHorizontalBumpPlacement(placement, direction);
     playerToBump.playAnimation('WALK');
     await this._engine.moveToGrid(playerToBump, nextPlacement.globalGridPos, { duration: 1000 });
     playerToBump.playAnimation('IDLE');
-    await this.tryBump(playerToBump, nextPlacement.globalGridPos, direction);
+    await this.tryBump(playerToBump, nextPlacement, direction);
   }
 
   async endRound() {
@@ -458,11 +453,7 @@ export class TrainCowboys {
   async doEndRound() {
     console.log('--- end round');
     // if any player is in the death zone, kill them
-    const placements = this._train.getAllPlacements();
-    const playersInDeathZone = this._players.filter(player => {
-      const placement = placements.find(p => p.globalGridPos.equals(player.globalGridPos))!;
-      return this._train.isInDeathZone(placement);
-    });
+    const playersInDeathZone = this._players.filter(p => p.placement.isDeathZone);
 
     await Promise.all(
       playersInDeathZone.map(async (p, index) => {
@@ -472,32 +463,18 @@ export class TrainCowboys {
       })
     );
 
-    // remove the last car
-    const caboose = this._train.getCaboose();
-
-    // if any players are on the last car, play animation
-    // sending them off the screen
+    // explode the train
     const deathX = this._train.getCaboose().getBottomLeftPlacement().globalGridPos.x;
     const playersOnCaboose = this._players.filter(p => p.globalGridPos.x >= deathX);
 
     // TODO: add caboose explosions
-    await Promise.all(
-      playersOnCaboose.map(async p => {
-        await this.animateFallingFromTrain(p);
-        this.removePlayer(p);
-      })
-    );
-
+    playersOnCaboose.forEach(p => this.removePlayer(p));
     this._train.removeCaboose();
-
-    // TODO: add car animations and explosions (once there are car graphics)
 
     // add loot animation to get player furthest to the back
 
     // change the starting player for the next round
     this.nextPlayer();
-
-    await delay(1000);
   }
 
   private removePlayer(player: Player) {

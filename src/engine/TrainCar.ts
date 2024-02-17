@@ -1,25 +1,22 @@
 import { GameObject } from './GameObject';
 import { Placement } from './Placement';
 import { Resources } from './Resources';
-import { SpriteRect } from './SpirteRect';
 import { Sprite } from './Sprite';
 import { Vec2 } from './Vec2';
 import { AnimationPattern } from './animations/AnimationPattern';
 import { AnimationPlayer } from './animations/AnimationPlayer';
 import { SmokeAnimations } from './animations/smokeAnimations';
-import { Direction } from './direction';
-import { Level } from './level';
+import { Direction } from './direction.type';
+import { Level } from './level.type';
 import { posFromGrid } from './utils';
 
 export interface TrainCarConfig {
   gridPos: Vec2;
   width: number;
+  carIndex: number;
   placementCount: number;
-  color: string;
   noSprites?: boolean;
 }
-
-// 80 x 64
 
 const buildSprite = (gridPos: Vec2, xIndex: number) => {
   return new Sprite({
@@ -103,13 +100,17 @@ export class TrainCar extends GameObject {
 
     for (let i = 0; i < placementCount; i++) {
       const topPlacement = new Placement({
-        gridPos: new Vec2(i, 0)
+        gridPos: new Vec2(i, 0),
+        level: 'top',
+        carIndex: config.carIndex
       });
       this._topPlacements.push(topPlacement);
       this.addChild(topPlacement);
 
       const bottomPlacement = new Placement({
-        gridPos: new Vec2(i, 2)
+        gridPos: new Vec2(i, 2),
+        level: 'bottom',
+        carIndex: config.carIndex
       });
       this._bottomPlacements.push(bottomPlacement);
       this.addChild(bottomPlacement);
@@ -130,27 +131,24 @@ export class TrainCar extends GameObject {
     this.children = keep;
   }
 
-  getPlacement(level: Level, enterFrom: Direction) {
+  getEnteringPlacement(level: Level, enterFrom: Direction) {
     const placements = level === 'top' ? this._topPlacements : this._bottomPlacements;
     return enterFrom === 'left' ? placements[0] : placements[placements.length - 1];
   }
 
-  containsPlacement(placement: Placement) {
-    return this._topPlacements.includes(placement) || this._bottomPlacements.includes(placement);
-  }
-
-  getLevelFromPlacement(placement: Placement): Level {
-    if (this._topPlacements.some(p => p.globalGridPos.y === placement.globalGridPos.y)) {
-      return 'top';
-    }
-    return 'bottom';
-  }
-
   getBottomLeftPlacement() {
-    return this._bottomPlacements[0];
+    return this.getEnteringPlacement('bottom', 'right');
   }
 
   getAllPlacements() {
     return [...this._topPlacements, ...this._bottomPlacements];
+  }
+
+  getClimbTarget(curLevel: Level, direction: Direction) {
+    // get left and right target placements
+    const placementsOnLevel = this.getAllPlacements().filter(p => p.level !== curLevel);
+    placementsOnLevel.sort((a, b) => a.globalGridPos.x - b.globalGridPos.x);
+
+    return direction === 'right' ? placementsOnLevel[0] : placementsOnLevel[placementsOnLevel.length - 1];
   }
 }

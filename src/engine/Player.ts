@@ -6,8 +6,9 @@ import { Vec2 } from './Vec2';
 import { AnimationPlayer, AnimationPatterns, PlayRequest } from './animations/AnimationPlayer';
 import { AnimationPattern } from './animations/AnimationPattern';
 import { PlayerAnimationBaseName, PlayerAnimationName, PlayerAnimations } from './animations/playerAnimations';
-import { Direction } from './direction';
-import { gridFromPos, posFromGrid } from './utils';
+import { Direction } from './direction.type';
+import { delay, gridFromPos, posFromGrid } from './utils';
+import { Placement } from './Placement';
 
 export interface PlayerConfig {
   id: string;
@@ -89,5 +90,28 @@ export class Player extends GameObject {
 
   changeDirection() {
     this.direction = this.direction === 'left' ? 'right' : 'left';
+  }
+
+  private getPlacements() {
+    return this.root.findAllChildrenOfType(Placement);
+  }
+
+  get placement() {
+    return this.getPlacements().find(p => p.globalGridPos.equals(this.globalGridPos))!;
+  }
+
+  isInDeathZone() {
+    return this.placement.isDeathZone || false;
+  }
+
+  isInSafeZone() {
+    return !this.isInDeathZone();
+  }
+
+  async standup() {
+    this.playAnimation('STAND', true);
+    await delay(1500);
+    this.isStunned = false;
+    this.playAnimation('IDLE');
   }
 }

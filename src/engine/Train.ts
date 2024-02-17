@@ -9,6 +9,9 @@ import { AnimationPlayer } from './animations/AnimationPlayer';
 import { AnimationPattern } from './animations/AnimationPattern';
 import { SmokeAnimations } from './animations/smokeAnimations';
 import { SpriteRect } from './SpirteRect';
+import { DeathZone } from './DeathZone';
+import { Direction } from './direction.type';
+import { Level } from './level.type';
 
 const MIN_WIDTH = 6;
 
@@ -88,7 +91,9 @@ const buildEngine = (startAt: Vec2, playerCount: number) => {
 };
 
 export class Train extends GameObject {
-  private _cars: TrainCar[] = [];
+  private frontZone: DeathZone = null!;
+  private backZone: DeathZone = null!;
+  private cars: TrainCar[] = [];
   constructor(config: TrainConfig) {
     super({
       position: utils.posFromGrid(config.gridPosition)
@@ -101,26 +106,30 @@ export class Train extends GameObject {
 
     const placementCount = config.playerCount;
 
-    // build the space at the front
-    this._cars.push(new TrainCar({ gridPos: startAt, width, placementCount, color: 'grey', noSprites: true }));
-    movePos();
+    // build front death zone
+    this.frontZone = new DeathZone({ gridPos: startAt });
+    startAt.x += 5;
 
     // engine
     buildEngine(startAt, config.playerCount).forEach(g => this.addChild(g));
-    this._cars.push(new TrainCar({ gridPos: startAt, width, placementCount, color: 'black', noSprites: true }));
+    this.cars.push(new TrainCar({ gridPos: startAt, width, placementCount, noSprites: true, carIndex: 0 }));
     movePos();
 
     // make the train cars
     for (let carIndex = 0; carIndex < placementCount + 1; carIndex++) {
-      this._cars.push(new TrainCar({ gridPos: startAt, width, placementCount, color: 'brown' }));
+      this.cars.push(new TrainCar({ gridPos: startAt, width, placementCount, carIndex: carIndex + 1 }));
       movePos();
     }
 
-    // build space at the back
-    this._cars.push(new TrainCar({ gridPos: startAt, width, placementCount, color: 'grey', noSprites: true }));
+    // build back death zone
+    this.backZone = new DeathZone({ gridPos: startAt });
 
-    // add objects
-    this._cars.forEach(c => this.addChild(c));
+    // add cars
+    this.cars.forEach(c => this.addChild(c));
+
+    // add death zones
+    this.addChild(this.frontZone);
+    this.addChild(this.backZone);
 
     // Add train track
     this.addChild(
@@ -133,46 +142,62 @@ export class Train extends GameObject {
   }
 
   getAllPlacements() {
-    return this._cars.flatMap(c => c.getAllPlacements());
+    return this.root.findAllChildrenOfType(Placement);
   }
 
   getCar(carIndex: number) {
-    if (carIndex < 0) {
-      carIndex = this._cars.length + carIndex;
-    }
-    return this._cars[carIndex];
+    return this.cars[carIndex];
   }
 
-  getCarIndexFromPlacement(placement: Placement) {
-    for (let i = 0; i < this._cars.length; i++) {
-      if (this._cars[i].containsPlacement(placement)) {
-        return i;
-      }
-    }
-    return -1;
+  getCarFromBack(carIndex: number) {
+    return this.cars[this.cars.length - carIndex - 1];
   }
 
   getEngine() {
-    return this._cars[1];
+    return this.cars[0];
   }
 
   getCaboose() {
-    return this.getCar(-2);
-  }
-
-  isInDeathZone(placement: Placement) {
-    const index = this.getCarIndexFromPlacement(placement);
-    return index === 0 || index === this._cars.length - 1;
+    return this.getCarFromBack(0);
   }
 
   removeCaboose() {
-    if (this._cars.length <= 3) {
+    // TODO: need to move the death zone around
+    if (this.cars.length <= 3) {
       throw 'Cannot remove engine';
     }
-    const lastCar = this._cars.pop()!;
+    const lastCar = this.cars.pop()!;
     lastCar.destroy(true);
 
     // remove sprites from last car
     this.getCar(-1).clearSprites();
+  }
+
+  getNextHorizontalMovePlacement(curPlacement: Placement, direction: Direction) {
+    const { carIndex, level } = curPlacement;
+
+    if (direction === 'left') {
+      return this.getCar(carIndex - 1)?.getEnteringPlacement(level, 'right') || this.frontZone.getPlacement(curPlacement.level);
+    } else {
+      return this.getCar(carIndex + 1)?.getEnteringPlacement(level, 'left') || this.backZone.getPlacement(curPlacement.level);
+    }
+  }
+
+  getClimbTarget(carIndex: number, curLevel: Level, direction: Direction) {
+    return this.getCar(carIndex).getClimbTarget(curLevel, direction);
+  }
+
+  getNextHorizontalBumpPlacement(curPlacement: Placement, direction: Direction) {
+    const placements = this.getAllPlacements();
+    let relevant = placements.filter(p => (p.level = curPlacement.level));
+    if (direction === 'left') {
+      relevant = relevant.filter(p => p.globalGridPos.x < curPlacement.globalGridPos.x);
+      relevant.sort((a, b) => b.globalGridPos.x - a.globalGridPos.x);
+      return relevant[0];
+    } else {
+      relevant = relevant.filter(p => p.globalGridPos.x > curPlacement.globalGridPos.x);
+      relevant.sort((a, b) => a.globalGridPos.x - b.globalGridPos.x);
+      return relevant[0];
+    }
   }
 }
