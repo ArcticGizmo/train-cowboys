@@ -167,7 +167,7 @@ export class SpaceCowboys {
     return this.doAction(() => this.doMove());
   }
 
-  async doMove() {
+  private async doMove() {
     const player = this.curPlayer;
 
     if (player.isInDeathZone()) {
@@ -200,7 +200,7 @@ export class SpaceCowboys {
     return this.doAction(() => this.doTurn());
   }
 
-  async doTurn() {
+  private async doTurn() {
     const player = this.curPlayer;
 
     if (player.isInDeathZone()) {
@@ -227,7 +227,7 @@ export class SpaceCowboys {
     return this.doAction(() => this.doChangeSides());
   }
 
-  async doChangeSides() {
+  private async doChangeSides() {
     const player = this.curPlayer;
 
     if (player.isInDeathZone()) {
@@ -268,7 +268,7 @@ export class SpaceCowboys {
     return this.doAction(() => this.doJetpack());
   }
 
-  async doJetpack() {
+  private async doJetpack() {
     const player = this.curPlayer;
 
     if (player.isStunned && player.isInSafeZone()) {
@@ -290,6 +290,125 @@ export class SpaceCowboys {
     player.playAnimation('IDLE');
 
     await this.tryBump(player, targetGridPos, 'right');
+    this.nextPlayer();
+  }
+
+  async shoot() {
+    return this.doAction(() => this.doShoot());
+  }
+
+  private async doShoot() {
+    const player = this.curPlayer;
+
+    if (player.isStunned) {
+      await player.standup();
+      this.nextPlayer();
+      return;
+    }
+
+    const { x, y } = player.globalGridPos;
+
+    let otherPlayers = this.getOtherPlayers(player).filter(p => !p.isStunned && p.globalGridPos.y === y);
+
+    if (player.direction === 'left') {
+      otherPlayers = otherPlayers.filter(p => p.globalGridPos.x < x);
+      otherPlayers.sort((a, b) => b.globalGridPos.x - a.globalGridPos.x);
+    } else {
+      otherPlayers = otherPlayers.filter(p => p.globalGridPos.x > x);
+      otherPlayers.sort((a, b) => a.globalGridPos.x - b.globalGridPos.x);
+    }
+
+    const playerToShoot = otherPlayers[0];
+
+    player.playAnimation('SHOOT', true);
+
+    const effects = [delay(1000).then(() => player.playAnimation('IDLE'))];
+
+    if (playerToShoot) {
+      playerToShoot.isStunned = true;
+      const targetPlacement = getNextHorizonalMovePlacement(this.ship, playerToShoot.globalGridPos, player.direction);
+      const isUnsafe = targetPlacement.isDeathZone;
+      effects.push(
+        delay(500).then(async () => {
+          playerToShoot.playAnimation('FALL', true);
+          await delay(100);
+
+          await this.engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, { duration: 500 });
+
+          if (isUnsafe) {
+            playerToShoot.isStunned = true;
+            playerToShoot.playAnimation('FREE_FALL');
+          } else {
+            await this.tryBump(playerToShoot, targetPlacement.globalGridPos, player.direction);
+          }
+        })
+      );
+    }
+
+    await Promise.all(effects);
+
+    this.nextPlayer();
+  }
+
+  async reflex() {
+    return this.doAction(() => this.doReflex());
+  }
+
+  private async doReflex() {
+    // TODO: reflex cannot work across rounds, so might need a reflex counter
+    const player = this.curPlayer;
+
+    if (player.isInDeathZone()) {
+      await player.eject();
+      this.nextPlayer();
+      this.removePlayer(player);
+      return;
+    }
+
+    if (!player.isStunned) {
+      // falldown
+      player.playAnimation('FALL', true);
+      await delay(500);
+      player.isStunned = true;
+      this.nextPlayer();
+      return;
+    }
+
+    const { x, y } = player.globalGridPos;
+
+    let otherPlayers = this.getOtherPlayers(player).filter(p => !p.isStunned && p.globalGridPos.y === y);
+
+    if (player.direction === 'left') {
+      otherPlayers = otherPlayers.filter(p => p.globalGridPos.x < x);
+      otherPlayers.sort((a, b) => b.globalGridPos.x - a.globalGridPos.x);
+    } else {
+      otherPlayers = otherPlayers.filter(p => p.globalGridPos.x > x);
+      otherPlayers.sort((a, b) => a.globalGridPos.x - b.globalGridPos.x);
+    }
+
+    const playerToShoot = otherPlayers[0];
+
+    // reflex
+    player.playAnimation('REFLEX', true);
+
+    const effects = [delay(1500).then(() => player.playAnimation('IDLE'))];
+    player.isStunned = false;
+
+    if (playerToShoot) {
+      playerToShoot.isStunned = true;
+      const targetPlacement = getNextHorizonalMovePlacement(this.ship, playerToShoot.globalGridPos, player.direction);
+      effects.push(
+        delay(500).then(async () => {
+          playerToShoot.playAnimation('FALL', true);
+          await delay(100);
+          await this.engine.moveToGrid(playerToShoot, targetPlacement.globalGridPos, { duration: 200 });
+        })
+      );
+    }
+
+    await Promise.all(effects);
+    player.playAnimation('IDLE');
+
     this.nextPlayer();
   }
 }

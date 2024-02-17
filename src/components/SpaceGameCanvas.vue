@@ -9,17 +9,15 @@
     <button @click="game.turn()">Turn</button>
     <button @click="game.changeSides()">Change Sides</button>
     <button @click="game.jetpack()">Jetpack</button>
-
+    <button @click="game.shoot()">Shoot</button>
+    <button @click="game.reflex()">reflex</button>
   </div>
   <div>
     <h3>Debug Actions</h3>
     <button @click="game.nextPlayer()">Next Player</button>
-
   </div>
   <!-- <div>
 
-    <button @click="game.shoot()">Shoot</button>
-    <button @click="game.reflex()">reflex</button>
     <button @click="onEndRound">END ROUND</button>
   </div>
   <div>

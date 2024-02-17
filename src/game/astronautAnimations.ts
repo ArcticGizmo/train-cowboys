@@ -13,6 +13,14 @@ export const AstronautAnimations = {
   TURN_FROM_RIGHT: buildEqualFrames([1], 100),
   CLIMB_LEFT: buildEqualFrames([0], 100),
   CLIMB_RIGHT: buildEqualFrames([1], 100),
+  FALL_LEFT: buildEqualFrames([0], 100),
+  FALL_RIGHT: buildEqualFrames([1], 100),
+  FREE_FALL_LEFT: buildEqualFrames([0], 100),
+  FREE_FALL_RIGHT: buildEqualFrames([1], 100),
+  SHOOT_LEFT: buildEqualFrames([0], 100),
+  SHOOT_RIGHT: buildEqualFrames([1], 100),
+  REFLEX_LEFT: buildEqualFrames([0], 100),
+  REFLEX_RIGHT: buildEqualFrames([1], 100),
 };
 
 type MirroredAnimationDefinition<T extends string> = Required<{
