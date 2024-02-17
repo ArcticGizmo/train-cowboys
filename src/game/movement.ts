@@ -2,6 +2,7 @@ import { Vec2 } from '@/engine/Vec2';
 import { PlacementMarker } from './PlacementMarker';
 import { Direction } from './direction.type';
 import { SpaceShip } from './SpaceShip';
+import { Level } from './level.type';
 
 export const getNextHorizontalBumpPlacement = (placements: PlacementMarker[], curGridPos: Vec2, direction: Direction) => {
   let relevant = placements.filter(p => p.globalGridPos.y === curGridPos.y);
@@ -28,9 +29,9 @@ export const getNextHorizonalMovePlacement = (ship: SpaceShip, curGridPos: Vec2,
   }
 };
 
-export const getClimbTarget = (placements: PlacementMarker[], curGridPos: Vec2, direction: Direction) => {
+export const getClimbTarget = (placements: PlacementMarker[], curLevel: Level, direction: Direction) => {
   // get left and right target placements
-  const placementsOnLevel = placements.filter(p => p.globalGridPos.y !== curGridPos.y);
+  const placementsOnLevel = placements.filter(p => p.level !== curLevel);
   placementsOnLevel.sort((a, b) => a.globalGridPos.x - b.globalGridPos.x);
 
   return direction === 'right' ? placementsOnLevel[0] : placementsOnLevel[placementsOnLevel.length - 1];

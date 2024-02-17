@@ -97,7 +97,7 @@ export class Player extends GameObject {
   }
 
   get placement() {
-    return this.getPlacements().find(p => p.globalGridPos.equals(this.globalGridPos));
+    return this.getPlacements().find(p => p.globalGridPos.equals(this.globalGridPos))!;
   }
 
   isInDeathZone() {

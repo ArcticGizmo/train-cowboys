@@ -6,10 +6,11 @@ import { Resources } from '@/engine/Resources';
 import { Vec2 } from '@/engine/Vec2';
 import { GameObject } from '@/engine/GameObject';
 import { SpaceShip } from './SpaceShip';
-import { getNextHorizonalMovePlacement, getNextHorizontalBumpPlacement } from './movement';
+import { getClimbTarget, getNextHorizonalMovePlacement, getNextHorizontalBumpPlacement } from './movement';
 import { Direction } from './direction.type';
 
 const playerColors = ['red', 'blue', 'magenta', 'black', 'white'];
+const WALK_SPEED = 80;
 
 export interface SpaceCowboysConfig {
   canvas: Ref<HTMLCanvasElement | undefined>;
@@ -110,7 +111,7 @@ export class SpaceCowboys {
 
   private createPlayer(index: number) {
     // TODO: take in facing direction as well
-    const gridPos = this.ship.getRoom(index + 1).getEnteringPlacement('bottom', 'left').globalGridPos;
+    const gridPos = this.ship.getRoom(index + 1).getEnteringPlacement('bottom', 'right').globalGridPos;
     const player = new Player({
       id: `player-${index}`,
       gridPos,
@@ -169,7 +170,7 @@ export class SpaceCowboys {
     const player = this.curPlayer;
 
     if (player.isInDeathZone()) {
-      player.eject();
+      await player.eject();
       this.nextPlayer();
       this.removePlayer(player);
       return;
@@ -186,11 +187,79 @@ export class SpaceCowboys {
 
     // TODO: make unsafe player movement when moving into death zone
     player.playAnimation('WALK');
-    await this.engine.moveToGrid(player, targetPlacement.globalGridPos, { speed: 40 });
+    await this.engine.moveToGrid(player, targetPlacement.globalGridPos, { speed: WALK_SPEED });
     player.playAnimation('IDLE');
 
     // recursively bump other players
     await this.tryBump(player, targetPlacement.globalGridPos, player.direction);
+    this.nextPlayer();
+  }
+
+  async turn() {
+    return this.doAction(() => this.doTurn());
+  }
+
+  async doTurn() {
+    const player = this.curPlayer;
+
+    if (player.isInDeathZone()) {
+      await player.eject();
+      this.nextPlayer();
+      this.removePlayer(player);
+      return;
+    }
+
+    if (player.isStunned) {
+      await player.standup();
+      this.nextPlayer();
+      return;
+    }
+
+    player.playAnimation('TURN_FROM', true);
+    await delay(500);
+    player.changeDirection();
+    player.playAnimation('IDLE');
+    this.nextPlayer();
+  }
+
+  async changeSides() {
+    return this.doAction(() => this.doChangeSides());
+  }
+
+  async doChangeSides() {
+    const player = this.curPlayer;
+
+    if (player.isInDeathZone()) {
+      await player.eject();
+      this.nextPlayer();
+      this.removePlayer(player);
+      return;
+    }
+
+    if (player.isStunned) {
+      await player.standup();
+      this.nextPlayer();
+      return;
+    }
+
+    const roomIndex = player.placement.roomIndex;
+
+    const climbTarget = getClimbTarget(this.ship.getRoom(roomIndex).getPlacements(), player.placement.level, player.direction);
+
+    // walk to ladder
+    player.changeDirection();
+    player.playAnimation('WALK');
+    const prepSpot = new Vec2(climbTarget.globalGridPos.x, player.globalGridPos.y);
+    await this.engine.moveToGrid(player, prepSpot, { speed: WALK_SPEED });
+
+    // traverse the ladder
+    player.changeDirection();
+    player.playAnimation('CLIMB');
+    await this.engine.moveToGrid(player, climbTarget.globalGridPos, { speed: WALK_SPEED });
+    player.playAnimation('IDLE');
+
+    await this.tryBump(player, climbTarget.globalGridPos, player.direction);
+
     this.nextPlayer();
   }
 }
