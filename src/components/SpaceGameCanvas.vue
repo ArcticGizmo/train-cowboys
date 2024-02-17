@@ -7,6 +7,10 @@
     <h3>Actions</h3>
     <button @click="game.move()">Move</button>
   </div>
+  <div>
+    <h3>Debug Actions</h3>
+    <button @click="game.nextPlayer()">Next Player</button>
+  </div>
   <!-- <div>
 
     <button @click="game.climb()">Climb</button>

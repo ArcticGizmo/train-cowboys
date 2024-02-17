@@ -13,14 +13,14 @@ const BOTTOM = 3;
 export interface ShipRoomConfig {
   gridPos: Vec2;
   placementCount: number;
-  regionIndex: number;
+  roomIndex: number;
   hideFrontSprites?: boolean;
 }
 
-const buildPlacements = (gridPos: Vec2, regionIndex: number) => {
+const buildPlacements = (gridPos: Vec2, roomIndex: number) => {
   return [
-    new PlacementMarker({ gridPos: new Vec2(gridPos.x, TOP), regionIndex }),
-    new PlacementMarker({ gridPos: new Vec2(gridPos.x, BOTTOM), regionIndex })
+    new PlacementMarker({ gridPos: new Vec2(gridPos.x, TOP), roomIndex, level: 'top' }),
+    new PlacementMarker({ gridPos: new Vec2(gridPos.x, BOTTOM), roomIndex, level: 'bottom' })
   ];
 };
 
@@ -83,7 +83,7 @@ export class ShipRoom extends GameObject {
     super({ position: posFromGrid(config.gridPos) });
 
     const startAt = Vec2.ZERO();
-    const regionIndex = config.regionIndex;
+    const roomIndex = config.roomIndex;
     const sprites = this.sprites;
     const placements = this.placements;
 
@@ -98,24 +98,24 @@ export class ShipRoom extends GameObject {
       sprites.push(buildSegmentSprite(startAt, 9));
     }
     moveRight();
-    
+
     // create room
     sprites.push(...buildEngineSprites(startAt.x));
-    placements.push(...buildPlacements(startAt, regionIndex));
+    placements.push(...buildPlacements(startAt, roomIndex));
     sprites.push(buildSegmentSprite(startAt, 8));
     moveRight();
-    placements.push(...buildPlacements(startAt, regionIndex));
+    placements.push(...buildPlacements(startAt, roomIndex));
     sprites.push(buildSegmentSprite(startAt, 5));
     moveRight();
     for (let i = 0; i < config.placementCount - 4; i++) {
-      placements.push(...buildPlacements(startAt, regionIndex));
+      placements.push(...buildPlacements(startAt, roomIndex));
       sprites.push(buildSegmentSprite(startAt, 6));
       moveRight();
     }
-    placements.push(...buildPlacements(startAt, regionIndex));
+    placements.push(...buildPlacements(startAt, roomIndex));
     sprites.push(buildSegmentSprite(startAt, 7));
     moveRight();
-    placements.push(...buildPlacements(startAt, regionIndex));
+    placements.push(...buildPlacements(startAt, roomIndex));
     sprites.push(buildSegmentSprite(startAt, 8));
 
     // attach
@@ -124,11 +124,11 @@ export class ShipRoom extends GameObject {
   }
 
   private getTopPlacements() {
-    return this.placements.filter(p => p.gridPos.y === TOP);
+    return this.placements.filter(p => p.level === 'top');
   }
 
   private getBottomPlacements() {
-    return this.placements.filter(p => p.gridPos.y === BOTTOM);
+    return this.placements.filter(p => p.level === 'bottom');
   }
 
   getEnteringPlacement(level: Level, enteringFrom: Direction) {

@@ -10,7 +10,7 @@ const BOTTOM = 3;
 
 export interface EndZoneConfig {
   gridPos: Vec2;
-  regionIndex: number;
+  roomIndex: number;
 }
 
 const buildSegmentSprite = (gridPos: Vec2, frame: number) => {
@@ -24,10 +24,10 @@ const buildSegmentSprite = (gridPos: Vec2, frame: number) => {
   });
 };
 
-const buildPlacements = (gridPos: Vec2, regionIndex: number) => {
+const buildPlacements = (gridPos: Vec2, roomIndex: number) => {
   return [
-    new PlacementMarker({ gridPos: new Vec2(gridPos.x, TOP), regionIndex }),
-    new PlacementMarker({ gridPos: new Vec2(gridPos.x, BOTTOM), regionIndex })
+    new PlacementMarker({ gridPos: new Vec2(gridPos.x, TOP), roomIndex, level: 'top' }),
+    new PlacementMarker({ gridPos: new Vec2(gridPos.x, BOTTOM), roomIndex, level: 'bottom' })
   ];
 };
 
@@ -45,7 +45,7 @@ export class EndZone extends GameObject {
     moveRight();
     sprites.push(buildSegmentSprite(startAt, 11));
     moveRight();
-    placements.push(...buildPlacements(startAt, config.regionIndex));
+    placements.push(...buildPlacements(startAt, config.roomIndex));
 
     sprites.forEach(s => this.addChild(s));
     placements.forEach(p => this.addChild(p));

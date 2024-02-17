@@ -10,7 +10,7 @@ const BOTTOM = 3;
 
 export interface FrontZoneConfig {
   gridPos: Vec2;
-  regionIndex: number;
+  roomIndex: number;
 }
 
 const buildSegmentSprite = (gridPos: Vec2, frame: number) => {
@@ -24,10 +24,20 @@ const buildSegmentSprite = (gridPos: Vec2, frame: number) => {
   });
 };
 
-const buildPlacements = (gridPos: Vec2, regionIndex: number) => {
+const buildPlacements = (gridPos: Vec2, roomIndex: number) => {
   return [
-    new PlacementMarker({ gridPos: new Vec2(gridPos.x, TOP), regionIndex }),
-    new PlacementMarker({ gridPos: new Vec2(gridPos.x, BOTTOM), regionIndex })
+    new PlacementMarker({
+      gridPos: new Vec2(gridPos.x, TOP),
+      roomIndex,
+      level: 'top',
+      isDeathZone: true
+    }),
+    new PlacementMarker({
+      gridPos: new Vec2(gridPos.x, BOTTOM),
+      roomIndex,
+      level: 'bottom',
+      isDeathZone: true
+    })
   ];
 };
 
@@ -42,7 +52,7 @@ export class FrontZone extends GameObject {
     const sprites: Sprite[] = [];
 
     // build the placements outside the ship
-    placements.push(...buildPlacements(startAt, config.regionIndex));
+    placements.push(...buildPlacements(startAt, config.roomIndex));
     moveRight();
 
     // build the nose cone

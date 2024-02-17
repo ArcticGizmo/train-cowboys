@@ -8,6 +8,7 @@ import { AnimationPattern } from '../engine/animations/AnimationPattern';
 import type { Direction } from './direction.type';
 import { GRID_SIZE, gridFromPos, posFromGrid } from '../engine/utils';
 import { AstronautAnimationBaseName, AstronautAnimationName, AstronautAnimations } from './astronautAnimations';
+import { PlacementMarker } from './PlacementMarker';
 
 export interface PlayerConfig {
   id: string;
@@ -47,8 +48,8 @@ export class Player extends GameObject {
     this.addChild(this._sprite);
 
     this._indicator = new SpriteCircle({
-      position: new Vec2(8, -4),
-      radius: 1,
+      position: new Vec2(GRID_SIZE / 2, - GRID_SIZE / 4),
+      radius: 4,
       color: config.color
     });
 
@@ -79,15 +80,46 @@ export class Player extends GameObject {
 
   select() {
     this.isSelected = true;
-    this._indicator.radius = 3;
+    this._indicator.radius = 8;
   }
 
   unselect() {
     this.isSelected = false;
-    this._indicator.radius = 1;
+    this._indicator.radius = 4;
   }
 
   changeDirection() {
     this.direction = this.direction === 'left' ? 'right' : 'left';
+  }
+
+  private getPlacements() {
+    return this.root.findAllChildrenOfType(PlacementMarker);
+  }
+
+  get placement() {
+    return this.getPlacements().find(p => p.globalGridPos.equals(this.globalGridPos));
+  }
+
+  isInDeathZone() {
+    return this.placement?.isDeathZone || false;
+  }
+
+  async standup() {
+    this.isStunned = false;
+    // player.playAnimation('STAND', true);
+    // await delay(1500);
+    // player.isStunned = false;
+    // player.playAnimation('IDLE');
+  }
+
+  async eject() {
+    // TODO: groundY might be static for drawing the tracks?
+    // const groundY = this._train.getEngine().getBottomLeftPlacement().globalGridPos.y + 1;
+    // player.playAnimation('FREE_FALL');
+    // const fallTo = new Vec2(player.globalGridPos.x, groundY);
+    // await this._engine.moveToGrid(player, fallTo, { duration: 250 });
+    // player.direction = 'left';
+    // player.playAnimation('TUMBLE', true);
+    // await this._engine.moveToGrid(player, new Vec2(this._playerCount * 40, groundY), { duration: 1000 });
   }
 }

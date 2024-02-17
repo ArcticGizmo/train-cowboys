@@ -6,6 +6,8 @@ import { Resources } from '@/engine/Resources';
 import { Vec2 } from '@/engine/Vec2';
 import { GameObject } from '@/engine/GameObject';
 import { SpaceShip } from './SpaceShip';
+import { getNextHorizonalMovePlacement, getNextHorizontalBumpPlacement } from './movement';
+import { Direction } from './direction.type';
 
 const playerColors = ['red', 'blue', 'magenta', 'black', 'white'];
 
@@ -70,6 +72,7 @@ export class SpaceCowboys {
     for (let p = 0; p < this.playerCount; p++) {
       this.createPlayer(p);
     }
+    this.curPlayer.select();
 
     this.engine.start();
   }
@@ -132,28 +135,17 @@ export class SpaceCowboys {
     return this.players.filter(p => p !== notThis);
   }
 
-  private playerInEndZone(player: Player) {
-    // const placement = this._train.getAllPlacements().find(p => p.globalGridPos.equals(player.globalGridPos))!;
-    // return this._train.isInEndZone(placement);
-    return false;
-  }
+  private async tryBump(bumper: Player, gridPos: Vec2, direction: Direction) {
+    const playerToBump = this.getOtherPlayers(bumper).find(p => p.globalGridPos.equals(gridPos));
+    if (!playerToBump || playerToBump.isInDeathZone()) {
+      return;
+    }
 
-  private async animateFallingFromTrain(player: Player) {
-    // TODO: groundY might be static for drawing the tracks?
-    // const groundY = this._train.getEngine().getBottomLeftPlacement().globalGridPos.y + 1;
-    // player.playAnimation('FREE_FALL');
-    // const fallTo = new Vec2(player.globalGridPos.x, groundY);
-    // await this._engine.moveToGrid(player, fallTo, { duration: 250 });
-    // player.direction = 'left';
-    // player.playAnimation('TUMBLE', true);
-    // await this._engine.moveToGrid(player, new Vec2(this._playerCount * 40, groundY), { duration: 1000 });
-  }
-
-  private async standup(player: Player) {
-    player.playAnimation('STAND', true);
-    await delay(1500);
-    player.isStunned = false;
-    player.playAnimation('IDLE');
+    const targetPlacement = getNextHorizontalBumpPlacement(this.ship.getAllPlacements(), gridPos, direction);
+    playerToBump.playAnimation('WALK');
+    await this.engine.moveToGrid(playerToBump, targetPlacement.globalGridPos, { duration: 1000 });
+    playerToBump.playAnimation('IDLE');
+    await this.tryBump(playerToBump, targetPlacement.globalGridPos, direction);
   }
 
   // =================== actions ===================== //
@@ -173,5 +165,32 @@ export class SpaceCowboys {
     return this.doAction(() => this.doMove());
   }
 
-  async doMove() {}
+  async doMove() {
+    const player = this.curPlayer;
+
+    if (player.isInDeathZone()) {
+      player.eject();
+      this.nextPlayer();
+      this.removePlayer(player);
+      return;
+    }
+
+    if (player.isStunned) {
+      await player.standup();
+      this.nextPlayer();
+      return;
+    }
+
+    // determine new position
+    const targetPlacement = getNextHorizonalMovePlacement(this.ship, player.globalGridPos, player.direction);
+
+    // TODO: make unsafe player movement when moving into death zone
+    player.playAnimation('WALK');
+    await this.engine.moveToGrid(player, targetPlacement.globalGridPos, { speed: 40 });
+    player.playAnimation('IDLE');
+
+    // recursively bump other players
+    await this.tryBump(player, targetPlacement.globalGridPos, player.direction);
+    this.nextPlayer();
+  }
 }

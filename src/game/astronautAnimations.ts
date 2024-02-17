@@ -7,6 +7,8 @@ export const AstronautAnimations = {
   IDLE_RIGHT: buildEqualFrames([1], 100),
   STAND_LEFT: buildEqualFrames([0], 100),
   STAND_RIGHT: buildEqualFrames([1], 100),
+  WALK_LEFT: buildEqualFrames([0], 100),
+  WALK_RIGHT: buildEqualFrames([1], 100),
 };
 
 type MirroredAnimationDefinition<T extends string> = Required<{

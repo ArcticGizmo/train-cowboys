@@ -29,17 +29,17 @@ export class SpaceShip extends GameObject {
     const placementCount = Math.max(playerCount, 4);
     const startAt = Vec2.ZERO();
 
-    this.frontZone = new FrontZone({ gridPos: startAt, regionIndex: 0 });
+    this.frontZone = new FrontZone({ gridPos: startAt, roomIndex: -1 });
     startAt.x += 3;
 
     for (let p = 0; p < playerCount + 1; p++) {
-      const room = new ShipRoom({ gridPos: startAt, placementCount, regionIndex: p + 1, hideFrontSprites: p === 0 });
+      const room = new ShipRoom({ gridPos: startAt, placementCount, roomIndex: p, hideFrontSprites: p === 0 });
       this.rooms.push(room);
       startAt.x += 5;
     }
 
     // add end death zone
-    this.endZone = new EndZone({ gridPos: startAt, regionIndex: playerCount + 2 });
+    this.endZone = new EndZone({ gridPos: startAt, roomIndex: playerCount + 1 });
 
     // attach
     this.rooms.forEach(r => this.addChild(r));
