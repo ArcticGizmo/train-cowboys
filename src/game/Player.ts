@@ -48,7 +48,7 @@ export class Player extends GameObject {
     this.addChild(this._sprite);
 
     this._indicator = new SpriteCircle({
-      position: new Vec2(GRID_SIZE / 2, - GRID_SIZE / 4),
+      position: new Vec2(GRID_SIZE / 2, -GRID_SIZE / 4),
       radius: 4,
       color: config.color
     });
@@ -98,6 +98,10 @@ export class Player extends GameObject {
 
   get placement() {
     return this.getPlacements().find(p => p.globalGridPos.equals(this.globalGridPos))!;
+  }
+
+  isInSafeZone() {
+    return !this.isInDeathZone();
   }
 
   isInDeathZone() {

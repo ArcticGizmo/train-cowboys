@@ -8,6 +8,8 @@
     <button @click="game.move()">Move</button>
     <button @click="game.turn()">Turn</button>
     <button @click="game.changeSides()">Change Sides</button>
+    <button @click="game.jetpack()">Jetpack</button>
+
   </div>
   <div>
     <h3>Debug Actions</h3>
@@ -18,7 +20,6 @@
 
     <button @click="game.shoot()">Shoot</button>
     <button @click="game.reflex()">reflex</button>
-    <button @click="game.horse()">Horse</button>
     <button @click="onEndRound">END ROUND</button>
   </div>
   <div>

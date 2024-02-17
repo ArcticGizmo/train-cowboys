@@ -11,6 +11,7 @@ import { Direction } from './direction.type';
 
 const playerColors = ['red', 'blue', 'magenta', 'black', 'white'];
 const WALK_SPEED = 80;
+const JETPACK_SPEED = 160;
 
 export interface SpaceCowboysConfig {
   canvas: Ref<HTMLCanvasElement | undefined>;
@@ -260,6 +261,35 @@ export class SpaceCowboys {
 
     await this.tryBump(player, climbTarget.globalGridPos, player.direction);
 
+    this.nextPlayer();
+  }
+
+  async jetpack() {
+    return this.doAction(() => this.doJetpack());
+  }
+
+  async doJetpack() {
+    const player = this.curPlayer;
+
+    if (player.isStunned && player.isInSafeZone()) {
+      await player.standup();
+      this.nextPlayer();
+      return;
+    }
+
+    const timing = { speed: JETPACK_SPEED };
+    const targetGridPos = this.ship.getRoom(0).getEnteringPlacement('bottom', 'left').globalGridPos;
+
+    // exit ship -- move along bottom -- enter ship
+    await this.engine.moveToGrid(player, new Vec2(player.globalGridPos.x, targetGridPos.y + 4), timing);
+    await this.engine.moveToGrid(player, new Vec2(targetGridPos.x, targetGridPos.y + 4), timing);
+    await this.engine.moveToGrid(player, targetGridPos, timing);
+
+    player.direction = 'left';
+    player.isStunned = false;
+    player.playAnimation('IDLE');
+
+    await this.tryBump(player, targetGridPos, 'right');
     this.nextPlayer();
   }
 }
