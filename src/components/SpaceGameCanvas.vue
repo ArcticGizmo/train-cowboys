@@ -3,9 +3,11 @@
   <div>
     <h3>Status: {{ gameStatus }}</h3>
   </div>
-  <!-- <div>
+  <div>
     <h3>Actions</h3>
     <button @click="game.move()">Move</button>
+  </div>
+  <!-- <div>
 
     <button @click="game.climb()">Climb</button>
     <button @click="game.shoot()">Shoot</button>

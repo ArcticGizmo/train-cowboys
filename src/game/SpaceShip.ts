@@ -4,6 +4,9 @@ import { GRID_SIZE, gridFromPos, posFromGrid } from '@/engine/utils';
 import { PlacementMarker } from './PlacementMarker';
 import { Sprite } from '@/engine/Sprite';
 import { Resources } from '@/engine/Resources';
+import { ShipCockpit } from './ShipCockpit';
+import { ShipRoom } from './ShipRoom';
+import { DeathZone } from './DeathZone';
 
 const TOP = 1;
 const BOTTOM = 3;
@@ -83,85 +86,21 @@ export class SpaceShip extends GameObject {
     // TODO: break this up into smaller components
     // make it so that sprite overlap for simplicity
     // (this will make it easier to animate)
-    const placeCount = Math.max(playerCount, 4);
+    const placementCount = Math.max(playerCount, 4);
     const startAt = Vec2.ZERO();
-    const sprites: Sprite[] = [];
-    const placements: PlacementMarker[] = [];
 
-    const moveRight = (step = 1) => (startAt.x += step);
+    const cockpit = new ShipCockpit({ gridPos: startAt, placementCount });
+    this.addChild(cockpit);
+    startAt.x += 8;
 
-    // build the placements outside the ship
-    placements.push(...buildPlacements(startAt, 0));
-    moveRight();
-
-    // build the front of the ship
-    sprites.push(buildSegmentSprite(startAt, 0));
-    moveRight();
-    sprites.push(buildSegmentSprite(startAt, 1));
-    moveRight();
-    sprites.push(buildSegmentSprite(startAt, 2));
-    moveRight();
-    sprites.push(buildSegmentSprite(startAt, 3));
-    moveRight();
-
-    // build the cockpit
-    placements.push(...buildPlacements(startAt, 1));
-    sprites.push(buildSegmentSprite(startAt, 4));
-    sprites.push(...buildEngineSprites(startAt.x));
-    moveRight();
-
-    placements.push(...buildPlacements(startAt, 1));
-    sprites.push(buildSegmentSprite(startAt, 5));
-    moveRight();
-
-    for (let i = 0; i < placeCount - 4; i++) {
-      placements.push(...buildPlacements(startAt, 1));
-      sprites.push(buildSegmentSprite(startAt, 6));
-      moveRight();
+    for (let p = 0; p < playerCount; p++) {
+      const room = new ShipRoom({ gridPos: startAt, placementCount, regionIndex: 1 });
+      this.addChild(room);
+      startAt.x += 5;
     }
 
-    placements.push(...buildPlacements(startAt, 1));
-    sprites.push(buildSegmentSprite(startAt, 7));
-    moveRight();
-    placements.push(...buildPlacements(startAt, 1));
-    sprites.push(buildSegmentSprite(startAt, 8));
-    moveRight();
-
-    // create playerCount + 1 segments
-    for (let seg = 0; seg < playerCount; seg++) {
-      const regionIndex = seg + 2;
-      sprites.push(buildSegmentSprite(startAt, 9));
-      moveRight();
-      sprites.push(...buildEngineSprites(startAt.x));
-      placements.push(...buildPlacements(startAt, regionIndex));
-      sprites.push(buildSegmentSprite(startAt, 8));
-      moveRight();
-      placements.push(...buildPlacements(startAt, regionIndex));
-      sprites.push(buildSegmentSprite(startAt, 5));
-      moveRight();
-      for (let i = 0; i < placeCount - 4; i++) {
-        placements.push(...buildPlacements(startAt, regionIndex));
-        sprites.push(buildSegmentSprite(startAt, 6));
-        moveRight();
-      }
-      placements.push(...buildPlacements(startAt, regionIndex));
-      sprites.push(buildSegmentSprite(startAt, 7));
-      moveRight();
-      placements.push(...buildPlacements(startAt, regionIndex));
-      sprites.push(buildSegmentSprite(startAt, 8));
-      moveRight();
-    }
-
-    // add the back portion
-    startAt.x -= 1;
-    sprites.push(buildSegmentSprite(startAt, 10));
-    moveRight();
-    sprites.push(buildSegmentSprite(startAt, 11));
-    moveRight();
-    placements.push(...buildPlacements(startAt, playerCount + 1));
-
-    // attach
-    sprites.forEach(s => this.addChild(s));
-    placements.forEach(p => this.addChild(p));
+    // add end death zone
+    const endZone = new DeathZone({ gridPos: startAt, regionIndex: 10 });
+    this.addChild(endZone);
   }
 }

@@ -64,6 +64,11 @@ export class SpaceCowboys {
     this.ship = new SpaceShip({ gridPos: new Vec2(1, 3), playerCount: this.playerCount });
     this.addChild(this.ship);
 
+    // create some players
+    for (let p = 0; p < this.playerCount; p++) {
+      this.createPlayer(p);
+    }
+
     this.engine.start();
   }
 
@@ -85,4 +90,86 @@ export class SpaceCowboys {
     this.engine = new GameEngine(this.engine.ctx);
     this.init();
   }
+
+  nextPlayer() {
+    let nextId = this.currentPlayerIndex + 1;
+    if (nextId >= this.players.length) {
+      nextId = 0;
+    }
+    this.currentPlayerIndex = nextId;
+
+    // set selection
+    this.players.forEach(p => p.unselect());
+    this.players[nextId]?.select();
+  }
+
+  private createPlayer(index: number) {
+    // const gridPos = this.ship.get
+    // const gridPos = this._train.getCar(index + 1).getPlacement('bottom', 'left').globalGridPos;
+    // const player = new Player({
+    //   id: `player-${index}`,
+    //   gridPos,
+    //   color: playerColors[index]
+    // });
+    // this._players.push(player);
+    // this.addChild(player);
+  }
+
+  private removePlayer(player: Player) {
+    const toRemove = this.players.find(p => p === player);
+
+    if (!toRemove) {
+      return;
+    }
+
+    player.destroy();
+    this.players = this.players.filter(p => p !== player);
+  }
+
+  private getOtherPlayers(notThis: Player) {
+    return this.players.filter(p => p !== notThis);
+  }
+
+  private playerInDeathZone(player: Player) {
+    // const placement = this._train.getAllPlacements().find(p => p.globalGridPos.equals(player.globalGridPos))!;
+    // return this._train.isInDeathZone(placement);
+    return false;
+  }
+
+  private async animateFallingFromTrain(player: Player) {
+    // TODO: groundY might be static for drawing the tracks?
+    // const groundY = this._train.getEngine().getBottomLeftPlacement().globalGridPos.y + 1;
+    // player.playAnimation('FREE_FALL');
+    // const fallTo = new Vec2(player.globalGridPos.x, groundY);
+    // await this._engine.moveToGrid(player, fallTo, { duration: 250 });
+    // player.direction = 'left';
+    // player.playAnimation('TUMBLE', true);
+    // await this._engine.moveToGrid(player, new Vec2(this._playerCount * 40, groundY), { duration: 1000 });
+  }
+
+  private async standup(player: Player) {
+    player.playAnimation('STAND', true);
+    await delay(1500);
+    player.isStunned = false;
+    player.playAnimation('IDLE');
+  }
+
+  // =================== actions ===================== //
+  private async doAction(action: () => Promise<void>) {
+    if (this.actionRunning) {
+      console.warn('action in progress. Request has been ignored');
+      return false;
+    }
+
+    this.actionRunning = true;
+    await action();
+    this.actionRunning = false;
+    return true;
+  }
+
+  async move() {
+    return this.doAction(() => this.doMove());
+  }
+
+  async doMove() {}
 }

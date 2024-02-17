@@ -4,7 +4,9 @@ import { RemoveAndKeepWithEnding } from '@/types/typeHelpers';
 
 export const AstronautAnimations = {
   IDLE_UP: buildEqualFrames([0], 100),
-  IDLE_DOWN: buildEqualFrames([1], 100)
+  IDLE_DOWN: buildEqualFrames([1], 100),
+  STAND_UP: buildEqualFrames([0], 100),
+  STAND_DOWN: buildEqualFrames([1], 100),
 };
 
 type MirroredAnimationDefinition<T extends string> = Required<{
