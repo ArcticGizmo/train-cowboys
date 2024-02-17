@@ -6,7 +6,7 @@ import { Vec2 } from '../engine/Vec2';
 import { AnimationPlayer, AnimationPatterns } from '../engine/animations/AnimationPlayer';
 import { AnimationPattern } from '../engine/animations/AnimationPattern';
 import type { Direction } from './direction.type';
-import { gridFromPos, posFromGrid } from '../engine/utils';
+import { GRID_SIZE, gridFromPos, posFromGrid } from '../engine/utils';
 import { AstronautAnimationBaseName, AstronautAnimationName, AstronautAnimations } from './astronautAnimations';
 
 export interface PlayerConfig {
@@ -19,7 +19,7 @@ export class Player extends GameObject {
   private _sprite: Sprite;
   private _indicator: SpriteCircle;
 
-  public direction: Direction = 'up';
+  public direction: Direction = 'left';
   public id: string;
   public isStunned = false;
   public isSelected = false;
@@ -36,8 +36,8 @@ export class Player extends GameObject {
     });
 
     this._sprite = new Sprite({
-      resource: Resources.player,
-      frameSize: new Vec2(32, 32),
+      resource: Resources.astronaut,
+      frameSize: new Vec2(GRID_SIZE, GRID_SIZE),
       hFrames: 2,
       vFrames: 8,
       frame: 0,
@@ -88,6 +88,6 @@ export class Player extends GameObject {
   }
 
   changeDirection() {
-    this.direction = this.direction === 'up' ? 'down' : 'up';
+    this.direction = this.direction === 'left' ? 'right' : 'left';
   }
 }

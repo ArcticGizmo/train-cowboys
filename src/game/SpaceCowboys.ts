@@ -7,6 +7,8 @@ import { Vec2 } from '@/engine/Vec2';
 import { GameObject } from '@/engine/GameObject';
 import { SpaceShip } from './SpaceShip';
 
+const playerColors = ['red', 'blue', 'magenta', 'black', 'white'];
+
 export interface SpaceCowboysConfig {
   canvas: Ref<HTMLCanvasElement | undefined>;
   playerCount: number;
@@ -104,15 +106,15 @@ export class SpaceCowboys {
   }
 
   private createPlayer(index: number) {
-    // const gridPos = this.ship.get
-    // const gridPos = this._train.getCar(index + 1).getPlacement('bottom', 'left').globalGridPos;
-    // const player = new Player({
-    //   id: `player-${index}`,
-    //   gridPos,
-    //   color: playerColors[index]
-    // });
-    // this._players.push(player);
-    // this.addChild(player);
+    // TODO: take in facing direction as well
+    const gridPos = this.ship.getRoom(index + 1).getEnteringPlacement('bottom', 'left').globalGridPos;
+    const player = new Player({
+      id: `player-${index}`,
+      gridPos,
+      color: playerColors[index]
+    });
+    this.players.push(player);
+    this.addChild(player);
   }
 
   private removePlayer(player: Player) {
